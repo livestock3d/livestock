@@ -1,0 +1,1 @@
+<boundary_conditions><boundary_condition_0><type>inlet</type><cell>0</cell><layer>0</layer><flux>60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0,60.0</flux></boundary_condition_0></boundary_conditions>
