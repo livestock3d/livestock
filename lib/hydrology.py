@@ -7,6 +7,7 @@ __version__ = "0.0.1"
 
 # Module imports
 import cmf
+from cmf.geos_shapereader import Shapefile
 from datetime import datetime
 from datetime import timedelta
 import numpy as np
@@ -15,6 +16,7 @@ import os
 import xmltodict
 
 # Livestock imports
+import lib.geometry as lg
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
@@ -232,96 +234,21 @@ class CMFModel:
     def mesh_to_cells(self, cmf_project, mesh_path, delete_after_load=True):
         """
         Takes a mesh and converts it into CMF cells
-        :param mesh_path: Path to mesh file
+        :param mesh_path: Path to mesh .obj file
         :param cmf_project: CMF project object
         :return: True
         """
 
-        # Load mesh
-        mesh = pm.load_mesh(mesh_path)
-        mesh.enable_connectivity()
+        # Convert obj to shapefile
+        shape_path = os.path.split(mesh_path)[0] + '/mesh.shp'
+        lg.obj_to_shp(mesh_path, shape_path)
+        polygons = Shapefile(shape_path)
 
-        # Initialize mesh data
-        mesh.add_attribute('face_centroid')
-        mesh.add_attribute('face_index')
-        mesh.add_attribute('face_area')
-        cen_pts = mesh.get_attribute('face_centroid')
-        face_index = mesh.get_attribute('face_index')
-        face_area = mesh.get_attribute('face_area')
-        faces = mesh.faces
-        vertices = mesh.vertices
-
-        # Helper functions
-        def face_vertices(face_index):
-            """
-            Returns the vertices of a face
-            :param face_index: Face index (int)
-            :return: v0, v1, v2
-            """
-
-            face = faces[int(face_index)]
-            v0 = vertices[face[0]]
-            v1 = vertices[face[1]]
-            v2 = vertices[face[2]]
-
-            return v0, v1, v2
-
-        def face_face_edge(face0, face1):
-            """
-            Returns the width of the edge between to faces
-            :param face0: Face index
-            :param face1: Face index
-            :return: float value with the edge with
-            """
-
-            # Get vertices
-            v = []
-            v0 = face_vertices(int(face0))
-            v1 = face_vertices(int(face1))
-
-            # Find out which edge is shared
-            for vertex in v0:
-                equal = np.equal(vertex, v1)
-                if np.sum(equal) > 0:
-                    v.append(vertex)
-                else:
-                    pass
-
-            # Compute the width of the edge
-            dx = abs(v[0][0] - v[1][0])
-            dy = abs(v[0][1] - v[1][1])
-            dz = abs(v[0][2] - v[1][2])
-            edge_width = np.sqrt(dx**2 + dy**2 + dz**2)
-
-            return edge_width
-
-        # Construct centroid list
-        centroids = []
-        i = 0
-        while i < len(cen_pts):
-            for j in range(0, len(face_index)):
-                centroids.append([face_index[j], np.array([cen_pts[i], cen_pts[i+1], cen_pts[i+2]])])
-                i += 3
-
-        # Create cells
-        for i in range(0, len(centroids)):
-            x, y, z = centroids[i][1]
-            a = float(face_area[i])
-            cmf_project.NewCell(x=float(x), y=float(y), z=float(z), area=a, with_surfacewater=True)
-
-        # Connect cells
-        for face in face_index:
-            adjacent_faces = mesh.get_face_adjacent_faces(int(face))
-
-            for adj in adjacent_faces:
-                width = face_face_edge(face, adj)
-                if width:
-                    cmf_project[face].topology.AddNeighbor(cmf_project[adj], width)
-                else:
-                    pass
+        # DO CMF magic
 
         if delete_after_load:
             os.remove(mesh_path)
+            os.remove(shape_path)
 
         return True
 
