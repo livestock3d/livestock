@@ -16,10 +16,21 @@ import multiprocessing
 # -------------------------------------------------------------------------------------------------------------------- #
 # Livestock Air Functions
 
-def new_temperature_and_relative_humidity(folder, processes):
+def new_temperature_and_relative_humidity(folder: str, processes: int) -> bool:
+    """
+    Calculates a new temperatures and relative humidities for air volumes.
+    :param folder: Path to folder containing case files.
+    :param processes: Number of cpus to use
+    :return: True
+    """
 
     # Helper functions
-    def get_files(folder_):
+    def get_files(folder_: str) -> tuple:
+        """
+        Reads the case files and returns them as a tuple of lists
+        :param folder_: Path to case folder
+        :return: Tuple of lists
+        """
 
         # helper functions
         def file_to_numpy(folder_path, file_name):
@@ -50,92 +61,19 @@ def new_temperature_and_relative_humidity(folder, processes):
             return np.array(clean_lines)
 
         # run function
-        air_temperature = file_to_numpy(folder_, 'temperature')
-        air_relative_humidity = file_to_numpy(folder_, 'relative_humidity')
-        area = file_to_numpy(folder_, 'area')
-        height_top, height_stratification = get_heights(folder_)
-        heat_flux = file_to_numpy_matrix(folder_, 'heat_flux')
-        vapour_flux = file_to_numpy_matrix(folder_, 'vapour_flux')
+        air_temperature_ = file_to_numpy(folder_, 'temperature')
+        air_relative_humidity_ = file_to_numpy(folder_, 'relative_humidity')
+        area_ = file_to_numpy(folder_, 'area')
+        height_top_, height_stratification_ = get_heights(folder_)
+        heat_flux_ = file_to_numpy_matrix(folder_, 'heat_flux')
+        vapour_flux_ = file_to_numpy_matrix(folder_, 'vapour_flux')
 
-        return air_temperature, air_relative_humidity, area, height_top, height_stratification, heat_flux, vapour_flux
+        return air_temperature_, air_relative_humidity_, area_, height_top_, height_stratification_, heat_flux_, \
+            vapour_flux_
 
-    def run_row(input_package_) -> float:
-        folder_, row_index, temperature_time, relative_humidity_time, heat_flux_time_row, vapour_flux_time_row, area, \
-        height_stratification, height_top = input_package_
-
-        # new mean temperature i K
-        air_temperature_in_k = celsius_to_kelvin(temperature_time)
-        temperature_row = new_mean_temperature(area,
-                                               height_top,
-                                               air_temperature_in_k,
-                                               heat_flux_time_row)
-
-        # air flow
-        air_flow_row = air_flow(area,
-                                height_top,
-                                air_temperature_in_k,
-                                temperature_row)
-
-        # new relative humidity
-        relative_humidity_row = new_mean_relative_humidity(area,
-                                                           height_top,
-                                                           temperature_row,
-                                                           relative_humidity_to_vapour_pressure(
-                                                               relative_humidity_time,
-                                                               air_temperature_in_k),
-                                                           vapour_flux_time_row,
-                                                           air_flow_row
-                                                           )
-
-        # new stratified relative humidity
-        stratified_relative_humidity_row = stratification(height_stratification,
-                                                          relative_humidity_row,
-                                                          height_top,
-                                                          relative_humidity_time
-                                                          )
-
-        # new stratified temperature in C
-        stratified_temperature_row = stratification(height_stratification,
-                                                    kelvin_to_celsius(temperature_row),
-                                                    height_top,
-                                                    temperature_time)
-
-        # write results
-        temp_file = open(folder_ + '/temp_' + str(row_index) + '.txt', 'w')
-        temp_file.write(','.join(stratified_temperature_row.astype(str)))
-        temp_file.close()
-
-        relhum_file = open(folder_ + '/relhum_' + str(row_index) + '.txt', 'w')
-        relhum_file.write(','.join(stratified_relative_humidity_row.astype(str)))
-        relhum_file.close()
-
-        return row_index
-
-    def run_parallel(folder_path: str, processes_: int) -> list:
-
-        temperature, relative_humidity, area, height_top, height_stratification, heat_flux, vapour_flux =\
-            get_files(folder_path)
-
-        rows_ = [i for i in range(0, len(heat_flux))]
-
-        input_packages = []
-        for index in rows_:
-            input_package = [folder_path, index, temperature[index], relative_humidity[index], heat_flux[index],
-                             vapour_flux[index], area, height_stratification, height_top]
-            input_packages.append(input_package)
-
-        #pool = multiprocessing.Pool(processes=processes_)
-        #processed_rows = pool.map(run_row, input_packages)
-        processed_rows = []
-
-        for package in input_packages:
-            processed_rows.append(run_row(package))
-
-        return processed_rows
-
-    def reconstruct_results(folder_, processed_rows):
+    def reconstruct_results(folder_, processed_rows_):
         # Sort row list
-        sorted_rows = sorted(processed_rows)
+        sorted_rows = sorted(processed_rows_)
 
         # open result files
         temperature_file = open(folder_ + '/temperature_results.txt', 'w')
@@ -165,15 +103,86 @@ def new_temperature_and_relative_humidity(folder, processes):
         return True
 
     # Run function
-    rows = run_parallel(folder, processes)
-    reconstruct_results(folder, rows)
+    temperature, relative_humidity, area, height_top, height_stratification, heat_flux, vapour_flux = \
+        get_files(folder)
+
+    rows_ = [i for i in range(0, len(heat_flux))]
+
+    input_packages = [(folder, index, temperature[index], relative_humidity[index], heat_flux[index],
+                       vapour_flux[index], area, height_stratification, height_top)
+                      for index in rows_]
+
+    pool = multiprocessing.Pool(processes=processes)
+    processed_rows = pool.map(run_row, input_packages)
+    reconstruct_results(folder, processed_rows)
+
+    return True
+
+
+def run_row(input_package: list) -> float:
+    """
+    Calculates a new temperatures and relative humidities for a row. A row represent all cell to a given time.
+    :return: The row on which the calculation was performed.
+    """
+
+    # unpack
+    folder_, row_index, temperature_time, relative_humidity_time, heat_flux_time_row, vapour_flux_time_row, area, \
+        height_stratification, height_top = input_package
+
+    # new mean temperature i K
+    air_temperature_in_k = celsius_to_kelvin(temperature_time)
+    temperature_row = new_mean_temperature(area,
+                                           height_top,
+                                           air_temperature_in_k,
+                                           heat_flux_time_row)
+
+    # air flow
+    air_flow_row = air_flow(area,
+                            height_top,
+                            air_temperature_in_k,
+                            temperature_row)
+
+    # new relative humidity
+    relative_humidity_row = new_mean_relative_humidity(area,
+                                                       height_top,
+                                                       temperature_row,
+                                                       relative_humidity_to_vapour_pressure(
+                                                           relative_humidity_time,
+                                                           air_temperature_in_k),
+                                                       vapour_flux_time_row,
+                                                       air_flow_row
+                                                       )
+
+    # new stratified relative humidity
+    stratified_relative_humidity_row = stratification(height_stratification,
+                                                      relative_humidity_row,
+                                                      height_top,
+                                                      relative_humidity_time
+                                                      )
+
+    # new stratified temperature in C
+    stratified_temperature_row = stratification(height_stratification,
+                                                kelvin_to_celsius(temperature_row),
+                                                height_top,
+                                                temperature_time)
+
+    # write results
+    temp_file = open(folder_ + '/temp_' + str(row_index) + '.txt', 'w')
+    temp_file.write(','.join(stratified_temperature_row.astype(str)))
+    temp_file.close()
+
+    relhum_file = open(folder_ + '/relhum_' + str(row_index) + '.txt', 'w')
+    relhum_file.write(','.join(stratified_relative_humidity_row.astype(str)))
+    relhum_file.close()
+
+    return row_index
 
 
 def new_mean_relative_humidity(area, height_external, temperature_internal, vapour_pressure_external,
-                               vapour_production, air_flow):
+                               vapour_production, air_flow_):
 
     vapour_pressure = new_mean_vapour_pressure(area, height_external, temperature_internal, vapour_pressure_external,
-                                               vapour_production, air_flow)
+                                               vapour_production, air_flow_)
 
     return vapour_pressure_to_relative_humidity(vapour_pressure, temperature_internal)
 
