@@ -16,7 +16,7 @@ import os
 import xmltodict
 
 # Livestock imports
-import lib.geometry as lg
+import livestock.geometry as lg
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes

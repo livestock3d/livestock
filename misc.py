@@ -12,7 +12,6 @@ import subprocess
 
 # Livestock imports
 
-# Grasshopper imports
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Livestock Miscellaneous Library
