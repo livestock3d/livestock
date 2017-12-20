@@ -16,141 +16,145 @@ import multiprocessing
 # -------------------------------------------------------------------------------------------------------------------- #
 # Livestock Air Functions
 
-class NewTemperatureAndRelativeHumidity:
+def new_temperature_and_relative_humidity(folder, processes):
 
-    def __init__(self, folder):
-        self.folder = folder
-        self.air_temperature = None
-        self.air_relative_humidity = None
-        self.area = None
-        self.height_top = None
-        self.height_stratification = None
-        self.heat_flux = None
-        self.vapour_flux = None
-        self.processes = 3
+    # Helper functions
+    def get_files(folder_):
 
-    def get_files(self):
-
-        def file_to_numpy(folder, file_name):
-            file_obj = open(folder + '/' + file_name + '.txt', 'r')
-            lines = np.array(file_obj.readlines())
+        # helper functions
+        def file_to_numpy(folder_path, file_name):
+            file_obj = open(folder_path + '/' + file_name + '.txt', 'r')
+            lines = file_obj.readlines()
             file_obj.close()
+            clean_lines = [float(element.strip())
+                           for line in lines
+                           for element in line.split(',')]
 
-            def func(string):
-                return float(string.strip('\n'))
+            return np.array(clean_lines)
 
-            return np.apply_along_axis(func, 1, lines)
-
-        def get_heights(folder):
-            file_obj = open(folder + '/heights.txt', 'r')
+        def get_heights(folder_path):
+            file_obj = open(folder_path + '/heights.txt', 'r')
             lines = file_obj.readlines()
             file_obj.close()
 
-            return float(lines[0].strip('\n')), float(lines[1].strip('\n'))
+            return float(lines[0].strip()), float(lines[1].strip())
 
-        def file_to_numpy_matrix(folder, file_name):
-            file_obj = open(folder + '/' + file_name + '.txt', 'r')
-            lines = np.array(file_obj.readlines())
+        def file_to_numpy_matrix(folder_path, file_name):
+            file_obj = open(folder_path + '/' + file_name + '.txt', 'r')
+            lines = file_obj.readlines()
             file_obj.close()
+            clean_lines = [[float(element.strip())
+                            for element in line.split(',')]
+                           for line in lines]
 
-            def func(line):
-                line_ = np.array(line.strip('\n').split(','))
-                return line_.astype(float)
+            return np.array(clean_lines)
 
-            return np.apply_along_axis(func, 1, lines)
+        # run function
+        air_temperature = file_to_numpy(folder_, 'temperature')
+        air_relative_humidity = file_to_numpy(folder_, 'relative_humidity')
+        area = file_to_numpy(folder_, 'area')
+        height_top, height_stratification = get_heights(folder_)
+        heat_flux = file_to_numpy_matrix(folder_, 'heat_flux')
+        vapour_flux = file_to_numpy_matrix(folder_, 'vapour_flux')
 
-        self.air_temperature = file_to_numpy(self.folder, 'temperature')
-        self.air_relative_humidity = file_to_numpy(self.folder, 'relative_humidity')
-        self.area = file_to_numpy(self.folder, 'area')
-        self.height_top, self.height_stratification = get_heights(self.folder)
-        self.heat_flux = file_to_numpy_matrix(self.folder, 'heat_flux')
-        self.vapour_flux = file_to_numpy_matrix(self.folder, 'vapour_flux')
+        return air_temperature, air_relative_humidity, area, height_top, height_stratification, heat_flux, vapour_flux
 
-    def run_row(self, row_index: int):
+    def run_row(input_package_) -> float:
+        folder_, row_index, temperature_time, relative_humidity_time, heat_flux_time_row, vapour_flux_time_row, area, \
+        height_stratification, height_top = input_package_
 
         # new mean temperature i K
-        air_temperature_in_k = celsius_to_kelvin(self.air_temperature[row_index])
-        temperature_row = new_mean_temperature(self.area,
-                                               self.height_top,
+        air_temperature_in_k = celsius_to_kelvin(temperature_time)
+        temperature_row = new_mean_temperature(area,
+                                               height_top,
                                                air_temperature_in_k,
-                                               self.heat_flux)
+                                               heat_flux_time_row)
 
         # air flow
-        air_flow_row = air_flow(self.area,
-                                self.height_top,
+        air_flow_row = air_flow(area,
+                                height_top,
                                 air_temperature_in_k,
                                 temperature_row)
 
         # new relative humidity
-        relative_humidity_row = new_mean_relative_humidity(self.area,
-                                                           self.height_top,
+        relative_humidity_row = new_mean_relative_humidity(area,
+                                                           height_top,
                                                            temperature_row,
                                                            relative_humidity_to_vapour_pressure(
-                                                               self.air_relative_humidity[row_index],
+                                                               relative_humidity_time,
                                                                air_temperature_in_k),
-                                                           self.vapour_flux,
+                                                           vapour_flux_time_row,
                                                            air_flow_row
                                                            )
 
         # new stratified relative humidity
-        stratified_relative_humidity_row = stratification(self.height_stratification,
+        stratified_relative_humidity_row = stratification(height_stratification,
                                                           relative_humidity_row,
-                                                          self.height_top,
-                                                          self.air_relative_humidity[row_index]
+                                                          height_top,
+                                                          relative_humidity_time
                                                           )
 
         # new stratified temperature in C
-        stratified_temperature_row = stratification(self.height_stratification,
+        stratified_temperature_row = stratification(height_stratification,
                                                     kelvin_to_celsius(temperature_row),
-                                                    self.height_top,
-                                                    self.air_temperature[row_index])
+                                                    height_top,
+                                                    temperature_time)
 
         # write results
-        temp_file = open(self.folder + '/temp_' + str(row_index) + '.txt')
+        temp_file = open(folder_ + '/temp_' + str(row_index) + '.txt', 'w')
         temp_file.write(','.join(stratified_temperature_row.astype(str)))
         temp_file.close()
 
-        relhum_file = open(self.folder + '/relhum_' + str(row_index) + '.txt')
+        relhum_file = open(folder_ + '/relhum_' + str(row_index) + '.txt', 'w')
         relhum_file.write(','.join(stratified_relative_humidity_row.astype(str)))
         relhum_file.close()
 
         return row_index
 
-    def run_parallel(self):
-        self.get_files()
+    def run_parallel(folder_path: str, processes_: int) -> list:
 
-        rows = np.linspace(0,
-                           np.size(self.heat_flux, 1),
-                           np.size(self.heat_flux, 1) + 1
-                           ).astype(int)
+        temperature, relative_humidity, area, height_top, height_stratification, heat_flux, vapour_flux =\
+            get_files(folder_path)
 
-        pool = multiprocessing.Pool(processes=self.processes)
-        processed_rows = pool.map(self.run_row, rows)
+        rows_ = [i for i in range(0, len(heat_flux))]
+
+        input_packages = []
+        for index in rows_:
+            input_package = [folder_path, index, temperature[index], relative_humidity[index], heat_flux[index],
+                             vapour_flux[index], area, height_stratification, height_top]
+            input_packages.append(input_package)
+
+        #pool = multiprocessing.Pool(processes=processes_)
+        #processed_rows = pool.map(run_row, input_packages)
+        processed_rows = []
+
+        for package in input_packages:
+            processed_rows.append(run_row(package))
 
         return processed_rows
 
-    def reconstruct_results(self, processed_rows):
+    def reconstruct_results(folder_, processed_rows):
         # Sort row list
         sorted_rows = sorted(processed_rows)
 
         # open result files
-        temperature_file = open(self.folder + '/temperature_results.txt', 'w')
-        relhum_file = open(self.folder + '/relative_humidity_results.txt', 'w')
+        temperature_file = open(folder_ + '/temperature_results.txt', 'w')
+        relhum_file = open(folder_ + '/relative_humidity_results.txt', 'w')
 
         for row_number in sorted_rows:
 
             # process temperature files
-            temp_path = self.folder + '/temp_' + str(row_number) + '.txt'
+            temp_path = folder_ + '/temp_' + str(row_number) + '.txt'
             temp_obj = open(temp_path, 'r')
-            line = temp_obj.readlines()
+            line = temp_obj.readline()
             temperature_file.write(line + '\n')
             temp_obj.close()
             os.remove(temp_path)
 
             # process relative humidity files
-            relhum_path = self.folder + '/relhum_' + str(row_number) + '.txt'
+            relhum_path = folder + '/relhum_' + str(row_number) + '.txt'
             relhum_obj = open(relhum_path, 'r')
-            line = relhum_obj.readlines()
+            line = relhum_obj.readline()
             relhum_file.write(line + '\n')
             relhum_obj.close()
             os.remove(relhum_path)
@@ -160,12 +164,9 @@ class NewTemperatureAndRelativeHumidity:
 
         return True
 
-    def run(self):
-
-        #if __name__ == "__main__":
-        rows = self.run_parallel()
-        self.reconstruct_results(rows)
-        return True
+    # Run function
+    rows = run_parallel(folder, processes)
+    reconstruct_results(folder, rows)
 
 
 def new_mean_relative_humidity(area, height_external, temperature_internal, vapour_pressure_external,
@@ -288,53 +289,3 @@ def stratification(height, value_mean, height_top, value_top):
     :return: value at desired height.
     """
     return value_mean - 2 * height * (value_mean - value_top)/height_top
-
-
-def failed_new_temperature(area, height_external, temperature_external, temperature_production):
-    """
-    Calculates a new temperature and an air exchange
-    :param area: in m^2
-    :param height_external: in m
-    :param temperature_external: in K
-    :param temperature_production: in K/s
-    :return: temperature in K and air_exchange in m^3/s
-    """
-
-    density_air = 1.29 * 273 / temperature_external  # kg/m^3
-    specific_heat_capacity = 1005  # J/kgK
-    thermal_transmittance = 1  # W/m^2K
-    gravity = 9.81  # m/s^2
-    volume_air = area * height_external  # m^3
-    height_internal = height_external/2  # m
-
-    def air_flow(temperature_internal_):
-        """
-        Calculates an air flow based on an internal temperature
-        :param temperature_internal_: in K
-        :return: air flow in m^3/s
-        """
-
-        delta_temperature = temperature_external - temperature_internal_
-        delta_pressure = density_air * gravity * (height_external - height_internal) * \
-                         delta_temperature/temperature_internal_
-
-        return area * np.sqrt(2 * abs(delta_pressure)/delta_pressure) * delta_pressure/abs(delta_pressure)
-
-    def new_temperature_(temperature_internal):
-        """
-        Solves for a new temperature
-        :param temperature_internal: in K
-        :return: temperature in K
-        """
-
-        air_flow_ = air_flow(temperature_internal)
-        contact = thermal_transmittance * area + specific_heat_capacity * air_flow_
-        capacity = volume_air * density_air * specific_heat_capacity
-
-        return temperature_external + temperature_production/contact * (1 - np.exp(-contact/capacity)) \
-            - temperature_internal
-
-    #temperature = fsolve(new_temperature_, temperature_external)
-    #air_flow_ = air_flow(temperature)
-
-    #return temperature, air_flow_
