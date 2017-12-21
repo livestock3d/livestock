@@ -16,11 +16,10 @@ import multiprocessing
 # -------------------------------------------------------------------------------------------------------------------- #
 # Livestock Air Functions
 
-def new_temperature_and_relative_humidity(folder: str, processes: int) -> bool:
+def new_temperature_and_relative_humidity(folder: str) -> bool:
     """
     Calculates a new temperatures and relative humidities for air volumes.
     :param folder: Path to folder containing case files.
-    :param processes: Number of cpus to use
     :return: True
     """
 
@@ -60,6 +59,13 @@ def new_temperature_and_relative_humidity(folder: str, processes: int) -> bool:
 
             return np.array(clean_lines)
 
+        def get_cpu(folder_path):
+            file_obj = open(folder_path + '/cpu.txt', 'r')
+            line = file_obj.readline()
+            file_obj.close()
+
+            return int(line.strip())
+
         # run function
         air_temperature_ = file_to_numpy(folder_, 'temperature')
         air_relative_humidity_ = file_to_numpy(folder_, 'relative_humidity')
@@ -67,9 +73,10 @@ def new_temperature_and_relative_humidity(folder: str, processes: int) -> bool:
         height_top_, height_stratification_ = get_heights(folder_)
         heat_flux_ = file_to_numpy_matrix(folder_, 'heat_flux')
         vapour_flux_ = file_to_numpy_matrix(folder_, 'vapour_flux')
+        cpu_ = get_cpu(folder_)
 
         return air_temperature_, air_relative_humidity_, area_, height_top_, height_stratification_, heat_flux_, \
-            vapour_flux_
+            vapour_flux_, cpu_
 
     def reconstruct_results(folder_, processed_rows_):
         # Sort row list
@@ -103,7 +110,7 @@ def new_temperature_and_relative_humidity(folder: str, processes: int) -> bool:
         return True
 
     # Run function
-    temperature, relative_humidity, area, height_top, height_stratification, heat_flux, vapour_flux = \
+    temperature, relative_humidity, area, height_top, height_stratification, heat_flux, vapour_flux, cpu = \
         get_files(folder)
 
     rows_ = [i for i in range(0, len(heat_flux))]
@@ -112,7 +119,7 @@ def new_temperature_and_relative_humidity(folder: str, processes: int) -> bool:
                        vapour_flux[index], area, height_stratification, height_top)
                       for index in rows_]
 
-    pool = multiprocessing.Pool(processes=processes)
+    pool = multiprocessing.Pool(processes=cpu)
     processed_rows = pool.map(run_row, input_packages)
     reconstruct_results(folder, processed_rows)
 
