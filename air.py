@@ -210,8 +210,8 @@ def new_mean_vapour_pressure(area, height_external, temperature_internal, vapour
     volume_air = area * height_external  # m^3
     gas_constant_vapour = 461.5  # J/kgK
 
-    contact = air_flow_ / (gas_constant_vapour * temperature_internal)  # -
-    capacity = volume_air / (gas_constant_vapour * temperature_internal)  # -
+    contact = air_flow_ / (gas_constant_vapour * temperature_internal)  # kg/sPa
+    capacity = volume_air / (gas_constant_vapour * temperature_internal)  # - m3kg/J
     vapour_pressure = vapour_pressure_external + vapour_production/contact * (1 - np.exp(-contact/capacity))  # Pa
 
     return vapour_pressure
