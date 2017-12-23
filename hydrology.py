@@ -8,6 +8,7 @@ __version__ = "0.0.1"
 # Module imports
 import cmf
 from cmf.geos_shapereader import Shapefile
+from cmf.cell_factory import cells_from_polygons
 from datetime import datetime
 from datetime import timedelta
 import numpy as np
@@ -243,8 +244,7 @@ class CMFModel:
         shape_path = os.path.split(mesh_path)[0] + '/mesh.shp'
         lg.obj_to_shp(mesh_path, shape_path)
         polygons = Shapefile(shape_path)
-
-        # DO CMF magic
+        cells_from_polygons(cmf_project, polygons)
 
         if delete_after_load:
             os.remove(mesh_path)
