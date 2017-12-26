@@ -4,3 +4,4 @@ shapely
 cmf
 numpy
 xmltodict
+dbfread

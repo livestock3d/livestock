@@ -212,7 +212,9 @@ def obj_to_polygons(obj_file: str) -> list:
         for vertex, _, __ in face:
             face_vertices.append(vertices[vertex-1])
 
-        polygons.append(Polygon(face_vertices))
+        polygon = Polygon(face_vertices)
+        print(polygon.centroid)
+        polygons.append(polygon)
 
     return polygons
 
@@ -230,6 +232,7 @@ def shapely_to_pyshp(shapely_geometry):
     except:
         import shapely.geometry
         shapely_to_geojson = shapely.geometry.mapping
+
     geoj = shapely_to_geojson(shapely_geometry)
 
     # create empty pyshp shape
@@ -243,7 +246,7 @@ def shapely_to_pyshp(shapely_geometry):
     elif geoj["type"] == "LineString":
         pyshp_type = 3
     elif geoj["type"] == "Polygon":
-        pyshp_type = 5
+        pyshp_type = 15
     elif geoj["type"] == "MultiPoint":
         pyshp_type = 8
     elif geoj["type"] == "MultiLineString":
@@ -287,7 +290,7 @@ def obj_to_shp(obj_file, shp_file):
     polygons = obj_to_polygons(obj_file)
 
     shape_writer = shapefile.Writer()
-    shape_writer.field('mesh')
+    shape_writer.field('face_number')
 
     for index, polygon in enumerate(polygons):
         converted_shape = shapely_to_pyshp(polygon)
