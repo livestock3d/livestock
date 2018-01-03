@@ -249,6 +249,8 @@ class CMFModel:
         if delete_after_load:
             os.remove(mesh_path)
             os.remove(shape_path)
+            os.remove(os.path.split(mesh_path)[0] + '/mesh.dbf')
+            os.remove(os.path.split(mesh_path)[0] + '/mesh.shx')
 
         return True
 
@@ -319,6 +321,7 @@ class CMFModel:
 
         for cell_index in cell_properties_dict['face_indices']:
             cell = cmf_project.cells[int(float(cell_index))]
+            cell.surfacewater_as_storage()
 
             # Add layers
             for i in range(0, len(cell_properties_dict['layers'])):
@@ -598,7 +601,7 @@ class CMFModel:
                     # self.results[cell_name][out_key].append(cmf.ShuttleworthWallace(cmf_project.cells[cell_index]).ATR_sum)
 
                 if out_key == 'surface_water_volume':
-                    volume = cmf_project.cells[cell_index].get_surfacewater().volume
+                    volume = cmf_project.cells[cell_index].surfacewater.volume
                     self.results[cell_name][out_key].append(volume)
 
                 if out_key == 'surface_water_flux':
