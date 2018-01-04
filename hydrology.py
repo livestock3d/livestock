@@ -9,6 +9,7 @@ __version__ = "0.0.1"
 import cmf
 from cmf.geos_shapereader import Shapefile
 from cmf.cell_factory import cells_from_polygons
+import cmf.geometry
 from datetime import datetime
 from datetime import timedelta
 import numpy as np
@@ -17,7 +18,7 @@ import os
 import xmltodict
 
 # Livestock imports
-import livestock.geometry as lg
+import geometry as lg
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
@@ -244,7 +245,12 @@ class CMFModel:
         shape_path = os.path.split(mesh_path)[0] + '/mesh.shp'
         lg.obj_to_shp(mesh_path, shape_path)
         polygons = Shapefile(shape_path)
-        cells_from_polygons(cmf_project, polygons)
+
+        for polygon in polygons:
+            cmf.geometry.create_cell(cmf_project, polygon.shape, polygon.height, polygon.id)
+
+        # Build topology
+        cmf.geometry.mesh_project(cmf_project, verbose=False)
 
         if delete_after_load:
             os.remove(mesh_path)
@@ -316,29 +322,31 @@ class CMFModel:
 
             return curve
 
+        def build_cell(cell_id, cmf_project_, cell_property_dict, r_curve_):
+            cell = cmf_project_.cells[int(float(cell_id))]
+
+            # Add layers
+            for i in range(0, len(cell_property_dict['layers'])):
+                cell.add_layer(float(cell_property_dict['layers'][i]), r_curve_)
+
+            install_connections(cell, cell_property_dict['et_method'])
+
+            self.set_vegetation_properties(cell, cell_property_dict['vegetation_properties'])
+
+            if cell_property_dict['manning']:
+                cell.surfacewater.set_nManning(float(cell_property_dict['manning']))
+
+            if cell_property_dict['puddle_depth']:
+                cell.surfacewater.puddledepth = cell_property_dict['puddle_depth']
+
+            # Set initial saturation
+            cell.saturated_depth = cell_property_dict['saturated_depth']
+
         # Convert retention curve parameters into CMF retention curve
         r_curve = retention_curve(cell_properties_dict['retention_curve'])
 
         for cell_index in cell_properties_dict['face_indices']:
-            cell = cmf_project.cells[int(float(cell_index))]
-            cell.surfacewater_as_storage()
-
-            # Add layers
-            for i in range(0, len(cell_properties_dict['layers'])):
-                cell.add_layer(float(cell_properties_dict['layers'][i]), r_curve)
-
-            install_connections(cell, cell_properties_dict['et_method'])
-
-            self.set_vegetation_properties(cell, cell_properties_dict['vegetation_properties'])
-
-            if cell_properties_dict['manning']:
-                cell.surfacewater.set_nManning(float(cell_properties_dict['manning']))
-
-            if cell_properties_dict['puddle_depth']:
-                cell.surfacewater.puddledepth = cell_properties_dict['puddle_depth']
-
-            # Set initial saturation
-            cell.saturated_depth = cell_properties_dict['saturated_depth']
+            build_cell(cell_index, cmf_project, cell_properties_dict, r_curve)
 
         # Connect fluxes
         cmf.connect_cells_with_flux(cmf_project, cmf.Darcy)
