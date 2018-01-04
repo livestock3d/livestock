@@ -201,6 +201,17 @@ def obj_to_lists(obj_file: str)-> tuple:
     return vertices, normals, faces
 
 
+def centroid_z(polygon):
+    """Calculates the mean z-value from a Shapely polygon"""
+
+    z_values = []
+    for pt in polygon.exterior.coords:
+        z_values.append(pt[2])
+
+    mean_z = sum(z_values)/len(z_values)
+
+    return mean_z
+
 def obj_to_polygons(obj_file: str) -> list:
     """Convert a obj file into a list of shapely polygons"""
 
@@ -213,7 +224,6 @@ def obj_to_polygons(obj_file: str) -> list:
             face_vertices.append(vertices[vertex-1])
 
         polygon = Polygon(face_vertices)
-        print(polygon.centroid)
         polygons.append(polygon)
 
     return polygons
@@ -290,12 +300,13 @@ def obj_to_shp(obj_file, shp_file):
     polygons = obj_to_polygons(obj_file)
 
     shape_writer = shapefile.Writer()
-    shape_writer.field('face_number')
+    shape_writer.field('id', 'N')
+    shape_writer.field('height', 'N', decimal=5)
 
     for index, polygon in enumerate(polygons):
         converted_shape = shapely_to_pyshp(polygon)
         shape_writer._shapes.append(converted_shape)
-        shape_writer.record('face_' + str(index))
+        shape_writer.record(index, centroid_z(polygon))
 
     shape_writer.save(shp_file)
 
