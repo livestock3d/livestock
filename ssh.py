@@ -95,7 +95,7 @@ def ssh_connection():
             folder_send = True
 
         elif folder_send and not com_send:
-            channel.send('source activate livestock_ubuntu' + '\n')
+            channel.send('source activate livestock_env' + '\n')
             channel.send('python ' + run + '\n')
             print('command send')
             com_send = True
