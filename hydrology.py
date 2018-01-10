@@ -8,7 +8,6 @@ __version__ = "0.0.1"
 # Module imports
 import cmf
 from cmf.geos_shapereader import Shapefile
-from cmf.cell_factory import cells_from_polygons
 import cmf.geometry
 from datetime import datetime
 from datetime import timedelta
@@ -18,7 +17,7 @@ import os
 import xmltodict
 
 # Livestock imports
-import geometry as lg
+from . import geometry as lg
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
