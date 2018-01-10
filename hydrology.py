@@ -15,6 +15,7 @@ import numpy as np
 import xml.etree.ElementTree as ET
 import os
 import xmltodict
+import ast
 
 # Livestock imports
 from . import geometry as lg
@@ -1007,7 +1008,7 @@ def surface_flux_results(path):
                     if not flux_config_['evapotranspiration']:
                         return np.array([])
                     else:
-                         return np.array([0, 0, flux_tuple[0]])
+                        return np.array([0, 0, flux_tuple[0]])
 
                 elif flux_tuple[1].startswith('{Layer'):
                     if not flux_config_['infiltration']:
