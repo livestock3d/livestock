@@ -252,7 +252,6 @@ class CMFModel:
         cmf.geometry.mesh_project(cmf_project, verbose=False)
 
         if delete_after_load:
-            os.remove(mesh_path)
             os.remove(shape_path)
             os.remove(os.path.split(mesh_path)[0] + '/mesh.dbf')
             os.remove(os.path.split(mesh_path)[0] + '/mesh.shx')
