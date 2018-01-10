@@ -91,13 +91,13 @@ def ssh_connection():
         if not folder_send:
             sftp.chdir(remote_folder)
             channel.send('cd ' + remote_folder + '\n')
-            print('folder send')
+            print('Folder Send\n')
             folder_send = True
 
         elif folder_send and not com_send:
             channel.send('source activate livestock_env' + '\n')
             channel.send('python ' + run + '\n')
-            print('command send')
+            print('Command Send\n')
             com_send = True
 
         else:
@@ -110,7 +110,7 @@ def ssh_connection():
             pass
 
         if outfile:
-            print('Found out file')
+            print('Found out file\n')
             sftp.get(remote_folder + '/out.txt', local_folder + '\\out.txt')
             sftp.remove('out.txt')
 
@@ -118,20 +118,23 @@ def ssh_connection():
         if os.path.isfile(local_folder + '\\out.txt'):
 
             # Copy result files to local and delete remotely
-            print('Copying and deleting result files')
+            print('Copying and deleting result files:')
 
             # Get return files
+            print('Transferring files:')
             for f in ret:
-                print('Transferring files:', f)
+                print(f)
                 sftp.get(remote_folder + '/' + f, local_folder + '/' + f)
                 sftp.remove(f)
+            print('')
 
             # Delete input files
-            sftp.remove('in_data.txt')
-            print('Deleting input files')
-            for f in trans:
+            print('Deleting remote files:')
+            for f in sftp.listdir():
+                print(f)
                 sftp.remove(f)
 
+            print('')
             break
 
         else:
