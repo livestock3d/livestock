@@ -37,7 +37,7 @@ class CMFModel:
         self.solved = False
         self.results = {}
 
-    def load_cmf_files(self, delete_after_load=True):
+    def load_cmf_files(self, delete_after_load=False):
 
         def load_weather(folder, delete):
 
