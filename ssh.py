@@ -35,7 +35,7 @@ def check_for_remote_folder(sftp_connect, folder_to_check, check_for):
 def ssh_connection():
 
     # Open input text file
-    local_folder = r'C:\livestock\python\ssh'
+    local_folder = r'C:\livestock\ssh'
     in_data = '\\in_data.txt'
 
     file_obj = open(local_folder + in_data, 'r')
