@@ -18,8 +18,8 @@ import xmltodict
 import ast
 
 # Livestock imports
-#from . import geometry as lg
-import geometry as lg
+from . import geometry as lg
+# import geometry as lg
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
 
