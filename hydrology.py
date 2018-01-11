@@ -695,9 +695,6 @@ class CMFModel:
             if step == 0:
                 print('Simulation started')
 
-            elif step == self.solver_settings['analysis_length']:
-                print('Simulation ended')
-
     def solve(self, cmf_project, tolerance):
         """Solves the model"""
 
