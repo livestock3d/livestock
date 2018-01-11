@@ -18,8 +18,8 @@ import xmltodict
 import ast
 
 # Livestock imports
-from . import geometry as lg
-
+#from . import geometry as lg
+import geometry as lg
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
 
@@ -341,6 +341,15 @@ class CMFModel:
             # Set initial saturation
             cell.saturated_depth = cell_property_dict['saturated_depth']
 
+        def flux_connections(cmf_project_, cell_property_dict):
+            cmf.connect_cells_with_flux(cmf_project_, cmf.Darcy)
+
+            if cell_property_dict['runoff_method'] == 'kinematic':
+                cmf.connect_cells_with_flux(cmf_project_, cmf.KinematicSurfaceRunoff)
+            elif cell_property_dict['runoff_method'] == 'diffusive':
+                cmf.DiffusiveSurfaceRunoff.set_linear_slope(1e-8)
+                cmf.connect_cells_with_flux(cmf_project_, cmf.DiffusiveSurfaceRunoff)
+
         # Convert retention curve parameters into CMF retention curve
         r_curve = retention_curve(cell_properties_dict['retention_curve'])
 
@@ -348,8 +357,7 @@ class CMFModel:
             build_cell(cell_index, cmf_project, cell_properties_dict, r_curve)
 
         # Connect fluxes
-        cmf.connect_cells_with_flux(cmf_project, cmf.Darcy)
-        cmf.connect_cells_with_flux(cmf_project, cmf.KinematicSurfaceRunoff)
+        flux_connections(cmf_project, cell_properties_dict)
 
         return True
 
