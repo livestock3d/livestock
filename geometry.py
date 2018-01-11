@@ -191,12 +191,15 @@ def obj_to_lists(obj_file: str)-> tuple:
             data = line.split(' ')
             d = []
             for elem in data[1:]:
-                d.append((int(e) for e in elem.strip().split('/')))
+                d0 = []
+                for e in elem.strip().split('/'):
+                    try:
+                        d0.append(int(e))
+                    except ValueError:
+                        pass
+                d.append(d0)
 
             faces.append(d)
-
-        else:
-            pass
 
     return vertices, normals, faces
 
