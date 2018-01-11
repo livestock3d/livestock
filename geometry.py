@@ -196,7 +196,7 @@ def obj_to_lists(obj_file: str)-> tuple:
                     try:
                         d0.append(int(e))
                     except ValueError:
-                        pass
+                        d0.append(None)
                 d.append(d0)
 
             faces.append(d)
