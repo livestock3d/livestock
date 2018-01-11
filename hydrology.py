@@ -9,8 +9,7 @@ __version__ = "0.0.1"
 import cmf
 from cmf.geos_shapereader import Shapefile
 import cmf.geometry
-from datetime import datetime
-from datetime import timedelta
+import datetime
 import numpy as np
 import xml.etree.ElementTree as ET
 import os
@@ -675,16 +674,16 @@ class CMFModel:
     def print_solver_time(self, solver_time, start_time, last_time, step):
 
         if self.solver_settings['verbosity']:
-            now = datetime.now()
+            now = datetime.datetime.now()
             elapsed_time = now - start_time
             time_per_step = elapsed_time.total_seconds()/(step+1)
-            time_left = timedelta(seconds=(time_per_step * (self.solver_settings['analysis_length'] - step)))
+            time_left = datetime.timedelta(seconds=(time_per_step * (self.solver_settings['analysis_length'] - step)))
 
             # Print statements:
             solver_timer_print = 'Solver Time: ' + str(solver_time)
-            elapsed_time_print = 'Elapsed Time: ' + str(elapsed_time)
-            current_time_step_print = 'Current Time Step: ' + str(now - last_time)
-            estimated_time_left_print = 'Estimated Time Left: ' + str(time_left)
+            elapsed_time_print = 'Elapsed Time: ' + elapsed_time.strftime('%H:%M:%S')
+            current_time_step_print = 'Current Time Step: ' + (now - last_time).strftime('%H:%M:%S')
+            estimated_time_left_print = 'Estimated Time Left: ' + time_left.strftime('%H:%M:%S')
             print(solver_timer_print, '\t',
                   elapsed_time_print, '\t',
                   current_time_step_print, '\t',
