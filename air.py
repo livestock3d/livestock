@@ -113,7 +113,8 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
     temperature, relative_humidity, area, height_top, height_stratification, heat_flux, vapour_flux, cpu = \
         get_files(folder)
 
-    rows_ = [i for i in range(0, len(heat_flux))]
+    rows_ = [i
+             for i in range(0, len(heat_flux)-1)]
 
     input_packages = [(folder, index, temperature[index], relative_humidity[index], heat_flux[index],
                        vapour_flux[index], area, height_stratification, height_top)
@@ -234,7 +235,7 @@ def air_flow(area, height_top, temperature_top, temperature_mean):
     delta_temperature = temperature_top - temperature_mean
     delta_pressure = density_air * gravity * (height_top - height_mean) * delta_temperature / temperature_mean
 
-    return area * np.sqrt(2 * abs(delta_pressure) / delta_pressure) * delta_pressure / abs(delta_pressure)
+    return area * np.sqrt(2 * abs(delta_pressure) / density_air) * delta_pressure / abs(delta_pressure)
 
 
 def new_mean_temperature(area, height_external, temperature_external, heat):
