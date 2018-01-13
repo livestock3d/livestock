@@ -710,7 +710,7 @@ class CMFModel:
         self.gather_results(cmf_project, solver.t)
 
         # Set timer
-        start_time = datetime.now()
+        start_time = datetime.datetime.now()
         step = 0
         last = start_time
 
