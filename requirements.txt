@@ -1,7 +1,7 @@
+numpy
 paramiko
 pyshp
 shapely
 cmf
-numpy
 xmltodict
 dbfread
