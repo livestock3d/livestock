@@ -1,0 +1,406 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Livestock package &#8212; Livestock 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Livestock" href="modules.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="livestock-package">
+<h1>Livestock package<a class="headerlink" href="#livestock-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-livestock.air">
+<span id="livestock-air-module"></span><h2>livestock.air module<a class="headerlink" href="#module-livestock.air" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="livestock.air.air_flow">
+<code class="descclassname">livestock.air.</code><code class="descname">air_flow</code><span class="sig-paren">(</span><em>area</em>, <em>height_top</em>, <em>temperature_top</em>, <em>temperature_mean</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.air.air_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates an air flow based on an mean temperature for the volume.
+:param area: in m^2
+:param height_top: in m
+:param temperature_top: in K
+:param temperature_mean: in K
+:return: air flow in m^3/s</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.celsius_to_kelvin">
+<code class="descclassname">livestock.air.</code><code class="descname">celsius_to_kelvin</code><span class="sig-paren">(</span><em>celsius</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.air.celsius_to_kelvin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.kelvin_to_celsius">
+<code class="descclassname">livestock.air.</code><code class="descname">kelvin_to_celsius</code><span class="sig-paren">(</span><em>kelvin</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.air.kelvin_to_celsius" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_mean_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">new_mean_relative_humidity</code><span class="sig-paren">(</span><em>area</em>, <em>height_external</em>, <em>temperature_internal</em>, <em>vapour_pressure_external</em>, <em>vapour_production</em>, <em>air_flow_</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.air.new_mean_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_mean_temperature">
+<code class="descclassname">livestock.air.</code><code class="descname">new_mean_temperature</code><span class="sig-paren">(</span><em>area</em>, <em>height_external</em>, <em>temperature_external</em>, <em>heat</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.air.new_mean_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new mean temperature for the volume.
+:param area: in m^2
+:param height_external: in m
+:param temperature_external: in K
+:param heat: in J
+:return: temperature in K</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_mean_vapour_pressure">
+<code class="descclassname">livestock.air.</code><code class="descname">new_mean_vapour_pressure</code><span class="sig-paren">(</span><em>area</em>, <em>height_external</em>, <em>temperature_internal</em>, <em>vapour_pressure_external</em>, <em>vapour_production</em>, <em>air_flow_</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.air.new_mean_vapour_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new vapour pressure for the volume.
+:param area: area in m^2
+:param temperature_internal: external temperature in K
+:param height_external: external height in m
+:param vapour_pressure_external: external vapour pressure in Pa
+:param vapour_production: vapour production in kg/s
+:param <a href="#id1"><span class="problematic" id="id2">air_flow_</span></a>: air flow in m^3/s
+:return: new vapour pressure in Pa</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_temperature_and_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">new_temperature_and_relative_humidity</code><span class="sig-paren">(</span><em>folder: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#livestock.air.new_temperature_and_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new temperatures and relative humidities for air volumes.
+:param folder: Path to folder containing case files.
+:return: True</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.relative_humidity_to_vapour_pressure">
+<code class="descclassname">livestock.air.</code><code class="descname">relative_humidity_to_vapour_pressure</code><span class="sig-paren">(</span><em>relative_humidity</em>, <em>temperature</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.air.relative_humidity_to_vapour_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert relative humidity to vapour pressure
+:param relative_humidity: unitless
+:param temperature: in K
+:return: vapour pressure in Pa</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.run_row">
+<code class="descclassname">livestock.air.</code><code class="descname">run_row</code><span class="sig-paren">(</span><em>input_package: list</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#livestock.air.run_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new temperatures and relative humidities for a row. A row represent all cell to a given time.
+:return: The row on which the calculation was performed.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.stratification">
+<code class="descclassname">livestock.air.</code><code class="descname">stratification</code><span class="sig-paren">(</span><em>height</em>, <em>value_mean</em>, <em>height_top</em>, <em>value_top</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.air.stratification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the stratification of the temperature or relative humidity
+:param height: height at which the stratification value is wanted. in m.
+:param value_mean: mean value
+:param height_top: height at the top of the boundary. in m
+:param value_top: value at the top of the boundary
+:return: value at desired height.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.vapour_pressure_to_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">vapour_pressure_to_relative_humidity</code><span class="sig-paren">(</span><em>vapour_pressure</em>, <em>temperature</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.air.vapour_pressure_to_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert vapour pressure to relative humidity
+:param vapour_pressure: in Pa
+:param temperature: in K
+:return: relative humidity as unitless</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-livestock.geometry">
+<span id="livestock-geometry-module"></span><h2>livestock.geometry module<a class="headerlink" href="#module-livestock.geometry" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="livestock.geometry.angle_between_vectors">
+<code class="descclassname">livestock.geometry.</code><code class="descname">angle_between_vectors</code><span class="sig-paren">(</span><em>v1</em>, <em>v2</em>, <em>force_angle=None</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.geometry.angle_between_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the angle between two vectors.
+:param v1: Vector1 as numpy array
+:param v2: Vector2 as numpy array
+:param force_angle: Default is None. Use to force angle into acute or obtuse.
+:return: Angle in radians and its angle type.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.centroid_z">
+<code class="descclassname">livestock.geometry.</code><code class="descname">centroid_z</code><span class="sig-paren">(</span><em>polygon</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.geometry.centroid_z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the mean z-value from a Shapely polygon</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.line_intersection">
+<code class="descclassname">livestock.geometry.</code><code class="descname">line_intersection</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>p3</em>, <em>p4</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.geometry.line_intersection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the intersection between two lines given 4 points on those lines.
+:param p1: Numpy array. First point on line 1
+:param p2: Numpy array. Second point on line 1
+:param p3: Numpy array. First point on line 2
+:param p4: Numpy array. Second point on line 2
+:return: Numpy array. Intersection point</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.lowest_face_vertex">
+<code class="descclassname">livestock.geometry.</code><code class="descname">lowest_face_vertex</code><span class="sig-paren">(</span><em>v0</em>, <em>v1</em>, <em>v2</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.geometry.lowest_face_vertex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.obj_to_lists">
+<code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_lists</code><span class="sig-paren">(</span><em>obj_file: str</em><span class="sig-paren">)</span> &#x2192; tuple<a class="headerlink" href="#livestock.geometry.obj_to_lists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a obj file into lists</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.obj_to_polygons">
+<code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_polygons</code><span class="sig-paren">(</span><em>obj_file: str</em><span class="sig-paren">)</span> &#x2192; list<a class="headerlink" href="#livestock.geometry.obj_to_polygons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a obj file into a list of shapely polygons</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.obj_to_shp">
+<code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_shp</code><span class="sig-paren">(</span><em>obj_file</em>, <em>shp_file</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.geometry.obj_to_shp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a obj file into a shape file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.ray_triangle_intersection">
+<code class="descclassname">livestock.geometry.</code><code class="descname">ray_triangle_intersection</code><span class="sig-paren">(</span><em>ray_near</em>, <em>ray_dir</em>, <em>V</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.geometry.ray_triangle_intersection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Möller–Trumbore intersection algorithm in pure python
+Based on <a class="reference external" href="http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm">http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.shapely_to_pyshp">
+<code class="descclassname">livestock.geometry.</code><code class="descname">shapely_to_pyshp</code><span class="sig-paren">(</span><em>shapely_geometry</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.geometry.shapely_to_pyshp" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>This function converts a shapely geometry into a geojson and then into a pyshp object</div></blockquote>
+<dl class="docutils">
+<dt>.</dt>
+<dd>Copied from Karim Bahgat’s answer at:
+<a class="reference external" href="https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles">https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles</a></dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-livestock.hydrology">
+<span id="livestock-hydrology-module"></span><h2>livestock.hydrology module<a class="headerlink" href="#module-livestock.hydrology" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="livestock.hydrology.CMFModel">
+<em class="property">class </em><code class="descclassname">livestock.hydrology.</code><code class="descname">CMFModel</code><span class="sig-paren">(</span><em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.add_tree">
+<code class="descname">add_tree</code><span class="sig-paren">(</span><em>cmf_project</em>, <em>cell_index</em>, <em>property_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.add_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a tree to the model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.config_outputs">
+<code class="descname">config_outputs</code><span class="sig-paren">(</span><em>cmf_project</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.config_outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to set up result gathering dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.configure_cells">
+<code class="descname">configure_cells</code><span class="sig-paren">(</span><em>cmf_project: cmf.cmf_core.project</em>, <em>cell_properties_dict: dict</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.configure_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the cells</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.create_boundary_conditions">
+<code class="descname">create_boundary_conditions</code><span class="sig-paren">(</span><em>cmf_project</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.create_boundary_conditions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.create_stream">
+<code class="descname">create_stream</code><span class="sig-paren">(</span><em>shape</em>, <em>shape_param</em>, <em>outlet</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.create_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a stream</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.create_weather">
+<code class="descname">create_weather</code><span class="sig-paren">(</span><em>cmf_project</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.create_weather" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates weather for the project</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.gather_results">
+<code class="descname">gather_results</code><span class="sig-paren">(</span><em>cmf_project</em>, <em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.gather_results" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.load_cmf_files">
+<code class="descname">load_cmf_files</code><span class="sig-paren">(</span><em>delete_after_load=False</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.load_cmf_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.mesh_to_cells">
+<code class="descname">mesh_to_cells</code><span class="sig-paren">(</span><em>cmf_project</em>, <em>mesh_path</em>, <em>delete_after_load=True</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.mesh_to_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a mesh and converts it into CMF cells
+:param mesh_path: Path to mesh .obj file
+:param cmf_project: CMF project object
+:return: True</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.print_solver_time">
+<code class="descname">print_solver_time</code><span class="sig-paren">(</span><em>solver_time</em>, <em>start_time</em>, <em>last_time</em>, <em>step</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.print_solver_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.run_model">
+<code class="descname">run_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.run_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the model with everything</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.save_results">
+<code class="descname">save_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.save_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the computed results to a xml file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.set_vegetation_properties">
+<code class="descname">set_vegetation_properties</code><span class="sig-paren">(</span><em>cell_: cmf.cmf_core.Cell</em>, <em>property_dict: dict</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.set_vegetation_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="livestock.hydrology.CMFModel.solve">
+<code class="descname">solve</code><span class="sig-paren">(</span><em>cmf_project</em>, <em>tolerance</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.CMFModel.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solves the model</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.hydrology.cell_results">
+<code class="descclassname">livestock.hydrology.</code><code class="descname">cell_results</code><span class="sig-paren">(</span><em>looking_for</em>, <em>result_file</em>, <em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.cell_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes cell results</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.hydrology.cmf_results">
+<code class="descclassname">livestock.hydrology.</code><code class="descname">cmf_results</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.cmf_results" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.hydrology.convert_cmf_points">
+<code class="descclassname">livestock.hydrology.</code><code class="descname">convert_cmf_points</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.convert_cmf_points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.hydrology.layer_results">
+<code class="descclassname">livestock.hydrology.</code><code class="descname">layer_results</code><span class="sig-paren">(</span><em>looking_for</em>, <em>result_file</em>, <em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.layer_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes layer results</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.hydrology.surface_flux_results">
+<code class="descclassname">livestock.hydrology.</code><code class="descname">surface_flux_results</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.hydrology.surface_flux_results" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-livestock.misc">
+<span id="livestock-misc-module"></span><h2>livestock.misc module<a class="headerlink" href="#module-livestock.misc" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="livestock.misc.run_cfd">
+<code class="descclassname">livestock.misc.</code><code class="descname">run_cfd</code><span class="sig-paren">(</span><em>files_path</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.misc.run_cfd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a OpenFoam case</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-livestock.ssh">
+<span id="livestock-ssh-module"></span><h2>livestock.ssh module<a class="headerlink" href="#module-livestock.ssh" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="livestock.ssh.check_for_remote_folder">
+<code class="descclassname">livestock.ssh.</code><code class="descname">check_for_remote_folder</code><span class="sig-paren">(</span><em>sftp_connect</em>, <em>folder_to_check</em>, <em>check_for</em><span class="sig-paren">)</span><a class="headerlink" href="#livestock.ssh.check_for_remote_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.ssh.ssh_connection">
+<code class="descclassname">livestock.ssh.</code><code class="descname">ssh_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#livestock.ssh.ssh_connection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-livestock">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-livestock" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">Livestock</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">Livestock</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Christian Kongsgaard Nielsen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/livestock.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
