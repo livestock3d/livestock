@@ -681,12 +681,15 @@ class CMFModel:
             elapsed_time = now - start_time
             time_per_step = elapsed_time.total_seconds()/(step+1)
             time_left = datetime.timedelta(seconds=(time_per_step * (self.solver_settings['analysis_length'] - step)))
+            current_time = (now - last_time)
 
             # Print statements:
-            solver_timer_print = 'Solver Time: ' + str(solver_time)
-            elapsed_time_print = 'Elapsed Time: ' + elapsed_time.strftime('%H:%M:%S')
-            current_time_step_print = 'Current Time Step: ' + (now - last_time).strftime('%H:%M:%S')
-            estimated_time_left_print = 'Estimated Time Left: ' + str(time_left)
+            solver_timer_print = f'Solver Time: {solver_time}'
+
+            elapsed_time_print = f'Elapsed Time: {elapsed_time}'
+            current_time_step_print = f'Current Time Step: {current_time}'
+            estimated_time_left_print = f'Estimated Time Left: {time_left.seconds}'
+
             print(solver_timer_print, '\t',
                   elapsed_time_print, '\t',
                   current_time_step_print, '\t',
