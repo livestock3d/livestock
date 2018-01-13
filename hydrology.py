@@ -688,7 +688,7 @@ class CMFModel:
 
             elapsed_time_print = f'Elapsed Time: {elapsed_time}'
             current_time_step_print = f'Current Time Step: {current_time}'
-            estimated_time_left_print = f'Estimated Time Left: {time_left.seconds}'
+            estimated_time_left_print = f'Estimated Time Left: {time_left}'
 
             print(solver_timer_print, '\t',
                   elapsed_time_print, '\t',
