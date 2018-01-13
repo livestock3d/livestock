@@ -337,6 +337,9 @@ class CMFModel:
             if cell_property_dict['puddle_depth']:
                 cell.surfacewater.puddledepth = cell_property_dict['puddle_depth']
 
+            if cell_property_dict['surface_water_volume']:
+                cell.surfacewater.volume = cell_property_dict['surface_water_volume']
+
             # Set initial saturation
             cell.saturated_depth = cell_property_dict['saturated_depth']
 
@@ -518,8 +521,8 @@ class CMFModel:
                 inlet_flux = np.array(list(float(flux)
                                            for flux in boundary_condition_['flux']))
 
-                inlet.set_flux(cmf.timeseries.from_array(begin=datetime(2017, 1, 1),
-                                                         step=timedelta(hours=1),
+                inlet.set_flux(cmf.timeseries.from_array(begin=datetime.datetime(2017, 1, 1),
+                                                         step=datetime.timedelta(hours=1),
                                                          data=inlet_flux))
             else:
                 inlet.flux = boundary_condition_['flux'][0]
@@ -713,8 +716,8 @@ class CMFModel:
 
         # Run solver and save results at each time step
         for t in solver.run(solver.t,
-                            solver.t + timedelta(hours=self.solver_settings['analysis_length']),
-                            timedelta(hours=float(self.solver_settings['time_step']))):
+                            solver.t + datetime.timedelta(hours=self.solver_settings['analysis_length']),
+                            datetime.timedelta(hours=float(self.solver_settings['time_step']))):
 
             self.gather_results(cmf_project, t)
             last = self.print_solver_time(t, start_time, last, step)
