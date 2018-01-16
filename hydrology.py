@@ -18,7 +18,7 @@ import ast
 
 # Livestock imports
 from . import geometry as lg
-# import geometry as lg
+#import geometry as lg
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
 
@@ -301,9 +301,15 @@ class CMFModel:
                 # Install Penman & Monteith method to calculate evapotranspiration_potential
                 cell_.install_connection(cmf.PenmanMonteithET)
 
+                #Install surface water evaporation
+                cmf.PenmanEvaporation(cell_.surfacewater, cell_.evaporation, cell_.meteorology)
+
             elif evapotranspiration_method == 'shuttleworth_wallace':
                 # Install Shuttleworth-Wallace method to calculate evapotranspiration
                 cell_.install_connection(cmf.ShuttleworthWallace)
+
+                # Install surface water evaporation
+                cmf.PenmanEvaporation(cell_.surfacewater, cell_.evaporation, cell_.meteorology)
 
             return True
 
