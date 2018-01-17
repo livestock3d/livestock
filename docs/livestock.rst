@@ -2,9 +2,6 @@ Livestock package
 =================
 
 
-Submodules
-----------
-
 livestock\.air module
 ---------------------
 
