@@ -1,0 +1,1 @@
+<boundary_conditions><boundary_condition_0><type>outlet</type><cell>0</cell><layer>0</layer><outlet_type><outlet_connection>technical_flux</outlet_connection><connection_parameter>11.0</connection_parameter></outlet_type><location>1.5,0.0,0.0</location></boundary_condition_0></boundary_conditions>

@@ -17,8 +17,8 @@ import xmltodict
 import ast
 
 # Livestock imports
-from . import geometry as lg
-#import geometry as lg
+#from . import geometry as lg
+import geometry as lg
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
 
@@ -538,16 +538,35 @@ class CMFModel:
             outlet = cmf_project_.NewOutlet('outlet_' + str(index_), float(x), float(y), float(z))
             cell = cmf_project_.cells[int(boundary_condition_['cell'])]
 
-            if boundary_condition_['layer'] == 'all':
-                for l in cell.layers:
-                    # create a Darcy connection with 10m flow width between each soil layer and the outlet
-                    cmf.Darcy(l, outlet, FlowWidth=float(boundary_condition_['flow_width']))
-                cmf.KinematicSurfaceRunoff(cell.surfacewater, outlet, float(boundary_condition_['flow_width']))
-            elif boundary_condition_['layer'] == 0:
-                cmf.KinematicSurfaceRunoff(cell.surfacewater, outlet, float(boundary_condition_['flow_width']))
-            else:
-                layer = cell.layers[int(boundary_condition_['layer'])]
-                cmf.Darcy(layer, outlet, FlowWidth=float(boundary_condition_['flow_width']))
+
+            if boundary_condition_['outlet_type']['outlet_connection'] == 'richards':
+                outlet.potential = boundary_condition_['outlet_type']['connection_parameter']
+
+                if float(boundary_condition_['layer']) == 0:
+                    cmf.Richards(cell.surfacewater, outlet)
+                else:
+                    cmf.Richards(cell.layers[int(boundary_condition_['layer']) - 1], outlet)
+
+            elif boundary_condition_['outlet_type']['outlet_connection'] == 'kinematic_wave':
+
+                if float(boundary_condition_['layer']) == 0:
+                    cmf.kinematic_wave(source=cell.surfacewater,
+                                       target=outlet,
+                                       residencetime=boundary_condition_['outlet_type']['connection_parameter'])
+                else:
+                    cmf.kinematic_wave(source=cell.layers[int(boundary_condition_['layer']) - 1],
+                                       target=outlet,
+                                       residencetime=boundary_condition_['outlet_type']['connection_parameter'])
+
+            elif boundary_condition_['outlet_type']['outlet_connection'] == 'technical_flux':
+                if float(boundary_condition_['layer']) == 0:
+                    cmf.TechnicalFlux(cell.surfacewater,
+                                      outlet,
+                                      float(boundary_condition_['outlet_type']['connection_parameter']))
+                else:
+                    cmf.TechnicalFlux(cell.layers[int(boundary_condition_['layer']) - 1],
+                                      outlet,
+                                      float(boundary_condition_['outlet_type']['connection_parameter']))
 
         def set_boundary_condition(boundary_condition_, bc_index, cmf_project_):
             print('set_boundary_condition', boundary_condition_)
