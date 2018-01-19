@@ -212,7 +212,7 @@ def new_mean_vapour_pressure(area, height_external, temperature_internal, vapour
     gas_constant_vapour = 461.5  # J/kgK
 
     contact = air_flow_ / (gas_constant_vapour * temperature_internal)  # kg/sPa
-    capacity = volume_air / (gas_constant_vapour * temperature_internal)  # - m3kg/J
+    capacity = volume_air / (gas_constant_vapour * temperature_internal)  # m3kg/J
     vapour_pressure = vapour_pressure_external + vapour_production/contact * (1 - np.exp(-contact/capacity))  # Pa
 
     return vapour_pressure
@@ -281,9 +281,12 @@ def vapour_pressure_to_relative_humidity(vapour_pressure, temperature):
     return relative_humidity
 
 
-def relative_humidity_to_vapour_pressure(relative_humidity, temperature):
+def relative_humidity_to_vapour_pressure(relative_humidity: float, temperature: float) -> float:
     """
-    Convert relative humidity to vapour pressure
+    Convert relative humidity to vapour pressure.
+
+    :type temperature: float
+    :type relative_humidity: float
     :param relative_humidity: unitless
     :param temperature: in K
     :return: vapour pressure in Pa
@@ -296,13 +299,116 @@ def relative_humidity_to_vapour_pressure(relative_humidity, temperature):
     return vapour_pressure
 
 
-def stratification(height, value_mean, height_top, value_top):
+def stratification(height: float, value_mean: float, height_top: float, value_top: float):
     """
     Calculates the stratification of the temperature or relative humidity
+
     :param height: height at which the stratification value is wanted. in m.
     :param value_mean: mean value
     :param height_top: height at the top of the boundary. in m
     :param value_top: value at the top of the boundary
     :return: value at desired height.
     """
+
     return value_mean - 2 * height * (value_mean - value_top)/height_top
+
+
+def water_evaporation(volume_air: float, temperature: float, water: float, fraction_of_evaporation: float) -> tuple:
+    """
+
+    :param volume_air:
+    :type volume_air:
+    :param temperature:
+    :type temperature:
+    :param water:
+    :type water:
+    :param fraction_of_evaporation:
+    :type fraction_of_evaporation:
+    :return:
+    :rtype:
+    """
+
+    specific_heat_capacity = 1005  # J/kgK
+    density_air = 1.29 * 273 / temperature  # kg/m^3
+    heat_of_evaporation_water = 2257000  # J/kg
+    density_water = 1000  # kg/m3
+
+    vapour_gain = water/density_water * fraction_of_evaporation
+    energy_of_evaporation = water * heat_of_evaporation_water * fraction_of_evaporation
+    energy_air = volume_air * specific_heat_capacity * density_air * temperature  # J
+    new_temperature = (energy_air - energy_of_evaporation)/(volume_air * specific_heat_capacity * density_air)
+
+    return new_temperature, energy_of_evaporation, vapour_gain
+
+def water_evaporation_template_wrapper():
+
+    def read_files(result_path):
+
+        volume_file = open(result_path + '/volume.txt', 'r')
+        volume_lines = volume_file.readlines()
+        volume_file.close()
+        volume_ = [float(v.strip())
+                  for line in volume_lines
+                  for v in line.split(',')]
+
+        # Create Temperature file
+        temp_file = open(result_path + '/temperature.txt', 'r')
+        temp_lines = temp_file.readlines()
+        temp_file.close()
+        temperature_ = [float(t.strip())
+                       for line in temp_lines
+                       for t in line.split(',')]
+
+        # Create water file
+        water_file = open(result_path + '/water.txt', 'r')
+        water_lines = water_file.readlines()
+        water_file.close()
+        water_ = [float(w.strip())
+                 for line in water_lines
+                 for w in line.split(',')]
+
+        # Create fraction file
+        fraction_file = open(result_path + '/fraction.txt', 'r')
+        fraction_lines = fraction_file.readlines()
+        fraction_file.close()
+        fraction_ = [float(f.strip())
+                    for line in fraction_lines
+                    for f in line.split(',')]
+
+        return volume_, temperature_, water_, fraction_
+
+    def write_files(write_path, temperature, energy, vapour):
+
+        # Create Temperature file
+        temp_file = open(write_path + '/temperature.txt', 'w')
+        temp_file.write(','.join([str(t)
+                                  for t in temperature]))
+        temp_file.close()
+
+        # Create volume file
+        energy_file = open(write_path + '/energy.txt', 'w')
+        energy_file.write(','.join([str(e)
+                                    for e in energy]))
+        energy_file.close()
+
+        # Create water file
+        vapour_file = open(write_path + '/vapour.txt', 'w')
+        vapour_file.write(','.join([str(v)
+                                   for v in vapour]))
+        vapour_file.close()
+
+        return True
+
+    local_path = r'C:\livestock\local'
+    volume, temperature, water, fraction = read_files(local_path)
+    new_temperature = []
+    energy_of_evaporation = []
+    vapour_gain = []
+
+    for i in range(0, len(volume)):
+        nt, ee, vg = water_evaporation(volume[i], temperature[i], water[i], fraction[i])
+        new_temperature.append(nt)
+        energy_of_evaporation.append(ee)
+        vapour_gain.append(vg)
+
+    write_files(local_path, new_temperature, energy_of_evaporation, vapour_gain)
