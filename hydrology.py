@@ -706,6 +706,11 @@ class CMFModel:
         else:
             if step == 0:
                 print('Simulation started')
+                return datetime.datetime.now()
+            elif step >= self.solver_settings['analysis_length'] / 2:
+                now = datetime.datetime.now()
+                print(f'Simulation half ways. Time passed: {start_time - now}')
+                return now
 
     def solve(self, cmf_project, tolerance):
         """Solves the model"""
