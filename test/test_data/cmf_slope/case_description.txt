@@ -1,0 +1,389 @@
+cmf.project(16 cells, 16 meteo stations, 0 project nodes)
+
+Project nodes:
+
+Cells:
+    - cell #0(0.748,0.5,8.4894):
+        - {Surface water of cell #0}:
+            - Green Ampt infiltration({Surface water of cell #0}<->{Layer #0 of cell #0})
+            - Kinematic surface runoff({Surface water of cell #0}<->{Surface water of cell #1})
+            - Penman evaporation from open water({Surface water of cell #0}<->{Evaporation of cell #0})
+            - Rainfall({Rainfall from cell_0 rain}<->{Surface water of cell #0})
+        - {Layer #0 of cell #0}:
+            - Green Ampt infiltration({Surface water of cell #0}<->{Layer #0 of cell #0})
+            - Darcy flow({Layer #0 of cell #1}<->{Layer #0 of cell #0})
+    - cell #1(2.2085,0.5,7.6756):
+        - {Surface water of cell #1}:
+            - Kinematic surface runoff({Surface water of cell #0}<->{Surface water of cell #1})
+            - Green Ampt infiltration({Surface water of cell #1}<->{Layer #0 of cell #1})
+            - Kinematic surface runoff({Surface water of cell #1}<->{Surface water of cell #2})
+            - Penman evaporation from open water({Surface water of cell #1}<->{Evaporation of cell #1})
+            - Rainfall({Rainfall from cell_1 rain}<->{Surface water of cell #1})
+        - {Layer #0 of cell #1}:
+            - Green Ampt infiltration({Surface water of cell #1}<->{Layer #0 of cell #1})
+            - Darcy flow({Layer #0 of cell #1}<->{Layer #0 of cell #0})
+            - Darcy flow({Layer #0 of cell #2}<->{Layer #0 of cell #1})
+    - cell #2(3.6825,0.5,6.8782):
+        - {Surface water of cell #2}:
+            - Kinematic surface runoff({Surface water of cell #1}<->{Surface water of cell #2})
+            - Green Ampt infiltration({Surface water of cell #2}<->{Layer #0 of cell #2})
+            - Kinematic surface runoff({Surface water of cell #2}<->{Surface water of cell #3})
+            - Penman evaporation from open water({Surface water of cell #2}<->{Evaporation of cell #2})
+            - Rainfall({Rainfall from cell_2 rain}<->{Surface water of cell #2})
+        - {Layer #0 of cell #2}:
+            - Green Ampt infiltration({Surface water of cell #2}<->{Layer #0 of cell #2})
+            - Darcy flow({Layer #0 of cell #2}<->{Layer #0 of cell #1})
+            - Darcy flow({Layer #0 of cell #3}<->{Layer #0 of cell #2})
+    - cell #3(5.167,0.5,6.1244):
+        - {Surface water of cell #3}:
+            - Kinematic surface runoff({Surface water of cell #2}<->{Surface water of cell #3})
+            - Green Ampt infiltration({Surface water of cell #3}<->{Layer #0 of cell #3})
+            - Kinematic surface runoff({Surface water of cell #3}<->{Surface water of cell #4})
+            - Penman evaporation from open water({Surface water of cell #3}<->{Evaporation of cell #3})
+            - Rainfall({Rainfall from cell_3 rain}<->{Surface water of cell #3})
+        - {Layer #0 of cell #3}:
+            - Green Ampt infiltration({Surface water of cell #3}<->{Layer #0 of cell #3})
+            - Darcy flow({Layer #0 of cell #3}<->{Layer #0 of cell #2})
+            - Darcy flow({Layer #0 of cell #4}<->{Layer #0 of cell #3})
+    - cell #4(6.642,0.5,5.413):
+        - {Surface water of cell #4}:
+            - Kinematic surface runoff({Surface water of cell #3}<->{Surface water of cell #4})
+            - Green Ampt infiltration({Surface water of cell #4}<->{Layer #0 of cell #4})
+            - Kinematic surface runoff({Surface water of cell #4}<->{Surface water of cell #5})
+            - Penman evaporation from open water({Surface water of cell #4}<->{Evaporation of cell #4})
+            - Rainfall({Rainfall from cell_4 rain}<->{Surface water of cell #4})
+        - {Layer #0 of cell #4}:
+            - Green Ampt infiltration({Surface water of cell #4}<->{Layer #0 of cell #4})
+            - Darcy flow({Layer #0 of cell #4}<->{Layer #0 of cell #5})
+            - Darcy flow({Layer #0 of cell #4}<->{Layer #0 of cell #3})
+    - cell #5(8.157,0.5,4.7314):
+        - {Surface water of cell #5}:
+            - Kinematic surface runoff({Surface water of cell #4}<->{Surface water of cell #5})
+            - Green Ampt infiltration({Surface water of cell #5}<->{Layer #0 of cell #5})
+            - Kinematic surface runoff({Surface water of cell #5}<->{Surface water of cell #6})
+            - Penman evaporation from open water({Surface water of cell #5}<->{Evaporation of cell #5})
+            - Rainfall({Rainfall from cell_5 rain}<->{Surface water of cell #5})
+        - {Layer #0 of cell #5}:
+            - Green Ampt infiltration({Surface water of cell #5}<->{Layer #0 of cell #5})
+            - Darcy flow({Layer #0 of cell #4}<->{Layer #0 of cell #5})
+            - Darcy flow({Layer #0 of cell #6}<->{Layer #0 of cell #5})
+    - cell #6(9.69,0.5,4.0888):
+        - {Surface water of cell #6}:
+            - Kinematic surface runoff({Surface water of cell #5}<->{Surface water of cell #6})
+            - Green Ampt infiltration({Surface water of cell #6}<->{Layer #0 of cell #6})
+            - Kinematic surface runoff({Surface water of cell #6}<->{Surface water of cell #7})
+            - Penman evaporation from open water({Surface water of cell #6}<->{Evaporation of cell #6})
+            - Rainfall({Rainfall from cell_6 rain}<->{Surface water of cell #6})
+        - {Layer #0 of cell #6}:
+            - Green Ampt infiltration({Surface water of cell #6}<->{Layer #0 of cell #6})
+            - Darcy flow({Layer #0 of cell #6}<->{Layer #0 of cell #5})
+            - Darcy flow({Layer #0 of cell #7}<->{Layer #0 of cell #6})
+    - cell #7(11.245,0.5,3.4858):
+        - {Surface water of cell #7}:
+            - Kinematic surface runoff({Surface water of cell #6}<->{Surface water of cell #7})
+            - Green Ampt infiltration({Surface water of cell #7}<->{Layer #0 of cell #7})
+            - Kinematic surface runoff({Surface water of cell #7}<->{Surface water of cell #8})
+            - Penman evaporation from open water({Surface water of cell #7}<->{Evaporation of cell #7})
+            - Rainfall({Rainfall from cell_7 rain}<->{Surface water of cell #7})
+        - {Layer #0 of cell #7}:
+            - Green Ampt infiltration({Surface water of cell #7}<->{Layer #0 of cell #7})
+            - Darcy flow({Layer #0 of cell #7}<->{Layer #0 of cell #8})
+            - Darcy flow({Layer #0 of cell #7}<->{Layer #0 of cell #6})
+    - cell #8(12.815,0.5,2.9258):
+        - {Surface water of cell #8}:
+            - Kinematic surface runoff({Surface water of cell #7}<->{Surface water of cell #8})
+            - Green Ampt infiltration({Surface water of cell #8}<->{Layer #0 of cell #8})
+            - Kinematic surface runoff({Surface water of cell #8}<->{Surface water of cell #9})
+            - Penman evaporation from open water({Surface water of cell #8}<->{Evaporation of cell #8})
+            - Rainfall({Rainfall from cell_8 rain}<->{Surface water of cell #8})
+        - {Layer #0 of cell #8}:
+            - Green Ampt infiltration({Surface water of cell #8}<->{Layer #0 of cell #8})
+            - Darcy flow({Layer #0 of cell #7}<->{Layer #0 of cell #8})
+            - Darcy flow({Layer #0 of cell #9}<->{Layer #0 of cell #8})
+    - cell #9(14.375,0.5,2.4192):
+        - {Surface water of cell #9}:
+            - Kinematic surface runoff({Surface water of cell #8}<->{Surface water of cell #9})
+            - Green Ampt infiltration({Surface water of cell #9}<->{Layer #0 of cell #9})
+            - Kinematic surface runoff({Surface water of cell #9}<->{Surface water of cell #10})
+            - Penman evaporation from open water({Surface water of cell #9}<->{Evaporation of cell #9})
+            - Rainfall({Rainfall from cell_9 rain}<->{Surface water of cell #9})
+        - {Layer #0 of cell #9}:
+            - Green Ampt infiltration({Surface water of cell #9}<->{Layer #0 of cell #9})
+            - Darcy flow({Layer #0 of cell #9}<->{Layer #0 of cell #8})
+            - Darcy flow({Layer #0 of cell #10}<->{Layer #0 of cell #9})
+    - cell #10(15.975,0.5,1.9476):
+        - {Surface water of cell #10}:
+            - Kinematic surface runoff({Surface water of cell #9}<->{Surface water of cell #10})
+            - Green Ampt infiltration({Surface water of cell #10}<->{Layer #0 of cell #10})
+            - Kinematic surface runoff({Surface water of cell #10}<->{Surface water of cell #11})
+            - Penman evaporation from open water({Surface water of cell #10}<->{Evaporation of cell #10})
+            - Rainfall({Rainfall from cell_10 rain}<->{Surface water of cell #10})
+        - {Layer #0 of cell #10}:
+            - Green Ampt infiltration({Surface water of cell #10}<->{Layer #0 of cell #10})
+            - Darcy flow({Layer #0 of cell #10}<->{Layer #0 of cell #9})
+            - Darcy flow({Layer #0 of cell #11}<->{Layer #0 of cell #10})
+    - cell #11(17.605,0.5,1.5232):
+        - {Surface water of cell #11}:
+            - Kinematic surface runoff({Surface water of cell #10}<->{Surface water of cell #11})
+            - Green Ampt infiltration({Surface water of cell #11}<->{Layer #0 of cell #11})
+            - Kinematic surface runoff({Surface water of cell #11}<->{Surface water of cell #12})
+            - Penman evaporation from open water({Surface water of cell #11}<->{Evaporation of cell #11})
+            - Rainfall({Rainfall from cell_11 rain}<->{Surface water of cell #11})
+        - {Layer #0 of cell #11}:
+            - Green Ampt infiltration({Surface water of cell #11}<->{Layer #0 of cell #11})
+            - Darcy flow({Layer #0 of cell #11}<->{Layer #0 of cell #10})
+            - Darcy flow({Layer #0 of cell #12}<->{Layer #0 of cell #11})
+    - cell #12(19.225,0.5,1.1564):
+        - {Surface water of cell #12}:
+            - Kinematic surface runoff({Surface water of cell #11}<->{Surface water of cell #12})
+            - Green Ampt infiltration({Surface water of cell #12}<->{Layer #0 of cell #12})
+            - Kinematic surface runoff({Surface water of cell #12}<->{Surface water of cell #13})
+            - Penman evaporation from open water({Surface water of cell #12}<->{Evaporation of cell #12})
+            - Rainfall({Rainfall from cell_12 rain}<->{Surface water of cell #12})
+        - {Layer #0 of cell #12}:
+            - Green Ampt infiltration({Surface water of cell #12}<->{Layer #0 of cell #12})
+            - Darcy flow({Layer #0 of cell #12}<->{Layer #0 of cell #11})
+            - Darcy flow({Layer #0 of cell #13}<->{Layer #0 of cell #12})
+    - cell #13(20.855,0.5,0.83998):
+        - {Surface water of cell #13}:
+            - Kinematic surface runoff({Surface water of cell #12}<->{Surface water of cell #13})
+            - Green Ampt infiltration({Surface water of cell #13}<->{Layer #0 of cell #13})
+            - Kinematic surface runoff({Surface water of cell #13}<->{Surface water of cell #14})
+            - Penman evaporation from open water({Surface water of cell #13}<->{Evaporation of cell #13})
+            - Rainfall({Rainfall from cell_13 rain}<->{Surface water of cell #13})
+        - {Layer #0 of cell #13}:
+            - Green Ampt infiltration({Surface water of cell #13}<->{Layer #0 of cell #13})
+            - Darcy flow({Layer #0 of cell #13}<->{Layer #0 of cell #14})
+            - Darcy flow({Layer #0 of cell #13}<->{Layer #0 of cell #12})
+    - cell #14(22.48,0.5,0.57376):
+        - {Surface water of cell #14}:
+            - Kinematic surface runoff({Surface water of cell #13}<->{Surface water of cell #14})
+            - Green Ampt infiltration({Surface water of cell #14}<->{Layer #0 of cell #14})
+            - Kinematic surface runoff({Surface water of cell #14}<->{Surface water of cell #15})
+            - Penman evaporation from open water({Surface water of cell #14}<->{Evaporation of cell #14})
+            - Rainfall({Rainfall from cell_14 rain}<->{Surface water of cell #14})
+        - {Layer #0 of cell #14}:
+            - Green Ampt infiltration({Surface water of cell #14}<->{Layer #0 of cell #14})
+            - Darcy flow({Layer #0 of cell #13}<->{Layer #0 of cell #14})
+            - Darcy flow({Layer #0 of cell #15}<->{Layer #0 of cell #14})
+    - cell #15(24.145,0.5,0.34016):
+        - {Surface water of cell #15}:
+            - Kinematic surface runoff({Surface water of cell #14}<->{Surface water of cell #15})
+            - Green Ampt infiltration({Surface water of cell #15}<->{Layer #0 of cell #15})
+            - Penman evaporation from open water({Surface water of cell #15}<->{Evaporation of cell #15})
+            - Rainfall({Rainfall from cell_15 rain}<->{Surface water of cell #15})
+        - {Layer #0 of cell #15}:
+            - Green Ampt infiltration({Surface water of cell #15}<->{Layer #0 of cell #15})
+            - Darcy flow({Layer #0 of cell #15}<->{Layer #0 of cell #14})
+
+Meteo Stations:
+    - cmf.MeteoStation(cell_0 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_1 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_2 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_3 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_4 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_5 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_6 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_7 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_8 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_9 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_10 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_11 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_12 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_13 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_14 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+    - cmf.MeteoStation(cell_15 weather,lat=12,lon=55,z=   0.0):
+        Tmin: 2 values from 2017-01-01 to 2017-01-03 step 1d:00:00:00h  , min/mean/max  5.9 / 5.9 / 5.9
+        Tmax: 1 values from 2017-01-01 to 2017-01-02 step 1d:00:00:00h  , min/mean/max  6.3 / 6.3 / 6.3
+        Tdew: ~
+        T: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.9 / 6.21 / 6.3
+        rHmean: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0.89 / 0.916 / 0.93
+        rHmax: ~
+        rHmin: ~
+        Sunshine: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.023 / 0.21
+        Windspeed: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  5.4 / 6.97 / 7.9
+        Rs: 10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  0 / 0.48384 / 4.8384
+
+Rain Stations:
+    - cell_0 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_1 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_2 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_3 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_4 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_5 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_6 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_7 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_8 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_9 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_10 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_11 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_12 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_13 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_14 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
+    - cell_15 rain (88125.60mm/year)
+        10 values from 2017-01-01 to 2017-01-01 step 01:00:00h  , min/mean/max  240 / 241.44 / 244.8
