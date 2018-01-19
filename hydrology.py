@@ -509,29 +509,26 @@ class CMFModel:
 
         # Helper functions
         def set_inlet(boundary_condition_, cmf_project_):
-
-            # Get the correct cell and layer
-            if int(boundary_condition_['layer']) == 0:
-                cell_layer = cmf_project_.cells[int(boundary_condition_['cell'])].surfacewater
-            else:
-                cell_layer = cmf_project_.cells[
-                                                int(boundary_condition_['cell'])].layers[
-                                                int(boundary_condition_['layer'])]
-
-            # Create inlet
-            inlet = cmf.NeumannBoundary.create(cell_layer)
-            #print('set_inlet', inlet)
-
             # if flux is a list then convert to time series
-            if len(boundary_condition_['flux']) > 1:
-                inlet_flux = np.array(list(float(flux)
-                                           for flux in boundary_condition_['flux']))
+            if len(boundary_condition_['inlet_flux']) > 1:
+                inlet_flux = np.array([float(flux)
+                                       for flux in boundary_condition_['inlet_flux'].split(',')])
 
-                inlet.set_flux(cmf.timeseries.from_array(begin=datetime.datetime(2017, 1, 1),
-                                                         step=datetime.timedelta(hours=1),
-                                                         data=inlet_flux))
+                flux_timeseries = cmf.timeseries.from_array(begin=datetime.datetime(2017, 1, 1),
+                                                            step=datetime.timedelta(hours=float(boundary_condition_['time_step'])),
+                                                            data=inlet_flux)
             else:
-                inlet.flux = boundary_condition_['flux'][0]
+                flux_timeseries = float(boundary_condition_['inlet_flux'][0])
+
+            # Get the correct cell and layer and create inlet
+            if float(boundary_condition_['layer']) == 0:
+                inlet = cmf.NeumannBoundary.create(cmf_project_.cells[int(boundary_condition_['cell'])].surfacewater)
+            else:
+                inlet = cmf.NeumannBoundary.create(cmf_project_.cells[
+                                                       int(boundary_condition_['cell'])].layers[
+                                                       int(boundary_condition_['layer']) - 1])
+
+            inlet.set_flux(flux_timeseries)
 
         def set_outlet(boundary_condition_, index_, cmf_project_):
             x, y, z = boundary_condition_['location'].split(',')
@@ -580,9 +577,6 @@ class CMFModel:
 
         # Loop through the boundary conditions and assign them
         for index, boundary_condition in enumerate(self.boundary_dict.keys()):
-            #print('\nloop')
-            #print(index)
-            #print(boundary_condition)
             set_boundary_condition(self.boundary_dict[boundary_condition], index, cmf_project)
 
     def config_outputs(self, cmf_project):

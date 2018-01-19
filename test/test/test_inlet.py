@@ -1,15 +1,11 @@
-import lib_cmf as lc
-import cmf
+import hydrology as hy
 from matplotlib import pyplot as plt
 import numpy as np
-import shutil
+import test.helper_functions as helper
 import xmltodict
 import xml.etree.ElementTree as ET
+import cmf
 
-
-def unpack(folder):
-    test_files = folder + '/test_files.zip'
-    shutil.unpack_archive(test_files, folder)
 
 
 def load_results(folder):
@@ -25,6 +21,7 @@ def load_results(folder):
     layer_1 = eval(result['result']['cell_1']['layer_0']['volume'])
 
     return cell_0, cell_1, layer_0, layer_1
+
 
 def plot_inlet(folder):
     cell0_vol, cell1_vol, layer0_vol, layer1_vol = load_results(folder)
@@ -52,13 +49,13 @@ def plot_inlet(folder):
 
 def test_inlet():
 
-    folder_path = '/home/ocni/pycharm/deployed_projects/livestock_cmf/test/cmf_boundary_conditions/inlet'
-    unpack(folder_path)
+    folder_path = r'C:\Users\Christian\Dropbox\Arbejde\DTU BYG\Livestock\livestock\livestock\test\test_data\cmf_boundary_conditions\inlet'
+    helper.unpack(folder_path)
 
-    model = lc.CMFModel(folder_path)
+    model = hy.CMFModel(folder_path)
     p = model.run_model()
 
-    #print(cmf.describe(p))
+    print(cmf.describe(p))
 
     plot_inlet(folder_path)
 
