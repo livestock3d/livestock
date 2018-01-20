@@ -1,0 +1,260 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Livestock Air &#8212; Livestock Package .0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Livestock Geometry" href="geometry.html" />
+    <link rel="prev" title="Welcome to Livestock Package’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-livestock.air">
+<span id="livestock-air"></span><h1>Livestock Air<a class="headerlink" href="#module-livestock.air" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="livestock.air.air_flow">
+<code class="descclassname">livestock.air.</code><code class="descname">air_flow</code><span class="sig-paren">(</span><em>area</em>, <em>height_top</em>, <em>temperature_top</em>, <em>temperature_mean</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/air.html#air_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.air_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates an air flow based on an mean temperature for the volume.
+:param area: in m^2
+:param height_top: in m
+:param temperature_top: in K
+:param temperature_mean: in K
+:return: air flow in m^3/s</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.celsius_to_kelvin">
+<code class="descclassname">livestock.air.</code><code class="descname">celsius_to_kelvin</code><span class="sig-paren">(</span><em>celsius</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/air.html#celsius_to_kelvin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.celsius_to_kelvin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.kelvin_to_celsius">
+<code class="descclassname">livestock.air.</code><code class="descname">kelvin_to_celsius</code><span class="sig-paren">(</span><em>kelvin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/air.html#kelvin_to_celsius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.kelvin_to_celsius" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_mean_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">new_mean_relative_humidity</code><span class="sig-paren">(</span><em>area</em>, <em>height_external</em>, <em>temperature_internal</em>, <em>vapour_pressure_external</em>, <em>vapour_production</em>, <em>air_flow_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/air.html#new_mean_relative_humidity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.new_mean_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_mean_temperature">
+<code class="descclassname">livestock.air.</code><code class="descname">new_mean_temperature</code><span class="sig-paren">(</span><em>area</em>, <em>height_external</em>, <em>temperature_external</em>, <em>heat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/air.html#new_mean_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.new_mean_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new mean temperature for the volume.
+:param area: in m^2
+:param height_external: in m
+:param temperature_external: in K
+:param heat: in J
+:return: temperature in K</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_mean_vapour_pressure">
+<code class="descclassname">livestock.air.</code><code class="descname">new_mean_vapour_pressure</code><span class="sig-paren">(</span><em>area</em>, <em>height_external</em>, <em>temperature_internal</em>, <em>vapour_pressure_external</em>, <em>vapour_production</em>, <em>air_flow_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/air.html#new_mean_vapour_pressure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.new_mean_vapour_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new vapour pressure for the volume.
+:param area: area in m^2
+:param temperature_internal: external temperature in K
+:param height_external: external height in m
+:param vapour_pressure_external: external vapour pressure in Pa
+:param vapour_production: vapour production in kg/s
+:param <a href="#id1"><span class="problematic" id="id2">air_flow_</span></a>: air flow in m^3/s
+:return: new vapour pressure in Pa</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_temperature_and_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">new_temperature_and_relative_humidity</code><span class="sig-paren">(</span><em>folder: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/livestock/air.html#new_temperature_and_relative_humidity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.new_temperature_and_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new temperatures and relative humidities for air volumes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>folder</strong> (<em>str</em>) – Path to folder containing case files.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.relative_humidity_to_vapour_pressure">
+<code class="descclassname">livestock.air.</code><code class="descname">relative_humidity_to_vapour_pressure</code><span class="sig-paren">(</span><em>relative_humidity: float</em>, <em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#relative_humidity_to_vapour_pressure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.relative_humidity_to_vapour_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert relative humidity to vapour pressure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>relative_humidity</strong> (<em>float</em>) – unitless</li>
+<li><strong>temperature</strong> (<em>float</em>) – in K</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">vapour pressure in Pa</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.run_row">
+<code class="descclassname">livestock.air.</code><code class="descname">run_row</code><span class="sig-paren">(</span><em>input_package: list</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#run_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.run_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new temperatures and relative humidities for a row. A row represent all cells to a given time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_package</strong> (<em>list</em>) – Input package with need inputs.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The row on which the calculation was performed.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.stratification">
+<code class="descclassname">livestock.air.</code><code class="descname">stratification</code><span class="sig-paren">(</span><em>height: float</em>, <em>value_mean: float</em>, <em>height_top: float</em>, <em>value_top: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/air.html#stratification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.stratification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the stratification of the temperature or relative humidity</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>height</strong> – height at which the stratification value is wanted. in m.</li>
+<li><strong>value_mean</strong> – mean value</li>
+<li><strong>height_top</strong> – height at the top of the boundary. in m</li>
+<li><strong>value_top</strong> – value at the top of the boundary</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">value at desired height.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.vapour_pressure_to_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">vapour_pressure_to_relative_humidity</code><span class="sig-paren">(</span><em>vapour_pressure</em>, <em>temperature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/air.html#vapour_pressure_to_relative_humidity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.vapour_pressure_to_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert vapour pressure to relative humidity
+:param vapour_pressure: in Pa
+:param temperature: in K
+:return: relative humidity as unitless</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.water_evaporation">
+<code class="descclassname">livestock.air.</code><code class="descname">water_evaporation</code><span class="sig-paren">(</span><em>volume_air: float</em>, <em>temperature: float</em>, <em>water: float</em>, <em>fraction_of_evaporation: float</em><span class="sig-paren">)</span> &#x2192; tuple<a class="reference internal" href="_modules/livestock/air.html#water_evaporation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.water_evaporation" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>volume_air</strong> – </li>
+<li><strong>temperature</strong> – </li>
+<li><strong>water</strong> – </li>
+<li><strong>fraction_of_evaporation</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.water_evaporation_template_wrapper">
+<code class="descclassname">livestock.air.</code><code class="descname">water_evaporation_template_wrapper</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/air.html#water_evaporation_template_wrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.water_evaporation_template_wrapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Livestock Package’s documentation!</a></li>
+      <li>Next: <a href="geometry.html" title="next chapter">Livestock Geometry</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Christian Kongsgaard Nielsen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/air.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

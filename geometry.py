@@ -234,9 +234,12 @@ def obj_to_polygons(obj_file: str) -> list:
 
 def shapely_to_pyshp(shapely_geometry):
     """
-    This function converts a shapely geometry into a geojson and then into a pyshp object\n.
+    This function converts a shapely geometry into a geojson and then into a pyshp object.
     Copied from Karim Bahgat's answer at:
     https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles
+
+    :param shapely_geometry: Shapely_geometry to convert.
+    :type shapely_geometry: shapely.geometry
     """
 
     # first convert shapely to geojson

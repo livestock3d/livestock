@@ -1,0 +1,506 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>livestock.air &#8212; Livestock Package .0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for livestock.air</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Christian Kongsgaard&quot;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;MIT&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0.1&quot;</span>
+
+<span class="c1"># -------------------------------------------------------------------------------------------------------------------- #</span>
+<span class="c1"># Imports</span>
+
+<span class="c1"># Module imports</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+
+<span class="c1"># Livestock imports</span>
+
+
+<span class="c1"># -------------------------------------------------------------------------------------------------------------------- #</span>
+<span class="c1"># Livestock Air Functions</span>
+
+<div class="viewcode-block" id="new_temperature_and_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.new_temperature_and_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">new_temperature_and_relative_humidity</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a new temperatures and relative humidities for air volumes.</span>
+
+<span class="sd">    :param folder: Path to folder containing case files.</span>
+<span class="sd">    :type folder: str</span>
+<span class="sd">    :return: True</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Helper functions</span>
+    <span class="k">def</span> <span class="nf">get_files</span><span class="p">(</span><span class="n">folder_</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the case files and returns them as a tuple of lists</span>
+<span class="sd">        :param folder_: Path to case folder</span>
+<span class="sd">        :return: Tuple of lists</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># helper functions</span>
+        <span class="k">def</span> <span class="nf">file_to_numpy</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+            <span class="n">file_obj</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder_path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">file_obj</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">file_obj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">clean_lines</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                           <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span>
+                           <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">clean_lines</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">get_heights</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+            <span class="n">file_obj</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder_path</span> <span class="o">+</span> <span class="s1">&#39;/heights.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">file_obj</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">file_obj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+        <span class="k">def</span> <span class="nf">file_to_numpy_matrix</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+            <span class="n">file_obj</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder_path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">file_obj</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">file_obj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">clean_lines</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                            <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+                           <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]</span>
+
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">clean_lines</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">get_cpu</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+            <span class="n">file_obj</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder_path</span> <span class="o">+</span> <span class="s1">&#39;/cpu.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">file_obj</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">file_obj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+        <span class="c1"># run function</span>
+        <span class="n">air_temperature_</span> <span class="o">=</span> <span class="n">file_to_numpy</span><span class="p">(</span><span class="n">folder_</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">)</span>
+        <span class="n">air_relative_humidity_</span> <span class="o">=</span> <span class="n">file_to_numpy</span><span class="p">(</span><span class="n">folder_</span><span class="p">,</span> <span class="s1">&#39;relative_humidity&#39;</span><span class="p">)</span>
+        <span class="n">area_</span> <span class="o">=</span> <span class="n">file_to_numpy</span><span class="p">(</span><span class="n">folder_</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">)</span>
+        <span class="n">height_top_</span><span class="p">,</span> <span class="n">height_stratification_</span> <span class="o">=</span> <span class="n">get_heights</span><span class="p">(</span><span class="n">folder_</span><span class="p">)</span>
+        <span class="n">heat_flux_</span> <span class="o">=</span> <span class="n">file_to_numpy_matrix</span><span class="p">(</span><span class="n">folder_</span><span class="p">,</span> <span class="s1">&#39;heat_flux&#39;</span><span class="p">)</span>
+        <span class="n">vapour_flux_</span> <span class="o">=</span> <span class="n">file_to_numpy_matrix</span><span class="p">(</span><span class="n">folder_</span><span class="p">,</span> <span class="s1">&#39;vapour_flux&#39;</span><span class="p">)</span>
+        <span class="n">cpu_</span> <span class="o">=</span> <span class="n">get_cpu</span><span class="p">(</span><span class="n">folder_</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">air_temperature_</span><span class="p">,</span> <span class="n">air_relative_humidity_</span><span class="p">,</span> <span class="n">area_</span><span class="p">,</span> <span class="n">height_top_</span><span class="p">,</span> <span class="n">height_stratification_</span><span class="p">,</span> <span class="n">heat_flux_</span><span class="p">,</span> \
+            <span class="n">vapour_flux_</span><span class="p">,</span> <span class="n">cpu_</span>
+
+    <span class="k">def</span> <span class="nf">reconstruct_results</span><span class="p">(</span><span class="n">folder_</span><span class="p">,</span> <span class="n">processed_rows_</span><span class="p">):</span>
+        <span class="c1"># Sort row list</span>
+        <span class="n">sorted_rows</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">processed_rows_</span><span class="p">)</span>
+
+        <span class="c1"># open result files</span>
+        <span class="n">temperature_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/temperature_results.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">relhum_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/relative_humidity_results.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">row_number</span> <span class="ow">in</span> <span class="n">sorted_rows</span><span class="p">:</span>
+
+            <span class="c1"># process temperature files</span>
+            <span class="n">temp_path</span> <span class="o">=</span> <span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/temp_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">row_number</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span>
+            <span class="n">temp_obj</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">temp_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">temp_obj</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">temperature_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">temp_obj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">temp_path</span><span class="p">)</span>
+
+            <span class="c1"># process relative humidity files</span>
+            <span class="n">relhum_path</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">+</span> <span class="s1">&#39;/relhum_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">row_number</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span>
+            <span class="n">relhum_obj</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">relhum_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">relhum_obj</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">relhum_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">relhum_obj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">relhum_path</span><span class="p">)</span>
+
+        <span class="n">temperature_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">relhum_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1"># Run function</span>
+    <span class="n">temperature</span><span class="p">,</span> <span class="n">relative_humidity</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">height_top</span><span class="p">,</span> <span class="n">height_stratification</span><span class="p">,</span> <span class="n">heat_flux</span><span class="p">,</span> <span class="n">vapour_flux</span><span class="p">,</span> <span class="n">cpu</span> <span class="o">=</span> \
+        <span class="n">get_files</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+
+    <span class="n">rows_</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span>
+             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">heat_flux</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+
+    <span class="n">input_packages</span> <span class="o">=</span> <span class="p">[(</span><span class="n">folder</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">temperature</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">relative_humidity</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">heat_flux</span><span class="p">[</span><span class="n">index</span><span class="p">],</span>
+                       <span class="n">vapour_flux</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">area</span><span class="p">,</span> <span class="n">height_stratification</span><span class="p">,</span> <span class="n">height_top</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">rows_</span><span class="p">]</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">cpu</span><span class="p">)</span>
+    <span class="n">processed_rows</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">run_row</span><span class="p">,</span> <span class="n">input_packages</span><span class="p">)</span>
+    <span class="n">reconstruct_results</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">processed_rows</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="run_row"><a class="viewcode-back" href="../../air.html#livestock.air.run_row">[docs]</a><span class="k">def</span> <span class="nf">run_row</span><span class="p">(</span><span class="n">input_package</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a new temperatures and relative humidities for a row. A row represent all cells to a given time.</span>
+
+<span class="sd">    :param input_package: Input package with need inputs.</span>
+<span class="sd">    :type input_package: list</span>
+<span class="sd">    :return: The row on which the calculation was performed.</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># unpack</span>
+    <span class="n">folder_</span><span class="p">,</span> <span class="n">row_index</span><span class="p">,</span> <span class="n">temperature_time</span><span class="p">,</span> <span class="n">relative_humidity_time</span><span class="p">,</span> <span class="n">heat_flux_time_row</span><span class="p">,</span> <span class="n">vapour_flux_time_row</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> \
+        <span class="n">height_stratification</span><span class="p">,</span> <span class="n">height_top</span> <span class="o">=</span> <span class="n">input_package</span>
+
+    <span class="c1"># new mean temperature i K</span>
+    <span class="n">air_temperature_in_k</span> <span class="o">=</span> <span class="n">celsius_to_kelvin</span><span class="p">(</span><span class="n">temperature_time</span><span class="p">)</span>
+    <span class="n">temperature_row</span> <span class="o">=</span> <span class="n">new_mean_temperature</span><span class="p">(</span><span class="n">area</span><span class="p">,</span>
+                                           <span class="n">height_top</span><span class="p">,</span>
+                                           <span class="n">air_temperature_in_k</span><span class="p">,</span>
+                                           <span class="n">heat_flux_time_row</span><span class="p">)</span>
+
+    <span class="c1"># air flow</span>
+    <span class="n">air_flow_row</span> <span class="o">=</span> <span class="n">air_flow</span><span class="p">(</span><span class="n">area</span><span class="p">,</span>
+                            <span class="n">height_top</span><span class="p">,</span>
+                            <span class="n">air_temperature_in_k</span><span class="p">,</span>
+                            <span class="n">temperature_row</span><span class="p">)</span>
+
+    <span class="c1"># new relative humidity</span>
+    <span class="n">relative_humidity_row</span> <span class="o">=</span> <span class="n">new_mean_relative_humidity</span><span class="p">(</span><span class="n">area</span><span class="p">,</span>
+                                                       <span class="n">height_top</span><span class="p">,</span>
+                                                       <span class="n">temperature_row</span><span class="p">,</span>
+                                                       <span class="n">relative_humidity_to_vapour_pressure</span><span class="p">(</span>
+                                                           <span class="n">relative_humidity_time</span><span class="p">,</span>
+                                                           <span class="n">air_temperature_in_k</span><span class="p">),</span>
+                                                       <span class="n">vapour_flux_time_row</span><span class="p">,</span>
+                                                       <span class="n">air_flow_row</span>
+                                                       <span class="p">)</span>
+
+    <span class="c1"># new stratified relative humidity</span>
+    <span class="n">stratified_relative_humidity_row</span> <span class="o">=</span> <span class="n">stratification</span><span class="p">(</span><span class="n">height_stratification</span><span class="p">,</span>
+                                                      <span class="n">relative_humidity_row</span><span class="p">,</span>
+                                                      <span class="n">height_top</span><span class="p">,</span>
+                                                      <span class="n">relative_humidity_time</span>
+                                                      <span class="p">)</span>
+
+    <span class="c1"># new stratified temperature in C</span>
+    <span class="n">stratified_temperature_row</span> <span class="o">=</span> <span class="n">stratification</span><span class="p">(</span><span class="n">height_stratification</span><span class="p">,</span>
+                                                <span class="n">kelvin_to_celsius</span><span class="p">(</span><span class="n">temperature_row</span><span class="p">),</span>
+                                                <span class="n">height_top</span><span class="p">,</span>
+                                                <span class="n">temperature_time</span><span class="p">)</span>
+
+    <span class="c1"># write results</span>
+    <span class="n">temp_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/temp_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">row_index</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">temp_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stratified_temperature_row</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)))</span>
+    <span class="n">temp_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">relhum_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/relhum_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">row_index</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">relhum_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stratified_relative_humidity_row</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)))</span>
+    <span class="n">relhum_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">row_index</span></div>
+
+
+<div class="viewcode-block" id="new_mean_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">new_mean_relative_humidity</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_external</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">,</span> <span class="n">vapour_pressure_external</span><span class="p">,</span>
+                               <span class="n">vapour_production</span><span class="p">,</span> <span class="n">air_flow_</span><span class="p">):</span>
+
+    <span class="n">vapour_pressure</span> <span class="o">=</span> <span class="n">new_mean_vapour_pressure</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_external</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">,</span> <span class="n">vapour_pressure_external</span><span class="p">,</span>
+                                               <span class="n">vapour_production</span><span class="p">,</span> <span class="n">air_flow_</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">vapour_pressure_to_relative_humidity</span><span class="p">(</span><span class="n">vapour_pressure</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="new_mean_vapour_pressure"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_vapour_pressure">[docs]</a><span class="k">def</span> <span class="nf">new_mean_vapour_pressure</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_external</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">,</span> <span class="n">vapour_pressure_external</span><span class="p">,</span>
+                             <span class="n">vapour_production</span><span class="p">,</span> <span class="n">air_flow_</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a new vapour pressure for the volume.</span>
+<span class="sd">    :param area: area in m^2</span>
+<span class="sd">    :param temperature_internal: external temperature in K</span>
+<span class="sd">    :param height_external: external height in m</span>
+<span class="sd">    :param vapour_pressure_external: external vapour pressure in Pa</span>
+<span class="sd">    :param vapour_production: vapour production in kg/s</span>
+<span class="sd">    :param air_flow_: air flow in m^3/s</span>
+<span class="sd">    :return: new vapour pressure in Pa</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">volume_air</span> <span class="o">=</span> <span class="n">area</span> <span class="o">*</span> <span class="n">height_external</span>  <span class="c1"># m^3</span>
+    <span class="n">gas_constant_vapour</span> <span class="o">=</span> <span class="mf">461.5</span>  <span class="c1"># J/kgK</span>
+
+    <span class="n">contact</span> <span class="o">=</span> <span class="n">air_flow_</span> <span class="o">/</span> <span class="p">(</span><span class="n">gas_constant_vapour</span> <span class="o">*</span> <span class="n">temperature_internal</span><span class="p">)</span>  <span class="c1"># kg/sPa</span>
+    <span class="n">capacity</span> <span class="o">=</span> <span class="n">volume_air</span> <span class="o">/</span> <span class="p">(</span><span class="n">gas_constant_vapour</span> <span class="o">*</span> <span class="n">temperature_internal</span><span class="p">)</span>  <span class="c1"># m3kg/J</span>
+    <span class="n">vapour_pressure</span> <span class="o">=</span> <span class="n">vapour_pressure_external</span> <span class="o">+</span> <span class="n">vapour_production</span><span class="o">/</span><span class="n">contact</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">contact</span><span class="o">/</span><span class="n">capacity</span><span class="p">))</span>  <span class="c1"># Pa</span>
+
+    <span class="k">return</span> <span class="n">vapour_pressure</span></div>
+
+
+<div class="viewcode-block" id="air_flow"><a class="viewcode-back" href="../../air.html#livestock.air.air_flow">[docs]</a><span class="k">def</span> <span class="nf">air_flow</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_top</span><span class="p">,</span> <span class="n">temperature_top</span><span class="p">,</span> <span class="n">temperature_mean</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates an air flow based on an mean temperature for the volume.</span>
+<span class="sd">    :param area: in m^2</span>
+<span class="sd">    :param height_top: in m</span>
+<span class="sd">    :param temperature_top: in K</span>
+<span class="sd">    :param temperature_mean: in K</span>
+<span class="sd">    :return: air flow in m^3/s</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">density_air</span> <span class="o">=</span> <span class="mf">1.29</span> <span class="o">*</span> <span class="mi">273</span> <span class="o">/</span> <span class="n">temperature_top</span>  <span class="c1"># kg/m^3</span>
+    <span class="n">gravity</span> <span class="o">=</span> <span class="mf">9.81</span>  <span class="c1"># m/s^2</span>
+    <span class="n">height_mean</span> <span class="o">=</span> <span class="n">height_top</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># m</span>
+
+    <span class="n">delta_temperature</span> <span class="o">=</span> <span class="n">temperature_top</span> <span class="o">-</span> <span class="n">temperature_mean</span>
+    <span class="n">delta_pressure</span> <span class="o">=</span> <span class="n">density_air</span> <span class="o">*</span> <span class="n">gravity</span> <span class="o">*</span> <span class="p">(</span><span class="n">height_top</span> <span class="o">-</span> <span class="n">height_mean</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta_temperature</span> <span class="o">/</span> <span class="n">temperature_mean</span>
+
+    <span class="k">return</span> <span class="n">area</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_pressure</span><span class="p">)</span> <span class="o">/</span> <span class="n">density_air</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta_pressure</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_pressure</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="new_mean_temperature"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_temperature">[docs]</a><span class="k">def</span> <span class="nf">new_mean_temperature</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_external</span><span class="p">,</span> <span class="n">temperature_external</span><span class="p">,</span> <span class="n">heat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a new mean temperature for the volume.</span>
+<span class="sd">    :param area: in m^2</span>
+<span class="sd">    :param height_external: in m</span>
+<span class="sd">    :param temperature_external: in K</span>
+<span class="sd">    :param heat: in J</span>
+<span class="sd">    :return: temperature in K</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">volume_air</span> <span class="o">=</span> <span class="n">area</span> <span class="o">*</span> <span class="n">height_external</span>
+    <span class="n">specific_heat_capacity</span> <span class="o">=</span> <span class="mi">1005</span>  <span class="c1"># J/kgK</span>
+    <span class="n">density_air</span> <span class="o">=</span> <span class="mf">1.29</span> <span class="o">*</span> <span class="mi">273</span> <span class="o">/</span> <span class="n">temperature_external</span>  <span class="c1"># kg/m^3</span>
+    <span class="n">energy_air</span> <span class="o">=</span> <span class="n">volume_air</span> <span class="o">*</span> <span class="n">specific_heat_capacity</span> <span class="o">*</span> <span class="n">density_air</span> <span class="o">*</span> <span class="n">temperature_external</span>  <span class="c1"># J</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">energy_air</span> <span class="o">+</span> <span class="n">heat</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">volume_air</span> <span class="o">*</span> <span class="n">density_air</span> <span class="o">*</span> <span class="n">specific_heat_capacity</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="celsius_to_kelvin"><a class="viewcode-back" href="../../air.html#livestock.air.celsius_to_kelvin">[docs]</a><span class="k">def</span> <span class="nf">celsius_to_kelvin</span><span class="p">(</span><span class="n">celsius</span><span class="p">):</span>
+    <span class="n">kelvin</span> <span class="o">=</span> <span class="n">celsius</span> <span class="o">+</span> <span class="mi">273</span>
+    <span class="k">return</span> <span class="n">kelvin</span></div>
+
+
+<div class="viewcode-block" id="kelvin_to_celsius"><a class="viewcode-back" href="../../air.html#livestock.air.kelvin_to_celsius">[docs]</a><span class="k">def</span> <span class="nf">kelvin_to_celsius</span><span class="p">(</span><span class="n">kelvin</span><span class="p">):</span>
+    <span class="n">celsius</span> <span class="o">=</span> <span class="n">kelvin</span> <span class="o">-</span> <span class="mi">273</span>
+    <span class="k">return</span> <span class="n">celsius</span></div>
+
+
+<div class="viewcode-block" id="vapour_pressure_to_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.vapour_pressure_to_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">vapour_pressure_to_relative_humidity</span><span class="p">(</span><span class="n">vapour_pressure</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert vapour pressure to relative humidity</span>
+<span class="sd">    :param vapour_pressure: in Pa</span>
+<span class="sd">    :param temperature: in K</span>
+<span class="sd">    :return: relative humidity as unitless</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">temperature_c</span> <span class="o">=</span> <span class="n">kelvin_to_celsius</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>  <span class="c1"># C</span>
+    <span class="n">saturated_pressure</span> <span class="o">=</span> <span class="mf">288.68</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.098</span> <span class="o">+</span> <span class="n">temperature_c</span><span class="o">/</span><span class="mi">100</span><span class="p">)</span><span class="o">**</span><span class="mf">8.02</span>  <span class="c1"># Pa</span>
+    <span class="n">relative_humidity</span> <span class="o">=</span> <span class="n">vapour_pressure</span><span class="o">/</span><span class="n">saturated_pressure</span>  <span class="c1"># -</span>
+
+    <span class="k">return</span> <span class="n">relative_humidity</span></div>
+
+
+<div class="viewcode-block" id="relative_humidity_to_vapour_pressure"><a class="viewcode-back" href="../../air.html#livestock.air.relative_humidity_to_vapour_pressure">[docs]</a><span class="k">def</span> <span class="nf">relative_humidity_to_vapour_pressure</span><span class="p">(</span><span class="n">relative_humidity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert relative humidity to vapour pressure.</span>
+
+<span class="sd">    :type temperature: float</span>
+<span class="sd">    :type relative_humidity: float</span>
+<span class="sd">    :param relative_humidity: unitless</span>
+<span class="sd">    :param temperature: in K</span>
+<span class="sd">    :return: vapour pressure in Pa</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">temperature_c</span> <span class="o">=</span> <span class="n">kelvin_to_celsius</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>  <span class="c1"># C</span>
+    <span class="n">saturated_pressure</span> <span class="o">=</span> <span class="mf">288.68</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.098</span> <span class="o">+</span> <span class="n">temperature_c</span><span class="o">/</span><span class="mi">100</span><span class="p">)</span><span class="o">**</span><span class="mf">8.02</span>  <span class="c1"># Pa</span>
+    <span class="n">vapour_pressure</span> <span class="o">=</span> <span class="n">relative_humidity</span> <span class="o">*</span> <span class="n">saturated_pressure</span>  <span class="c1"># Pa</span>
+
+    <span class="k">return</span> <span class="n">vapour_pressure</span></div>
+
+
+<div class="viewcode-block" id="stratification"><a class="viewcode-back" href="../../air.html#livestock.air.stratification">[docs]</a><span class="k">def</span> <span class="nf">stratification</span><span class="p">(</span><span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">value_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">value_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the stratification of the temperature or relative humidity</span>
+
+<span class="sd">    :param height: height at which the stratification value is wanted. in m.</span>
+<span class="sd">    :param value_mean: mean value</span>
+<span class="sd">    :param height_top: height at the top of the boundary. in m</span>
+<span class="sd">    :param value_top: value at the top of the boundary</span>
+<span class="sd">    :return: value at desired height.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">value_mean</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="p">(</span><span class="n">value_mean</span> <span class="o">-</span> <span class="n">value_top</span><span class="p">)</span><span class="o">/</span><span class="n">height_top</span></div>
+
+
+<div class="viewcode-block" id="water_evaporation"><a class="viewcode-back" href="../../air.html#livestock.air.water_evaporation">[docs]</a><span class="k">def</span> <span class="nf">water_evaporation</span><span class="p">(</span><span class="n">volume_air</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">water</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fraction_of_evaporation</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    :param volume_air:</span>
+<span class="sd">    :type volume_air:</span>
+<span class="sd">    :param temperature:</span>
+<span class="sd">    :type temperature:</span>
+<span class="sd">    :param water:</span>
+<span class="sd">    :type water:</span>
+<span class="sd">    :param fraction_of_evaporation:</span>
+<span class="sd">    :type fraction_of_evaporation:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    :rtype:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">specific_heat_capacity</span> <span class="o">=</span> <span class="mi">1005</span>  <span class="c1"># J/kgK</span>
+    <span class="n">density_air</span> <span class="o">=</span> <span class="mf">1.29</span> <span class="o">*</span> <span class="mi">273</span> <span class="o">/</span> <span class="n">temperature</span>  <span class="c1"># kg/m^3</span>
+    <span class="n">heat_of_evaporation_water</span> <span class="o">=</span> <span class="mi">2257000</span>  <span class="c1"># J/kg</span>
+    <span class="n">density_water</span> <span class="o">=</span> <span class="mi">1000</span>  <span class="c1"># kg/m3</span>
+
+    <span class="n">vapour_gain</span> <span class="o">=</span> <span class="n">water</span><span class="o">/</span><span class="n">density_water</span> <span class="o">*</span> <span class="n">fraction_of_evaporation</span>
+    <span class="n">energy_of_evaporation</span> <span class="o">=</span> <span class="n">water</span> <span class="o">*</span> <span class="n">heat_of_evaporation_water</span> <span class="o">*</span> <span class="n">fraction_of_evaporation</span>
+    <span class="n">energy_air</span> <span class="o">=</span> <span class="n">volume_air</span> <span class="o">*</span> <span class="n">specific_heat_capacity</span> <span class="o">*</span> <span class="n">density_air</span> <span class="o">*</span> <span class="n">temperature</span>  <span class="c1"># J</span>
+    <span class="n">new_temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy_air</span> <span class="o">-</span> <span class="n">energy_of_evaporation</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">volume_air</span> <span class="o">*</span> <span class="n">specific_heat_capacity</span> <span class="o">*</span> <span class="n">density_air</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_temperature</span><span class="p">,</span> <span class="n">energy_of_evaporation</span><span class="p">,</span> <span class="n">vapour_gain</span></div>
+
+
+<div class="viewcode-block" id="water_evaporation_template_wrapper"><a class="viewcode-back" href="../../air.html#livestock.air.water_evaporation_template_wrapper">[docs]</a><span class="k">def</span> <span class="nf">water_evaporation_template_wrapper</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">read_files</span><span class="p">(</span><span class="n">result_path</span><span class="p">):</span>
+
+        <span class="n">volume_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">result_path</span> <span class="o">+</span> <span class="s1">&#39;/volume.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">volume_lines</span> <span class="o">=</span> <span class="n">volume_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">volume_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">volume_</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                   <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">volume_lines</span>
+                   <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+
+        <span class="c1"># Create Temperature file</span>
+        <span class="n">temp_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">result_path</span> <span class="o">+</span> <span class="s1">&#39;/temperature.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">temp_lines</span> <span class="o">=</span> <span class="n">temp_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">temp_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">temperature_</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">temp_lines</span>
+                        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+
+        <span class="c1"># Create water file</span>
+        <span class="n">water_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">result_path</span> <span class="o">+</span> <span class="s1">&#39;/water.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">water_lines</span> <span class="o">=</span> <span class="n">water_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">water_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">water_</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                  <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">water_lines</span>
+                  <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+
+        <span class="c1"># Create fraction file</span>
+        <span class="n">fraction_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">result_path</span> <span class="o">+</span> <span class="s1">&#39;/fraction.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">fraction_lines</span> <span class="o">=</span> <span class="n">fraction_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">fraction_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">fraction_</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fraction_lines</span>
+                     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">volume_</span><span class="p">,</span> <span class="n">temperature_</span><span class="p">,</span> <span class="n">water_</span><span class="p">,</span> <span class="n">fraction_</span>
+
+    <span class="k">def</span> <span class="nf">write_files</span><span class="p">(</span><span class="n">write_path</span><span class="p">,</span> <span class="n">temperature_</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">vapour</span><span class="p">):</span>
+
+        <span class="c1"># Create Temperature file</span>
+        <span class="n">temp_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_path</span> <span class="o">+</span> <span class="s1">&#39;/temperature.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">temp_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                                  <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_</span><span class="p">]))</span>
+        <span class="n">temp_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># Create volume file</span>
+        <span class="n">energy_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_path</span> <span class="o">+</span> <span class="s1">&#39;/energy.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">energy_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">energy</span><span class="p">]))</span>
+        <span class="n">energy_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># Create water file</span>
+        <span class="n">vapour_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_path</span> <span class="o">+</span> <span class="s1">&#39;/vapour.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">vapour_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vapour</span><span class="p">]))</span>
+        <span class="n">vapour_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">local_path</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\livestock\local&#39;</span>
+    <span class="n">volume</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">water</span><span class="p">,</span> <span class="n">fraction</span> <span class="o">=</span> <span class="n">read_files</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
+    <span class="n">new_temperature</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">energy_of_evaporation</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">vapour_gain</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">volume</span><span class="p">)):</span>
+        <span class="n">nt</span><span class="p">,</span> <span class="n">ee</span><span class="p">,</span> <span class="n">vg</span> <span class="o">=</span> <span class="n">water_evaporation</span><span class="p">(</span><span class="n">volume</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">temperature</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">water</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">fraction</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">new_temperature</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
+        <span class="n">energy_of_evaporation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ee</span><span class="p">)</span>
+        <span class="n">vapour_gain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vg</span><span class="p">)</span>
+
+    <span class="n">write_files</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">new_temperature</span><span class="p">,</span> <span class="n">energy_of_evaporation</span><span class="p">,</span> <span class="n">vapour_gain</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Christian Kongsgaard Nielsen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

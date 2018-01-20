@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Livestock Modules &#8212; Livestock Package .0 documentation</title>
+    <title>Livestock Hydrology &#8212; Livestock Package .0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,7 +23,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Welcome to Livestock Package’s documentation!" href="index.html" />
+    <link rel="next" title="Livestock Misc" href="misc.html" />
+    <link rel="prev" title="Livestock Geometry" href="geometry.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -39,88 +40,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="livestock-modules">
-<h1>Livestock Modules<a class="headerlink" href="#livestock-modules" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div>air</div></blockquote>
-<div class="section" id="module-livestock.geometry">
-<span id="livestock-geometry"></span><h2>Livestock Geometry<a class="headerlink" href="#module-livestock.geometry" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="livestock.geometry.angle_between_vectors">
-<code class="descclassname">livestock.geometry.</code><code class="descname">angle_between_vectors</code><span class="sig-paren">(</span><em>v1</em>, <em>v2</em>, <em>force_angle=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#angle_between_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.angle_between_vectors" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the angle between two vectors.
-:param v1: Vector1 as numpy array
-:param v2: Vector2 as numpy array
-:param force_angle: Default is None. Use to force angle into acute or obtuse.
-:return: Angle in radians and its angle type.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.centroid_z">
-<code class="descclassname">livestock.geometry.</code><code class="descname">centroid_z</code><span class="sig-paren">(</span><em>polygon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#centroid_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.centroid_z" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the mean z-value from a Shapely polygon</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.line_intersection">
-<code class="descclassname">livestock.geometry.</code><code class="descname">line_intersection</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>p3</em>, <em>p4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#line_intersection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.line_intersection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the intersection between two lines given 4 points on those lines.
-:param p1: Numpy array. First point on line 1
-:param p2: Numpy array. Second point on line 1
-:param p3: Numpy array. First point on line 2
-:param p4: Numpy array. Second point on line 2
-:return: Numpy array. Intersection point</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.lowest_face_vertex">
-<code class="descclassname">livestock.geometry.</code><code class="descname">lowest_face_vertex</code><span class="sig-paren">(</span><em>v0</em>, <em>v1</em>, <em>v2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#lowest_face_vertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.lowest_face_vertex" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.obj_to_lists">
-<code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_lists</code><span class="sig-paren">(</span><em>obj_file: str</em><span class="sig-paren">)</span> &#x2192; tuple<a class="reference internal" href="_modules/livestock/geometry.html#obj_to_lists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.obj_to_lists" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a obj file into lists</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.obj_to_polygons">
-<code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_polygons</code><span class="sig-paren">(</span><em>obj_file: str</em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="_modules/livestock/geometry.html#obj_to_polygons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.obj_to_polygons" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a obj file into a list of shapely polygons</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.obj_to_shp">
-<code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_shp</code><span class="sig-paren">(</span><em>obj_file</em>, <em>shp_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#obj_to_shp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.obj_to_shp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a obj file into a shape file</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.ray_triangle_intersection">
-<code class="descclassname">livestock.geometry.</code><code class="descname">ray_triangle_intersection</code><span class="sig-paren">(</span><em>ray_near</em>, <em>ray_dir</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#ray_triangle_intersection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.ray_triangle_intersection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Möller–Trumbore intersection algorithm in pure python
-Based on <a class="reference external" href="http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm">http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm</a></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.shapely_to_pyshp">
-<code class="descclassname">livestock.geometry.</code><code class="descname">shapely_to_pyshp</code><span class="sig-paren">(</span><em>shapely_geometry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#shapely_to_pyshp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.shapely_to_pyshp" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function converts a shapely geometry into a geojson and then into a pyshp object.
-Copied from Karim Bahgat’s answer at:
-<a class="reference external" href="https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles">https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>shapely_geometry</strong> (<em>shapely.geometry</em>) – Shapely_geometry to convert.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</div>
-<div class="section" id="module-livestock.hydrology">
-<span id="livestock-hydrology"></span><h2>Livestock Hydrology<a class="headerlink" href="#module-livestock.hydrology" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="module-livestock.hydrology">
+<span id="livestock-hydrology"></span><h1>Livestock Hydrology<a class="headerlink" href="#module-livestock.hydrology" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="livestock.hydrology.CMFModel">
 <em class="property">class </em><code class="descclassname">livestock.hydrology.</code><code class="descname">CMFModel</code><span class="sig-paren">(</span><em>folder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/hydrology.html#CMFModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.hydrology.CMFModel" title="Permalink to this definition">¶</a></dt>
@@ -237,29 +158,6 @@ Copied from Karim Bahgat’s answer at:
 <dd></dd></dl>
 
 </div>
-<div class="section" id="module-livestock.misc">
-<span id="livestock-misc"></span><h2>Livestock Misc<a class="headerlink" href="#module-livestock.misc" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="livestock.misc.run_cfd">
-<code class="descclassname">livestock.misc.</code><code class="descname">run_cfd</code><span class="sig-paren">(</span><em>files_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/misc.html#run_cfd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.misc.run_cfd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs a OpenFoam case</p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-livestock.ssh">
-<span id="livestock-ssh"></span><h2>Livestock SSH<a class="headerlink" href="#module-livestock.ssh" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="livestock.ssh.check_for_remote_folder">
-<code class="descclassname">livestock.ssh.</code><code class="descname">check_for_remote_folder</code><span class="sig-paren">(</span><em>sftp_connect</em>, <em>folder_to_check</em>, <em>check_for</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/ssh.html#check_for_remote_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.ssh.check_for_remote_folder" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="livestock.ssh.ssh_connection">
-<code class="descclassname">livestock.ssh.</code><code class="descname">ssh_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/ssh.html#ssh_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.ssh.ssh_connection" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-</div>
 
 
           </div>
@@ -270,7 +168,8 @@ Copied from Karim Bahgat’s answer at:
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Livestock Package’s documentation!</a></li>
+      <li>Previous: <a href="geometry.html" title="previous chapter">Livestock Geometry</a></li>
+      <li>Next: <a href="misc.html" title="next chapter">Livestock Misc</a></li>
   </ul></li>
 </ul>
 </div>
@@ -296,7 +195,7 @@ Copied from Karim Bahgat’s answer at:
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/modules.rst.txt"
+      <a href="_sources/hydrology.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

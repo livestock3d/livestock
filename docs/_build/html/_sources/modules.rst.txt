@@ -1,7 +1,36 @@
-Livestock
-=========
+Livestock Modules
+=================
 
-.. toctree::
-   :maxdepth: 4
+    air
 
-   livestock
+Livestock Geometry
+------------------
+
+.. automodule:: livestock.geometry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Livestock Hydrology
+-------------------
+
+.. automodule:: livestock.hydrology
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Livestock Misc
+--------------
+
+.. automodule:: livestock.misc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Livestock SSH
+-------------
+
+.. automodule:: livestock.ssh
+    :members:
+    :undoc-members:
+    :show-inheritance:

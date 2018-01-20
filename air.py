@@ -347,6 +347,7 @@ def water_evaporation(volume_air: float, temperature: float, water: float, fract
 
     return new_temperature, energy_of_evaporation, vapour_gain
 
+
 def water_evaporation_template_wrapper():
 
     def read_files(result_path):
@@ -355,41 +356,41 @@ def water_evaporation_template_wrapper():
         volume_lines = volume_file.readlines()
         volume_file.close()
         volume_ = [float(v.strip())
-                  for line in volume_lines
-                  for v in line.split(',')]
+                   for line in volume_lines
+                   for v in line.split(',')]
 
         # Create Temperature file
         temp_file = open(result_path + '/temperature.txt', 'r')
         temp_lines = temp_file.readlines()
         temp_file.close()
         temperature_ = [float(t.strip())
-                       for line in temp_lines
-                       for t in line.split(',')]
+                        for line in temp_lines
+                        for t in line.split(',')]
 
         # Create water file
         water_file = open(result_path + '/water.txt', 'r')
         water_lines = water_file.readlines()
         water_file.close()
         water_ = [float(w.strip())
-                 for line in water_lines
-                 for w in line.split(',')]
+                  for line in water_lines
+                  for w in line.split(',')]
 
         # Create fraction file
         fraction_file = open(result_path + '/fraction.txt', 'r')
         fraction_lines = fraction_file.readlines()
         fraction_file.close()
         fraction_ = [float(f.strip())
-                    for line in fraction_lines
-                    for f in line.split(',')]
+                     for line in fraction_lines
+                     for f in line.split(',')]
 
         return volume_, temperature_, water_, fraction_
 
-    def write_files(write_path, temperature, energy, vapour):
+    def write_files(write_path, temperature_, energy, vapour):
 
         # Create Temperature file
         temp_file = open(write_path + '/temperature.txt', 'w')
         temp_file.write(','.join([str(t)
-                                  for t in temperature]))
+                                  for t in temperature_]))
         temp_file.close()
 
         # Create volume file
@@ -401,7 +402,7 @@ def water_evaporation_template_wrapper():
         # Create water file
         vapour_file = open(write_path + '/vapour.txt', 'w')
         vapour_file.write(','.join([str(v)
-                                   for v in vapour]))
+                                    for v in vapour]))
         vapour_file.close()
 
         return True
