@@ -17,8 +17,11 @@ import xmltodict
 import ast
 
 # Livestock imports
-#from . import geometry as lg
-import geometry as lg
+try:
+    from . import geometry as lg
+except ModuleNotFoundError:
+    import geometry as lg
+
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
 
@@ -535,9 +538,9 @@ class CMFModel:
             outlet = cmf_project_.NewOutlet('outlet_' + str(index_), float(x), float(y), float(z))
             cell = cmf_project_.cells[int(boundary_condition_['cell'])]
 
-
+            # Set connection
             if boundary_condition_['outlet_type']['outlet_connection'] == 'richards':
-                outlet.potential = boundary_condition_['outlet_type']['connection_parameter']
+                outlet.potential = float(boundary_condition_['outlet_type']['connection_parameter'])
 
                 if float(boundary_condition_['layer']) == 0:
                     cmf.Richards(cell.surfacewater, outlet)
@@ -549,11 +552,11 @@ class CMFModel:
                 if float(boundary_condition_['layer']) == 0:
                     cmf.kinematic_wave(source=cell.surfacewater,
                                        target=outlet,
-                                       residencetime=boundary_condition_['outlet_type']['connection_parameter'])
+                                       residencetime=float(boundary_condition_['outlet_type']['connection_parameter']))
                 else:
                     cmf.kinematic_wave(source=cell.layers[int(boundary_condition_['layer']) - 1],
                                        target=outlet,
-                                       residencetime=boundary_condition_['outlet_type']['connection_parameter'])
+                                       residencetime=float(boundary_condition_['outlet_type']['connection_parameter']))
 
             elif boundary_condition_['outlet_type']['outlet_connection'] == 'technical_flux':
                 if float(boundary_condition_['layer']) == 0:
