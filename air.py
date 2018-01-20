@@ -130,7 +130,11 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
 def run_row(input_package: list) -> float:
     """
     Calculates a new temperatures and relative humidities for a row. A row represent all cell to a given time.
+
+    :param input_package: Input package with need inputs.
+    :type input_package: list
     :return: The row on which the calculation was performed.
+    :rtype: float
     """
 
     # unpack
