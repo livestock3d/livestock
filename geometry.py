@@ -19,10 +19,10 @@ import numpy as np
 
 
 def ray_triangle_intersection(ray_near, ray_dir, V):
-    """
-    Möller–Trumbore intersection algorithm in pure python
-    Based on http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
-    """
+
+    # Möller–Trumbore intersection algorithm in pure python
+    # Based on http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+
 
     v1 = V[0]
     v2 = V[1]
@@ -96,13 +96,13 @@ def lowest_face_vertex(v0, v1, v2):
 
 
 def angle_between_vectors(v1, v2, force_angle=None):
-    """
-    Computes the angle between two vectors.
-    :param v1: Vector1 as numpy array
-    :param v2: Vector2 as numpy array
-    :param force_angle: Default is None. Use to force angle into acute or obtuse.
-    :return: Angle in radians and its angle type.
-    """
+
+    # Computes the angle between two vectors.
+    # :param v1: Vector1 as numpy array
+    # :param v2: Vector2 as numpy array
+    # :param force_angle: Default is None. Use to force angle into acute or obtuse.
+    # :return: Angle in radians and its angle type.
+
 
     # Dot product
     dot_v1v2 = np.dot(v1, v2)
@@ -145,14 +145,14 @@ def angle_between_vectors(v1, v2, force_angle=None):
 
 
 def line_intersection(p1, p2, p3, p4):
-    """
-    Computes the intersection between two lines given 4 points on those lines.
-    :param p1: Numpy array. First point on line 1
-    :param p2: Numpy array. Second point on line 1
-    :param p3: Numpy array. First point on line 2
-    :param p4: Numpy array. Second point on line 2
-    :return: Numpy array. Intersection point
-    """
+    # """
+    # Computes the intersection between two lines given 4 points on those lines.
+    # :param p1: Numpy array. First point on line 1
+    # :param p2: Numpy array. Second point on line 1
+    # :param p3: Numpy array. First point on line 2
+    # :param p4: Numpy array. Second point on line 2
+    # :return: Numpy array. Intersection point
+    # """
 
     # Direction vectors
     v1 = (p2 - p1)
@@ -167,7 +167,14 @@ def line_intersection(p1, p2, p3, p4):
 
 
 def obj_to_lists(obj_file: str)-> tuple:
-    """Convert a obj file into lists"""
+    """
+    Converts an .obj file into lists.
+
+    :param obj_file: .obj file path
+    :type obj_file: str
+    :return: tuple with vertices, normals, faces
+    :rtype: tuple
+    """
 
     # Initialization
     vertices = []
@@ -204,8 +211,15 @@ def obj_to_lists(obj_file: str)-> tuple:
     return vertices, normals, faces
 
 
-def centroid_z(polygon):
-    """Calculates the mean z-value from a Shapely polygon"""
+def centroid_z(polygon: shapely.geometry.Polygon) -> float:
+    """
+    Calculates the mean z-value from a Shapely polygon.
+
+    :param polygon: Shapely Polygon with z-values.
+    :type polygon: shapely.geometry.Polygon
+    :return: Mean z-value of the polygon
+    :rtype: float
+    """
 
     z_values = []
     for pt in polygon.exterior.coords:
@@ -215,8 +229,16 @@ def centroid_z(polygon):
 
     return mean_z
 
+
 def obj_to_polygons(obj_file: str) -> list:
-    """Convert a obj file into a list of shapely polygons"""
+    """
+    Converts an .obj file into a list of shapely polygons.
+
+    :param obj_file: .obj file path
+    :type obj_file: str
+    :return: Shapely polygons in a list
+    :rtype: list
+    """
 
     vertices, normals, faces = obj_to_lists(obj_file)
 
@@ -232,14 +254,17 @@ def obj_to_polygons(obj_file: str) -> list:
     return polygons
 
 
-def shapely_to_pyshp(shapely_geometry):
+def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) -> shapefile._Shape:
     """
-    This function converts a shapely geometry into a geojson and then into a pyshp object.
-    Copied from Karim Bahgat's answer at:
-    https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles
+    | This function converts a shapely geometry into a geojson and then into a pyshp object.
+    | Copied from Karim Bahgat's answer at:
+    | https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles
+    |
 
-    :param shapely_geometry: Shapely_geometry to convert.
+    :param shapely_geometry: Shapely geometry to convert.
     :type shapely_geometry: shapely.geometry
+    :return: pyshp record object
+    :rtype: shapefile._Shape
     """
 
     # first convert shapely to geojson
@@ -300,8 +325,17 @@ def shapely_to_pyshp(shapely_geometry):
     return record
 
 
-def obj_to_shp(obj_file, shp_file):
-    """Convert a obj file into a shape file"""
+def obj_to_shp(obj_file: str, shp_file:str ) -> bool:
+    """
+    Convert an .obj file into a shape file.
+
+    :param obj_file: Path to .obj file
+    :type obj_file: str
+    :param shp_file: File path for shapefile
+    :type shp_file: str
+    :return: True
+    :rtype: bool
+    """
 
     polygons = obj_to_polygons(obj_file)
 

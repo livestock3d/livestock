@@ -59,11 +59,11 @@
 <span class="c1"># Livestock Geometry Functions</span>
 
 
-<div class="viewcode-block" id="ray_triangle_intersection"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.ray_triangle_intersection">[docs]</a><span class="k">def</span> <span class="nf">ray_triangle_intersection</span><span class="p">(</span><span class="n">ray_near</span><span class="p">,</span> <span class="n">ray_dir</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Möller–Trumbore intersection algorithm in pure python</span>
-<span class="sd">    Based on http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">ray_triangle_intersection</span><span class="p">(</span><span class="n">ray_near</span><span class="p">,</span> <span class="n">ray_dir</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
+
+    <span class="c1"># Möller–Trumbore intersection algorithm in pure python</span>
+    <span class="c1"># Based on http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm</span>
+
 
     <span class="n">v1</span> <span class="o">=</span> <span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">v2</span> <span class="o">=</span> <span class="n">V</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -92,10 +92,10 @@
     <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">eps</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
 
-    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">t</span></div>
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">t</span>
 
 
-<div class="viewcode-block" id="lowest_face_vertex"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.lowest_face_vertex">[docs]</a><span class="k">def</span> <span class="nf">lowest_face_vertex</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">lowest_face_vertex</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">):</span>
 
     <span class="n">V</span> <span class="o">=</span> <span class="p">[</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">]</span>
     <span class="n">x0</span> <span class="o">=</span> <span class="n">v0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -133,17 +133,17 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;v0:&#39;</span><span class="p">,</span><span class="n">v0</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;v1:&#39;</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;v2:&#39;</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="angle_between_vectors"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.angle_between_vectors">[docs]</a><span class="k">def</span> <span class="nf">angle_between_vectors</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">force_angle</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes the angle between two vectors.</span>
-<span class="sd">    :param v1: Vector1 as numpy array</span>
-<span class="sd">    :param v2: Vector2 as numpy array</span>
-<span class="sd">    :param force_angle: Default is None. Use to force angle into acute or obtuse.</span>
-<span class="sd">    :return: Angle in radians and its angle type.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">angle_between_vectors</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">force_angle</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="c1"># Computes the angle between two vectors.</span>
+    <span class="c1"># :param v1: Vector1 as numpy array</span>
+    <span class="c1"># :param v2: Vector2 as numpy array</span>
+    <span class="c1"># :param force_angle: Default is None. Use to force angle into acute or obtuse.</span>
+    <span class="c1"># :return: Angle in radians and its angle type.</span>
+
 
     <span class="c1"># Dot product</span>
     <span class="n">dot_v1v2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
@@ -182,18 +182,18 @@
             <span class="k">return</span> <span class="n">angle</span><span class="p">,</span> <span class="s1">&#39;obtuse&#39;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;force_angle has to be defined as None, acute or obtuse. force_angle was:&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">force_angle</span><span class="p">))</span>
-        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="line_intersection"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.line_intersection">[docs]</a><span class="k">def</span> <span class="nf">line_intersection</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p4</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes the intersection between two lines given 4 points on those lines.</span>
-<span class="sd">    :param p1: Numpy array. First point on line 1</span>
-<span class="sd">    :param p2: Numpy array. Second point on line 1</span>
-<span class="sd">    :param p3: Numpy array. First point on line 2</span>
-<span class="sd">    :param p4: Numpy array. Second point on line 2</span>
-<span class="sd">    :return: Numpy array. Intersection point</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">line_intersection</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p4</span><span class="p">):</span>
+    <span class="c1"># &quot;&quot;&quot;</span>
+    <span class="c1"># Computes the intersection between two lines given 4 points on those lines.</span>
+    <span class="c1"># :param p1: Numpy array. First point on line 1</span>
+    <span class="c1"># :param p2: Numpy array. Second point on line 1</span>
+    <span class="c1"># :param p3: Numpy array. First point on line 2</span>
+    <span class="c1"># :param p4: Numpy array. Second point on line 2</span>
+    <span class="c1"># :return: Numpy array. Intersection point</span>
+    <span class="c1"># &quot;&quot;&quot;</span>
 
     <span class="c1"># Direction vectors</span>
     <span class="n">v1</span> <span class="o">=</span> <span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">)</span>
@@ -204,11 +204,18 @@
     <span class="n">cpv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">((</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p3</span><span class="p">),</span> <span class="n">v2</span><span class="p">)</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cpv</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cv12</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="n">v1</span></div>
+    <span class="k">return</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="n">v1</span>
 
 
 <div class="viewcode-block" id="obj_to_lists"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.obj_to_lists">[docs]</a><span class="k">def</span> <span class="nf">obj_to_lists</span><span class="p">(</span><span class="n">obj_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Convert a obj file into lists&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts an .obj file into lists.</span>
+
+<span class="sd">    :param obj_file: .obj file path</span>
+<span class="sd">    :type obj_file: str</span>
+<span class="sd">    :return: tuple with vertices, normals, faces</span>
+<span class="sd">    :rtype: tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Initialization</span>
     <span class="n">vertices</span> <span class="o">=</span> <span class="p">[]</span>
@@ -245,8 +252,15 @@
     <span class="k">return</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">faces</span></div>
 
 
-<div class="viewcode-block" id="centroid_z"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.centroid_z">[docs]</a><span class="k">def</span> <span class="nf">centroid_z</span><span class="p">(</span><span class="n">polygon</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculates the mean z-value from a Shapely polygon&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="centroid_z"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.centroid_z">[docs]</a><span class="k">def</span> <span class="nf">centroid_z</span><span class="p">(</span><span class="n">polygon</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Polygon</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the mean z-value from a Shapely polygon.</span>
+
+<span class="sd">    :param polygon: Shapely Polygon with z-values.</span>
+<span class="sd">    :type polygon: shapely.geometry.Polygon</span>
+<span class="sd">    :return: Mean z-value of the polygon</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">z_values</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">polygon</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
@@ -256,8 +270,16 @@
 
     <span class="k">return</span> <span class="n">mean_z</span></div>
 
+
 <div class="viewcode-block" id="obj_to_polygons"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.obj_to_polygons">[docs]</a><span class="k">def</span> <span class="nf">obj_to_polygons</span><span class="p">(</span><span class="n">obj_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Convert a obj file into a list of shapely polygons&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts an .obj file into a list of shapely polygons.</span>
+
+<span class="sd">    :param obj_file: .obj file path</span>
+<span class="sd">    :type obj_file: str</span>
+<span class="sd">    :return: Shapely polygons in a list</span>
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">vertices</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">faces</span> <span class="o">=</span> <span class="n">obj_to_lists</span><span class="p">(</span><span class="n">obj_file</span><span class="p">)</span>
 
@@ -273,14 +295,17 @@
     <span class="k">return</span> <span class="n">polygons</span></div>
 
 
-<div class="viewcode-block" id="shapely_to_pyshp"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.shapely_to_pyshp">[docs]</a><span class="k">def</span> <span class="nf">shapely_to_pyshp</span><span class="p">(</span><span class="n">shapely_geometry</span><span class="p">):</span>
+<div class="viewcode-block" id="shapely_to_pyshp"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.shapely_to_pyshp">[docs]</a><span class="k">def</span> <span class="nf">shapely_to_pyshp</span><span class="p">(</span><span class="n">shapely_geometry</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Polygon</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">_Shape</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function converts a shapely geometry into a geojson and then into a pyshp object.</span>
-<span class="sd">    Copied from Karim Bahgat&#39;s answer at:</span>
-<span class="sd">    https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles</span>
+<span class="sd">    | This function converts a shapely geometry into a geojson and then into a pyshp object.</span>
+<span class="sd">    | Copied from Karim Bahgat&#39;s answer at:</span>
+<span class="sd">    | https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles</span>
+<span class="sd">    |</span>
 
-<span class="sd">    :param shapely_geometry: Shapely_geometry to convert.</span>
+<span class="sd">    :param shapely_geometry: Shapely geometry to convert.</span>
 <span class="sd">    :type shapely_geometry: shapely.geometry</span>
+<span class="sd">    :return: pyshp record object</span>
+<span class="sd">    :rtype: shapefile._Shape</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># first convert shapely to geojson</span>
@@ -341,8 +366,17 @@
     <span class="k">return</span> <span class="n">record</span></div>
 
 
-<div class="viewcode-block" id="obj_to_shp"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.obj_to_shp">[docs]</a><span class="k">def</span> <span class="nf">obj_to_shp</span><span class="p">(</span><span class="n">obj_file</span><span class="p">,</span> <span class="n">shp_file</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convert a obj file into a shape file&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="obj_to_shp"><a class="viewcode-back" href="../../geometry.html#livestock.geometry.obj_to_shp">[docs]</a><span class="k">def</span> <span class="nf">obj_to_shp</span><span class="p">(</span><span class="n">obj_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">shp_file</span><span class="p">:</span><span class="nb">str</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert an .obj file into a shape file.</span>
+
+<span class="sd">    :param obj_file: Path to .obj file</span>
+<span class="sd">    :type obj_file: str</span>
+<span class="sd">    :param shp_file: File path for shapefile</span>
+<span class="sd">    :type shp_file: str</span>
+<span class="sd">    :return: True</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">polygons</span> <span class="o">=</span> <span class="n">obj_to_polygons</span><span class="p">(</span><span class="n">obj_file</span><span class="p">)</span>
 

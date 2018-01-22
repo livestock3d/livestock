@@ -43,73 +43,101 @@
   <div class="section" id="module-livestock.geometry">
 <span id="livestock-geometry"></span><h1>Livestock Geometry<a class="headerlink" href="#module-livestock.geometry" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="livestock.geometry.angle_between_vectors">
-<code class="descclassname">livestock.geometry.</code><code class="descname">angle_between_vectors</code><span class="sig-paren">(</span><em>v1</em>, <em>v2</em>, <em>force_angle=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#angle_between_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.angle_between_vectors" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the angle between two vectors.
-:param v1: Vector1 as numpy array
-:param v2: Vector2 as numpy array
-:param force_angle: Default is None. Use to force angle into acute or obtuse.
-:return: Angle in radians and its angle type.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="livestock.geometry.centroid_z">
-<code class="descclassname">livestock.geometry.</code><code class="descname">centroid_z</code><span class="sig-paren">(</span><em>polygon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#centroid_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.centroid_z" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the mean z-value from a Shapely polygon</p>
+<code class="descclassname">livestock.geometry.</code><code class="descname">centroid_z</code><span class="sig-paren">(</span><em>polygon: shapely.geometry.polygon.Polygon</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/geometry.html#centroid_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.centroid_z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the mean z-value from a Shapely polygon.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>polygon</strong> (<em>shapely.geometry.Polygon</em>) – Shapely Polygon with z-values.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Mean z-value of the polygon</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.line_intersection">
-<code class="descclassname">livestock.geometry.</code><code class="descname">line_intersection</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>p3</em>, <em>p4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#line_intersection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.line_intersection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the intersection between two lines given 4 points on those lines.
-:param p1: Numpy array. First point on line 1
-:param p2: Numpy array. Second point on line 1
-:param p3: Numpy array. First point on line 2
-:param p4: Numpy array. Second point on line 2
-:return: Numpy array. Intersection point</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.lowest_face_vertex">
-<code class="descclassname">livestock.geometry.</code><code class="descname">lowest_face_vertex</code><span class="sig-paren">(</span><em>v0</em>, <em>v1</em>, <em>v2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#lowest_face_vertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.lowest_face_vertex" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="function">
 <dt id="livestock.geometry.obj_to_lists">
 <code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_lists</code><span class="sig-paren">(</span><em>obj_file: str</em><span class="sig-paren">)</span> &#x2192; tuple<a class="reference internal" href="_modules/livestock/geometry.html#obj_to_lists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.obj_to_lists" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a obj file into lists</p>
+<dd><p>Converts an .obj file into lists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj_file</strong> (<em>str</em>) – .obj file path</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">tuple with vertices, normals, faces</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="livestock.geometry.obj_to_polygons">
 <code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_polygons</code><span class="sig-paren">(</span><em>obj_file: str</em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="_modules/livestock/geometry.html#obj_to_polygons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.obj_to_polygons" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a obj file into a list of shapely polygons</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.obj_to_shp">
-<code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_shp</code><span class="sig-paren">(</span><em>obj_file</em>, <em>shp_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#obj_to_shp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.obj_to_shp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a obj file into a shape file</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.ray_triangle_intersection">
-<code class="descclassname">livestock.geometry.</code><code class="descname">ray_triangle_intersection</code><span class="sig-paren">(</span><em>ray_near</em>, <em>ray_dir</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#ray_triangle_intersection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.ray_triangle_intersection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Möller–Trumbore intersection algorithm in pure python
-Based on <a class="reference external" href="http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm">http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm</a></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="livestock.geometry.shapely_to_pyshp">
-<code class="descclassname">livestock.geometry.</code><code class="descname">shapely_to_pyshp</code><span class="sig-paren">(</span><em>shapely_geometry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/geometry.html#shapely_to_pyshp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.shapely_to_pyshp" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function converts a shapely geometry into a geojson and then into a pyshp object.
-Copied from Karim Bahgat’s answer at:
-<a class="reference external" href="https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles">https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles</a></p>
+<dd><p>Converts an .obj file into a list of shapely polygons.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>shapely_geometry</strong> (<em>shapely.geometry</em>) – Shapely_geometry to convert.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj_file</strong> (<em>str</em>) – .obj file path</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Shapely polygons in a list</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.obj_to_shp">
+<code class="descclassname">livestock.geometry.</code><code class="descname">obj_to_shp</code><span class="sig-paren">(</span><em>obj_file: str</em>, <em>shp_file: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/livestock/geometry.html#obj_to_shp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.obj_to_shp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an .obj file into a shape file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>obj_file</strong> (<em>str</em>) – Path to .obj file</li>
+<li><strong>shp_file</strong> (<em>str</em>) – File path for shapefile</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.geometry.shapely_to_pyshp">
+<code class="descclassname">livestock.geometry.</code><code class="descname">shapely_to_pyshp</code><span class="sig-paren">(</span><em>shapely_geometry: shapely.geometry.polygon.Polygon</em><span class="sig-paren">)</span> &#x2192; shapefile._Shape<a class="reference internal" href="_modules/livestock/geometry.html#shapely_to_pyshp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.geometry.shapely_to_pyshp" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">This function converts a shapely geometry into a geojson and then into a pyshp object.</div>
+<div class="line">Copied from Karim Bahgat’s answer at:</div>
+<div class="line"><a class="reference external" href="https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles">https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles</a></div>
+<div class="line"><br /></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>shapely_geometry</strong> (<em>shapely.geometry</em>) – Shapely geometry to convert.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">pyshp record object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">shapefile._Shape</td>
 </tr>
 </tbody>
 </table>
