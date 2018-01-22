@@ -13,7 +13,22 @@ import paramiko
 # Livestock SSH Functions
 
 
-def check_for_remote_folder(sftp_connect, folder_to_check, check_for):
+def check_for_remote_folder(sftp_connect: paramiko.SSHClient.open_sftp, folder_to_check: str, check_for: str)\
+        -> bool:
+    """
+    Checks if remote folder exists in the desired location. If do exists the function returns True.
+    Otherwise is creates the folder and then returns True.
+
+    :param sftp_connect: SFTP connection
+    :type sftp_connect: paramiko.SSHClient().open_sftp()
+    :param folder_to_check: Path where there should be looked.
+    :type folder_to_check: str
+    :param check_for: Folder, which existence is wanted.
+    :type check_for: str
+    :return: True on success
+    :rtype: bool
+    """
+
     dir_contains = sftp_connect.listdir(folder_to_check)
 
     found = False
@@ -33,6 +48,12 @@ def check_for_remote_folder(sftp_connect, folder_to_check, check_for):
 
 
 def ssh_connection():
+    """
+    This function opens up a SSH connection to a remote machine (Ubuntu-machine) based on inputs from the in_data.txt
+    file. Once it is logged in then function activates the anaconda environment livestock_env, sends the commands,
+    awaits their completion (by looking for a out.txt file, which is only written upon completion of the commands)
+    and returns the wanted files back to the local machine.
+    """
 
     # Open input text file
     local_folder = r'C:\livestock\ssh'

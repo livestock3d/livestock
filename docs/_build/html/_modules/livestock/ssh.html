@@ -54,7 +54,22 @@
 <span class="c1"># Livestock SSH Functions</span>
 
 
-<div class="viewcode-block" id="check_for_remote_folder"><a class="viewcode-back" href="../../ssh.html#livestock.ssh.check_for_remote_folder">[docs]</a><span class="k">def</span> <span class="nf">check_for_remote_folder</span><span class="p">(</span><span class="n">sftp_connect</span><span class="p">,</span> <span class="n">folder_to_check</span><span class="p">,</span> <span class="n">check_for</span><span class="p">):</span>
+<div class="viewcode-block" id="check_for_remote_folder"><a class="viewcode-back" href="../../ssh.html#livestock.ssh.check_for_remote_folder">[docs]</a><span class="k">def</span> <span class="nf">check_for_remote_folder</span><span class="p">(</span><span class="n">sftp_connect</span><span class="p">:</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="o">.</span><span class="n">open_sftp</span><span class="p">,</span> <span class="n">folder_to_check</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">check_for</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>\
+        <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if remote folder exists in the desired location. If do exists the function returns True.</span>
+<span class="sd">    Otherwise is creates the folder and then returns True.</span>
+
+<span class="sd">    :param sftp_connect: SFTP connection</span>
+<span class="sd">    :type sftp_connect: paramiko.SSHClient().open_sftp()</span>
+<span class="sd">    :param folder_to_check: Path where there should be looked.</span>
+<span class="sd">    :type folder_to_check: str</span>
+<span class="sd">    :param check_for: Folder, which existence is wanted.</span>
+<span class="sd">    :type check_for: str</span>
+<span class="sd">    :return: True on success</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">dir_contains</span> <span class="o">=</span> <span class="n">sftp_connect</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_to_check</span><span class="p">)</span>
 
     <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
@@ -74,6 +89,12 @@
 
 
 <div class="viewcode-block" id="ssh_connection"><a class="viewcode-back" href="../../ssh.html#livestock.ssh.ssh_connection">[docs]</a><span class="k">def</span> <span class="nf">ssh_connection</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function opens up a SSH connection to a remote machine (Ubuntu-machine) based on inputs from the in_data.txt</span>
+<span class="sd">    file. Once it is logged in then function activates the anaconda environment livestock_env, sends the commands,</span>
+<span class="sd">    awaits their completion (by looking for a out.txt file, which is only written upon completion of the commands)</span>
+<span class="sd">    and returns the wanted files back to the local machine.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Open input text file</span>
     <span class="n">local_folder</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;C:\livestock\ssh&#39;</span>
