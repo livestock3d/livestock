@@ -234,8 +234,28 @@
     <span class="k">return</span> <span class="n">row_index</span></div>
 
 
-<div class="viewcode-block" id="new_mean_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">new_mean_relative_humidity</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_external</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">,</span> <span class="n">vapour_pressure_external</span><span class="p">,</span>
-                               <span class="n">vapour_production</span><span class="p">,</span> <span class="n">air_flow_</span><span class="p">):</span>
+<div class="viewcode-block" id="new_mean_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">new_mean_relative_humidity</span><span class="p">(</span><span class="n">area</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height_external</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                               <span class="n">vapour_pressure_external</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">vapour_production</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">air_flow_</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes a new mean vapour pressure and converts it in to a relative humidity.</span>
+
+<span class="sd">    Source: ????</span>
+
+<span class="sd">    :param area: Area in m\ :sup:`2`</span>
+<span class="sd">    :type area: float</span>
+<span class="sd">    :param height_external: External height in m</span>
+<span class="sd">    :type height_external: float</span>
+<span class="sd">    :param temperature_internal: External temperature in K</span>
+<span class="sd">    :type temperature_internal: float</span>
+<span class="sd">    :param vapour_pressure_external: External vapour pressure in Pa</span>
+<span class="sd">    :type vapour_pressure_external: float</span>
+<span class="sd">    :param vapour_production: Vapour production in kg/s</span>
+<span class="sd">    :type vapour_production: float</span>
+<span class="sd">    :param air_flow_: Air flow in m\ :sup:`3`\/s</span>
+<span class="sd">    :type air_flow_: float</span>
+<span class="sd">    :return: Relative humidity - unitless</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">vapour_pressure</span> <span class="o">=</span> <span class="n">new_mean_vapour_pressure</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_external</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">,</span> <span class="n">vapour_pressure_external</span><span class="p">,</span>
                                                <span class="n">vapour_production</span><span class="p">,</span> <span class="n">air_flow_</span><span class="p">)</span>
@@ -243,17 +263,26 @@
     <span class="k">return</span> <span class="n">vapour_pressure_to_relative_humidity</span><span class="p">(</span><span class="n">vapour_pressure</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="new_mean_vapour_pressure"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_vapour_pressure">[docs]</a><span class="k">def</span> <span class="nf">new_mean_vapour_pressure</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_external</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">,</span> <span class="n">vapour_pressure_external</span><span class="p">,</span>
-                             <span class="n">vapour_production</span><span class="p">,</span> <span class="n">air_flow_</span><span class="p">):</span>
+<div class="viewcode-block" id="new_mean_vapour_pressure"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_vapour_pressure">[docs]</a><span class="k">def</span> <span class="nf">new_mean_vapour_pressure</span><span class="p">(</span><span class="n">area</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height_external</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                             <span class="n">vapour_pressure_external</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">vapour_production</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">air_flow_</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates a new vapour pressure for the volume.</span>
-<span class="sd">    :param area: area in m^2</span>
-<span class="sd">    :param temperature_internal: external temperature in K</span>
-<span class="sd">    :param height_external: external height in m</span>
-<span class="sd">    :param vapour_pressure_external: external vapour pressure in Pa</span>
-<span class="sd">    :param vapour_production: vapour production in kg/s</span>
-<span class="sd">    :param air_flow_: air flow in m^3/s</span>
-<span class="sd">    :return: new vapour pressure in Pa</span>
+<span class="sd">    Source: ????</span>
+
+<span class="sd">    :param area: Area in m\ :sup:`2`</span>
+<span class="sd">    :type area: float</span>
+<span class="sd">    :param temperature_internal: External temperature in K</span>
+<span class="sd">    :type temperature_internal: float</span>
+<span class="sd">    :param height_external: External height in m</span>
+<span class="sd">    :type height_external: float</span>
+<span class="sd">    :param vapour_pressure_external: External vapour pressure in Pa</span>
+<span class="sd">    :type vapour_pressure_external: float</span>
+<span class="sd">    :param vapour_production: Vapour production in kg/s</span>
+<span class="sd">    :type vapour_production: float</span>
+<span class="sd">    :param air_flow_: Air flow in m\ :sup:`3`\/s</span>
+<span class="sd">    :type air_flow_: float</span>
+<span class="sd">    :return: New vapour pressure in Pa</span>
+<span class="sd">    :rtype: float</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">volume_air</span> <span class="o">=</span> <span class="n">area</span> <span class="o">*</span> <span class="n">height_external</span>  <span class="c1"># m^3</span>
@@ -266,14 +295,22 @@
     <span class="k">return</span> <span class="n">vapour_pressure</span></div>
 
 
-<div class="viewcode-block" id="air_flow"><a class="viewcode-back" href="../../air.html#livestock.air.air_flow">[docs]</a><span class="k">def</span> <span class="nf">air_flow</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_top</span><span class="p">,</span> <span class="n">temperature_top</span><span class="p">,</span> <span class="n">temperature_mean</span><span class="p">):</span>
+<div class="viewcode-block" id="air_flow"><a class="viewcode-back" href="../../air.html#livestock.air.air_flow">[docs]</a><span class="k">def</span> <span class="nf">air_flow</span><span class="p">(</span><span class="n">area</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates an air flow based on an mean temperature for the volume.</span>
-<span class="sd">    :param area: in m^2</span>
-<span class="sd">    :param height_top: in m</span>
-<span class="sd">    :param temperature_top: in K</span>
-<span class="sd">    :param temperature_mean: in K</span>
-<span class="sd">    :return: air flow in m^3/s</span>
+
+<span class="sd">    Source: ???</span>
+
+<span class="sd">    :param area: Area in m\ :sup:`2`</span>
+<span class="sd">    :type area: float</span>
+<span class="sd">    :param height_top: Top of the air volume in m</span>
+<span class="sd">    :type height_top: float</span>
+<span class="sd">    :param temperature_top: Temperature at the top of the air volume in K</span>
+<span class="sd">    :type temperature_top: float</span>
+<span class="sd">    :param temperature_mean: Mean Temperature of the volume in K</span>
+<span class="sd">    :type temperature_mean: float</span>
+<span class="sd">    :return: Air flow in m\ :sup:`3`\/s</span>
+<span class="sd">    :rtype: float</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">density_air</span> <span class="o">=</span> <span class="mf">1.29</span> <span class="o">*</span> <span class="mi">273</span> <span class="o">/</span> <span class="n">temperature_top</span>  <span class="c1"># kg/m^3</span>
@@ -286,14 +323,22 @@
     <span class="k">return</span> <span class="n">area</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_pressure</span><span class="p">)</span> <span class="o">/</span> <span class="n">density_air</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta_pressure</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_pressure</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="new_mean_temperature"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_temperature">[docs]</a><span class="k">def</span> <span class="nf">new_mean_temperature</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">height_external</span><span class="p">,</span> <span class="n">temperature_external</span><span class="p">,</span> <span class="n">heat</span><span class="p">):</span>
+<div class="viewcode-block" id="new_mean_temperature"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_temperature">[docs]</a><span class="k">def</span> <span class="nf">new_mean_temperature</span><span class="p">(</span><span class="n">area</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height_external</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature_external</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">heat</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates a new mean temperature for the volume.</span>
-<span class="sd">    :param area: in m^2</span>
-<span class="sd">    :param height_external: in m</span>
-<span class="sd">    :param temperature_external: in K</span>
-<span class="sd">    :param heat: in J</span>
-<span class="sd">    :return: temperature in K</span>
+
+<span class="sd">    Source: ???</span>
+
+<span class="sd">    :param area: Area in m\ :sup:`2`</span>
+<span class="sd">    :type area: float</span>
+<span class="sd">    :param height_external: Top of the air volume in m</span>
+<span class="sd">    :type height_external: float</span>
+<span class="sd">    :param temperature_external: Temperature at the top of the air volume in K</span>
+<span class="sd">    :type temperature_external: float</span>
+<span class="sd">    :param heat: Added heat to the air volume in J</span>
+<span class="sd">    :type heat: float</span>
+<span class="sd">    :return: Temperature in K</span>
+<span class="sd">    :rtype: float</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">volume_air</span> <span class="o">=</span> <span class="n">area</span> <span class="o">*</span> <span class="n">height_external</span>
@@ -304,22 +349,51 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">energy_air</span> <span class="o">+</span> <span class="n">heat</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">volume_air</span> <span class="o">*</span> <span class="n">density_air</span> <span class="o">*</span> <span class="n">specific_heat_capacity</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="celsius_to_kelvin"><a class="viewcode-back" href="../../air.html#livestock.air.celsius_to_kelvin">[docs]</a><span class="k">def</span> <span class="nf">celsius_to_kelvin</span><span class="p">(</span><span class="n">celsius</span><span class="p">):</span>
-    <span class="n">kelvin</span> <span class="o">=</span> <span class="n">celsius</span> <span class="o">+</span> <span class="mi">273</span>
+<div class="viewcode-block" id="celsius_to_kelvin"><a class="viewcode-back" href="../../air.html#livestock.air.celsius_to_kelvin">[docs]</a><span class="k">def</span> <span class="nf">celsius_to_kelvin</span><span class="p">(</span><span class="n">celsius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a temperature in Celsius to Kelvin.</span>
+
+<span class="sd">    Source: https://en.wikipedia.org/wiki/Celsius</span>
+
+<span class="sd">    :param celsius: Temperature in Celsius</span>
+<span class="sd">    :type celsius: float</span>
+<span class="sd">    :return: Temperature in Kelvin</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">kelvin</span> <span class="o">=</span> <span class="n">celsius</span> <span class="o">+</span> <span class="mf">273.15</span>
+
     <span class="k">return</span> <span class="n">kelvin</span></div>
 
 
-<div class="viewcode-block" id="kelvin_to_celsius"><a class="viewcode-back" href="../../air.html#livestock.air.kelvin_to_celsius">[docs]</a><span class="k">def</span> <span class="nf">kelvin_to_celsius</span><span class="p">(</span><span class="n">kelvin</span><span class="p">):</span>
-    <span class="n">celsius</span> <span class="o">=</span> <span class="n">kelvin</span> <span class="o">-</span> <span class="mi">273</span>
+<div class="viewcode-block" id="kelvin_to_celsius"><a class="viewcode-back" href="../../air.html#livestock.air.kelvin_to_celsius">[docs]</a><span class="k">def</span> <span class="nf">kelvin_to_celsius</span><span class="p">(</span><span class="n">kelvin</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a temperature in Kelvin to Celsius.</span>
+
+<span class="sd">    Source: https://en.wikipedia.org/wiki/Celsius</span>
+
+<span class="sd">    :param kelvin: Temperature in Kelvin</span>
+<span class="sd">    :type kelvin: float</span>
+<span class="sd">    :return: Temperature in Celsius</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">celsius</span> <span class="o">=</span> <span class="n">kelvin</span> <span class="o">-</span> <span class="mf">273.15</span>
     <span class="k">return</span> <span class="n">celsius</span></div>
 
 
-<div class="viewcode-block" id="vapour_pressure_to_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.vapour_pressure_to_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">vapour_pressure_to_relative_humidity</span><span class="p">(</span><span class="n">vapour_pressure</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+<div class="viewcode-block" id="vapour_pressure_to_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.vapour_pressure_to_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">vapour_pressure_to_relative_humidity</span><span class="p">(</span><span class="n">vapour_pressure</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert vapour pressure to relative humidity</span>
-<span class="sd">    :param vapour_pressure: in Pa</span>
-<span class="sd">    :param temperature: in K</span>
-<span class="sd">    :return: relative humidity as unitless</span>
+<span class="sd">    Convert vapour pressure to relative humidity given a air temperature</span>
+
+<span class="sd">    Source: ???</span>
+
+<span class="sd">    :param vapour_pressure: Vapour pressure in Pa</span>
+<span class="sd">    :type vapour_pressure: float</span>
+<span class="sd">    :param temperature: Air temperature in K</span>
+<span class="sd">    :type temperature: float</span>
+<span class="sd">    :return: Relative humidity as unitless</span>
+<span class="sd">    :rtype: float</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">temperature_c</span> <span class="o">=</span> <span class="n">kelvin_to_celsius</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>  <span class="c1"># C</span>
@@ -331,13 +405,16 @@
 
 <div class="viewcode-block" id="relative_humidity_to_vapour_pressure"><a class="viewcode-back" href="../../air.html#livestock.air.relative_humidity_to_vapour_pressure">[docs]</a><span class="k">def</span> <span class="nf">relative_humidity_to_vapour_pressure</span><span class="p">(</span><span class="n">relative_humidity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert relative humidity to vapour pressure.</span>
+<span class="sd">    Convert relative humidity to vapour pressure given a air temperature.</span>
+
+<span class="sd">    Source: ???</span>
 
 <span class="sd">    :type temperature: float</span>
 <span class="sd">    :type relative_humidity: float</span>
-<span class="sd">    :param relative_humidity: unitless</span>
-<span class="sd">    :param temperature: in K</span>
-<span class="sd">    :return: vapour pressure in Pa</span>
+<span class="sd">    :param relative_humidity: Relative humidity - unitless</span>
+<span class="sd">    :param temperature: Air temperature in K</span>
+<span class="sd">    :return: Vapour pressure in Pa</span>
+<span class="sd">    :rtype: float</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">temperature_c</span> <span class="o">=</span> <span class="n">kelvin_to_celsius</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>  <span class="c1"># C</span>
@@ -347,34 +424,28 @@
     <span class="k">return</span> <span class="n">vapour_pressure</span></div>
 
 
-<div class="viewcode-block" id="stratification"><a class="viewcode-back" href="../../air.html#livestock.air.stratification">[docs]</a><span class="k">def</span> <span class="nf">stratification</span><span class="p">(</span><span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">value_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">value_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<div class="viewcode-block" id="stratification"><a class="viewcode-back" href="../../air.html#livestock.air.stratification">[docs]</a><span class="k">def</span> <span class="nf">stratification</span><span class="p">(</span><span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">value_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">value_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates the stratification of the temperature or relative humidity</span>
+<span class="sd">    Calculates the stratification of the temperature or relative humidity of the air volume.</span>
 
-<span class="sd">    :param height: height at which the stratification value is wanted. in m.</span>
-<span class="sd">    :param value_mean: mean value</span>
-<span class="sd">    :param height_top: height at the top of the boundary. in m</span>
-<span class="sd">    :param value_top: value at the top of the boundary</span>
-<span class="sd">    :return: value at desired height.</span>
+<span class="sd">    Source: ???</span>
+
+<span class="sd">    :param height: Height at which the stratification value is wanted. in m.</span>
+<span class="sd">    :type height: float</span>
+<span class="sd">    :param value_mean: Mean value of the air volume. Assumed equal to the value at half of the height of the air volume.</span>
+<span class="sd">    :type value_mean: float</span>
+<span class="sd">    :param height_top: Height at the top of the boundary. in m</span>
+<span class="sd">    :type height_top: float</span>
+<span class="sd">    :param value_top: Value at the top of the air volume</span>
+<span class="sd">    :type value_top: float</span>
+<span class="sd">    :return: Value at desired height.</span>
+<span class="sd">    :rtype: float</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">return</span> <span class="n">value_mean</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="p">(</span><span class="n">value_mean</span> <span class="o">-</span> <span class="n">value_top</span><span class="p">)</span><span class="o">/</span><span class="n">height_top</span></div>
 
 
-<div class="viewcode-block" id="water_evaporation"><a class="viewcode-back" href="../../air.html#livestock.air.water_evaporation">[docs]</a><span class="k">def</span> <span class="nf">water_evaporation</span><span class="p">(</span><span class="n">volume_air</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">water</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fraction_of_evaporation</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">    :param volume_air:</span>
-<span class="sd">    :type volume_air:</span>
-<span class="sd">    :param temperature:</span>
-<span class="sd">    :type temperature:</span>
-<span class="sd">    :param water:</span>
-<span class="sd">    :type water:</span>
-<span class="sd">    :param fraction_of_evaporation:</span>
-<span class="sd">    :type fraction_of_evaporation:</span>
-<span class="sd">    :return:</span>
-<span class="sd">    :rtype:</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">water_evaporation</span><span class="p">(</span><span class="n">volume_air</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">water</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fraction_of_evaporation</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 
     <span class="n">specific_heat_capacity</span> <span class="o">=</span> <span class="mi">1005</span>  <span class="c1"># J/kgK</span>
     <span class="n">density_air</span> <span class="o">=</span> <span class="mf">1.29</span> <span class="o">*</span> <span class="mi">273</span> <span class="o">/</span> <span class="n">temperature</span>  <span class="c1"># kg/m^3</span>
@@ -386,10 +457,10 @@
     <span class="n">energy_air</span> <span class="o">=</span> <span class="n">volume_air</span> <span class="o">*</span> <span class="n">specific_heat_capacity</span> <span class="o">*</span> <span class="n">density_air</span> <span class="o">*</span> <span class="n">temperature</span>  <span class="c1"># J</span>
     <span class="n">new_temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy_air</span> <span class="o">-</span> <span class="n">energy_of_evaporation</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">volume_air</span> <span class="o">*</span> <span class="n">specific_heat_capacity</span> <span class="o">*</span> <span class="n">density_air</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">new_temperature</span><span class="p">,</span> <span class="n">energy_of_evaporation</span><span class="p">,</span> <span class="n">vapour_gain</span></div>
+    <span class="k">return</span> <span class="n">new_temperature</span><span class="p">,</span> <span class="n">energy_of_evaporation</span><span class="p">,</span> <span class="n">vapour_gain</span>
 
 
-<div class="viewcode-block" id="water_evaporation_template_wrapper"><a class="viewcode-back" href="../../air.html#livestock.air.water_evaporation_template_wrapper">[docs]</a><span class="k">def</span> <span class="nf">water_evaporation_template_wrapper</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">water_evaporation_template_wrapper</span><span class="p">():</span>
 
     <span class="k">def</span> <span class="nf">read_files</span><span class="p">(</span><span class="n">result_path</span><span class="p">):</span>
 
@@ -460,7 +531,7 @@
         <span class="n">energy_of_evaporation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ee</span><span class="p">)</span>
         <span class="n">vapour_gain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vg</span><span class="p">)</span>
 
-    <span class="n">write_files</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">new_temperature</span><span class="p">,</span> <span class="n">energy_of_evaporation</span><span class="p">,</span> <span class="n">vapour_gain</span><span class="p">)</span></div>
+    <span class="n">write_files</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">new_temperature</span><span class="p">,</span> <span class="n">energy_of_evaporation</span><span class="p">,</span> <span class="n">vapour_gain</span><span class="p">)</span>
 </pre></div>
 
           </div>

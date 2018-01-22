@@ -193,8 +193,28 @@ def run_row(input_package: list) -> float:
     return row_index
 
 
-def new_mean_relative_humidity(area, height_external, temperature_internal, vapour_pressure_external,
-                               vapour_production, air_flow_):
+def new_mean_relative_humidity(area: float, height_external: float, temperature_internal: float,
+                               vapour_pressure_external: float, vapour_production: float, air_flow_: float) -> float:
+    """
+    Computes a new mean vapour pressure and converts it in to a relative humidity.
+
+    Source: ????
+
+    :param area: Area in m\ :sup:`2`
+    :type area: float
+    :param height_external: External height in m
+    :type height_external: float
+    :param temperature_internal: External temperature in K
+    :type temperature_internal: float
+    :param vapour_pressure_external: External vapour pressure in Pa
+    :type vapour_pressure_external: float
+    :param vapour_production: Vapour production in kg/s
+    :type vapour_production: float
+    :param air_flow_: Air flow in m\ :sup:`3`\/s
+    :type air_flow_: float
+    :return: Relative humidity - unitless
+    :rtype: float
+    """
 
     vapour_pressure = new_mean_vapour_pressure(area, height_external, temperature_internal, vapour_pressure_external,
                                                vapour_production, air_flow_)
@@ -202,17 +222,26 @@ def new_mean_relative_humidity(area, height_external, temperature_internal, vapo
     return vapour_pressure_to_relative_humidity(vapour_pressure, temperature_internal)
 
 
-def new_mean_vapour_pressure(area, height_external, temperature_internal, vapour_pressure_external,
-                             vapour_production, air_flow_):
+def new_mean_vapour_pressure(area: float, height_external: float, temperature_internal: float,
+                             vapour_pressure_external: float, vapour_production: float, air_flow_: float) -> float:
     """
     Calculates a new vapour pressure for the volume.
-    :param area: area in m^2
-    :param temperature_internal: external temperature in K
-    :param height_external: external height in m
-    :param vapour_pressure_external: external vapour pressure in Pa
-    :param vapour_production: vapour production in kg/s
-    :param air_flow_: air flow in m^3/s
-    :return: new vapour pressure in Pa
+    Source: ????
+
+    :param area: Area in m\ :sup:`2`
+    :type area: float
+    :param temperature_internal: External temperature in K
+    :type temperature_internal: float
+    :param height_external: External height in m
+    :type height_external: float
+    :param vapour_pressure_external: External vapour pressure in Pa
+    :type vapour_pressure_external: float
+    :param vapour_production: Vapour production in kg/s
+    :type vapour_production: float
+    :param air_flow_: Air flow in m\ :sup:`3`\/s
+    :type air_flow_: float
+    :return: New vapour pressure in Pa
+    :rtype: float
     """
 
     volume_air = area * height_external  # m^3
@@ -225,14 +254,22 @@ def new_mean_vapour_pressure(area, height_external, temperature_internal, vapour
     return vapour_pressure
 
 
-def air_flow(area, height_top, temperature_top, temperature_mean):
+def air_flow(area: float, height_top: float, temperature_top: float, temperature_mean: float) -> float:
     """
     Calculates an air flow based on an mean temperature for the volume.
-    :param area: in m^2
-    :param height_top: in m
-    :param temperature_top: in K
-    :param temperature_mean: in K
-    :return: air flow in m^3/s
+
+    Source: ???
+
+    :param area: Area in m\ :sup:`2`
+    :type area: float
+    :param height_top: Top of the air volume in m
+    :type height_top: float
+    :param temperature_top: Temperature at the top of the air volume in K
+    :type temperature_top: float
+    :param temperature_mean: Mean Temperature of the volume in K
+    :type temperature_mean: float
+    :return: Air flow in m\ :sup:`3`\/s
+    :rtype: float
     """
 
     density_air = 1.29 * 273 / temperature_top  # kg/m^3
@@ -245,14 +282,22 @@ def air_flow(area, height_top, temperature_top, temperature_mean):
     return area * np.sqrt(2 * abs(delta_pressure) / density_air) * delta_pressure / abs(delta_pressure)
 
 
-def new_mean_temperature(area, height_external, temperature_external, heat):
+def new_mean_temperature(area: float, height_external: float, temperature_external: float, heat: float) -> float:
     """
     Calculates a new mean temperature for the volume.
-    :param area: in m^2
-    :param height_external: in m
-    :param temperature_external: in K
-    :param heat: in J
-    :return: temperature in K
+
+    Source: ???
+
+    :param area: Area in m\ :sup:`2`
+    :type area: float
+    :param height_external: Top of the air volume in m
+    :type height_external: float
+    :param temperature_external: Temperature at the top of the air volume in K
+    :type temperature_external: float
+    :param heat: Added heat to the air volume in J
+    :type heat: float
+    :return: Temperature in K
+    :rtype: float
     """
 
     volume_air = area * height_external
@@ -263,22 +308,51 @@ def new_mean_temperature(area, height_external, temperature_external, heat):
     return (energy_air + heat)/(volume_air * density_air * specific_heat_capacity)
 
 
-def celsius_to_kelvin(celsius):
-    kelvin = celsius + 273
+def celsius_to_kelvin(celsius: float) -> float:
+    """
+    Converts a temperature in Celsius to Kelvin.
+
+    Source: https://en.wikipedia.org/wiki/Celsius
+
+    :param celsius: Temperature in Celsius
+    :type celsius: float
+    :return: Temperature in Kelvin
+    :rtype: float
+    """
+
+    kelvin = celsius + 273.15
+
     return kelvin
 
 
-def kelvin_to_celsius(kelvin):
-    celsius = kelvin - 273
+def kelvin_to_celsius(kelvin: float) -> float:
+    """
+    Converts a temperature in Kelvin to Celsius.
+
+    Source: https://en.wikipedia.org/wiki/Celsius
+
+    :param kelvin: Temperature in Kelvin
+    :type kelvin: float
+    :return: Temperature in Celsius
+    :rtype: float
+    """
+
+    celsius = kelvin - 273.15
     return celsius
 
 
-def vapour_pressure_to_relative_humidity(vapour_pressure, temperature):
+def vapour_pressure_to_relative_humidity(vapour_pressure: float, temperature: float) -> float:
     """
-    Convert vapour pressure to relative humidity
-    :param vapour_pressure: in Pa
-    :param temperature: in K
-    :return: relative humidity as unitless
+    Convert vapour pressure to relative humidity given a air temperature
+
+    Source: ???
+
+    :param vapour_pressure: Vapour pressure in Pa
+    :type vapour_pressure: float
+    :param temperature: Air temperature in K
+    :type temperature: float
+    :return: Relative humidity as unitless
+    :rtype: float
     """
 
     temperature_c = kelvin_to_celsius(temperature)  # C
@@ -290,13 +364,16 @@ def vapour_pressure_to_relative_humidity(vapour_pressure, temperature):
 
 def relative_humidity_to_vapour_pressure(relative_humidity: float, temperature: float) -> float:
     """
-    Convert relative humidity to vapour pressure.
+    Convert relative humidity to vapour pressure given a air temperature.
+
+    Source: ???
 
     :type temperature: float
     :type relative_humidity: float
-    :param relative_humidity: unitless
-    :param temperature: in K
-    :return: vapour pressure in Pa
+    :param relative_humidity: Relative humidity - unitless
+    :param temperature: Air temperature in K
+    :return: Vapour pressure in Pa
+    :rtype: float
     """
 
     temperature_c = kelvin_to_celsius(temperature)  # C
@@ -306,34 +383,28 @@ def relative_humidity_to_vapour_pressure(relative_humidity: float, temperature: 
     return vapour_pressure
 
 
-def stratification(height: float, value_mean: float, height_top: float, value_top: float):
+def stratification(height: float, value_mean: float, height_top: float, value_top: float) -> float:
     """
-    Calculates the stratification of the temperature or relative humidity
+    Calculates the stratification of the temperature or relative humidity of the air volume.
 
-    :param height: height at which the stratification value is wanted. in m.
-    :param value_mean: mean value
-    :param height_top: height at the top of the boundary. in m
-    :param value_top: value at the top of the boundary
-    :return: value at desired height.
+    Source: ???
+
+    :param height: Height at which the stratification value is wanted. in m.
+    :type height: float
+    :param value_mean: Mean value of the air volume. Assumed equal to the value at half of the height of the air volume.
+    :type value_mean: float
+    :param height_top: Height at the top of the boundary. in m
+    :type height_top: float
+    :param value_top: Value at the top of the air volume
+    :type value_top: float
+    :return: Value at desired height.
+    :rtype: float
     """
 
     return value_mean - 2 * height * (value_mean - value_top)/height_top
 
 
 def water_evaporation(volume_air: float, temperature: float, water: float, fraction_of_evaporation: float) -> tuple:
-    """
-
-    :param volume_air:
-    :type volume_air:
-    :param temperature:
-    :type temperature:
-    :param water:
-    :type water:
-    :param fraction_of_evaporation:
-    :type fraction_of_evaporation:
-    :return:
-    :rtype:
-    """
 
     specific_heat_capacity = 1005  # J/kgK
     density_air = 1.29 * 273 / temperature  # kg/m^3
