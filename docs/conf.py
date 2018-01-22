@@ -81,9 +81,8 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-intersphinx_mapping = {'livestock_gh':
-                           ('https://ocni-dtu.github.io/doc_gh/',
-                            None)}
+intersphinx_mapping = {'livestock_gh': ('https://ocni-dtu.github.io/doc_gh', None)
+                       }
 
 # -- Options for HTML output ----------------------------------------------
 
