@@ -419,7 +419,7 @@ def water_evaporation(volume_air: float, temperature: float, water: float, fract
     return new_temperature, energy_of_evaporation, vapour_gain
 
 
-def water_evaporation_template_wrapper():
+def water_evaporation_template_wrapper(local_path):
 
     def read_files(result_path):
 
@@ -478,7 +478,6 @@ def water_evaporation_template_wrapper():
 
         return True
 
-    local_path = r'C:\livestock\local'
     volume, temperature, water, fraction = read_files(local_path)
     new_temperature = []
     energy_of_evaporation = []
