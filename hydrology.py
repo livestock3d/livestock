@@ -19,7 +19,7 @@ import ast
 # Livestock imports
 try:
     from . import geometry as lg
-except ModuleNotFoundError:
+except ImportError:
     import geometry as lg
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -239,7 +239,8 @@ class CMFModel:
         """
         Takes a mesh and converts it into CMF cells
         :param mesh_path: Path to mesh .obj file
-        :param cmf_project: CMF project object
+        :param cmf_project: CMF project object.
+        :param delete_after_load: If True, it deletes the input files after they have been loaded.
         :return: True
         """
 
@@ -298,7 +299,7 @@ class CMFModel:
 
             # Install connections
             cell_.install_connection(cmf.Richards)
-            cell_.install_connection(cmf.GreenAmptInfiltration)
+            cell_.install_connection(cmf.SimpleInfiltration)
 
             if evapotranspiration_method == 'penman_monteith':
                 # Install Penman & Monteith method to calculate evapotranspiration_potential
@@ -353,7 +354,7 @@ class CMFModel:
             cell.saturated_depth = cell_property_dict['saturated_depth']
 
         def flux_connections(cmf_project_, cell_property_dict):
-            cmf.connect_cells_with_flux(cmf_project_, cmf.Darcy)
+            cmf.connect_cells_with_flux(cmf_project_, cmf.DarcyKinematic)
 
             if cell_property_dict['runoff_method'] == 'kinematic':
                 cmf.connect_cells_with_flux(cmf_project_, cmf.KinematicSurfaceRunoff)

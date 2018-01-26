@@ -3,7 +3,7 @@ import cmf
 import test.helper_functions as helper
 
 
-folder_path = r'C:\Users\Christian\Dropbox\Arbejde\DTU BYG\Livestock\livestock\livestock\test\test_data\cmf_slope'
+folder_path = r'C:\Users\ocni\PycharmProjects\livestock\test\test_data\cmf_slope'
 helper.unpack(folder_path)
 
 model = hy.CMFModel(folder_path)
