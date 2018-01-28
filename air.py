@@ -405,16 +405,30 @@ def stratification(height: float, value_mean: float, height_top: float, value_to
 
 
 def water_evaporation(volume_air: float, temperature: float, water: float, fraction_of_evaporation: float) -> tuple:
+    """
+    Computes the change in temperature for a volume caused by the evaporation of a given water volume.
+
+    :param volume_air: Air volume in m3
+    :type volume_air: float
+    :param temperature: Air temperature in K
+    :type temperature: float
+    :param water: Water introduced into the air volume to lower the temperature in m3
+    :type water: float
+    :param fraction_of_evaporation: Fraction of the water which is evaporated.
+    :type fraction_of_evaporation: float
+    :return: New temperature in K, energy needed for the evaporation in J and the vapour gain of the volume in kg
+    :rtype: float
+    """
 
     specific_heat_capacity = 1005  # J/kgK
     density_air = 1.29 * 273 / temperature  # kg/m^3
     heat_of_evaporation_water = 2257000  # J/kg
     density_water = 1000  # kg/m3
 
-    vapour_gain = water/density_water * fraction_of_evaporation
-    energy_of_evaporation = water * heat_of_evaporation_water * fraction_of_evaporation
+    vapour_gain = water * density_water * fraction_of_evaporation  # kg
+    energy_of_evaporation = water * heat_of_evaporation_water * fraction_of_evaporation  # J
     energy_air = volume_air * specific_heat_capacity * density_air * temperature  # J
-    new_temperature = (energy_air - energy_of_evaporation)/(volume_air * specific_heat_capacity * density_air)
+    new_temperature = (energy_air - energy_of_evaporation)/(volume_air * specific_heat_capacity * density_air)  #K
 
     return new_temperature, energy_of_evaporation, vapour_gain
 
