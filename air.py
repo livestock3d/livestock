@@ -35,15 +35,15 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
         """
 
         # Load
-        air_temperature_ = np.loadtxt(folder_ + '/temperature.txt')
-        air_relative_humidity_ = np.loadtxt(folder_ + '/relative_humidity.txt')
-        area_ = np.loadtxt(folder_ + '/area.txt')
-        height_top_, height_stratification_ = np.loadtxt(folder_ + '/heights.txt')
-        vapour_flux_ = np.loadtxt(folder_ + '/vapour_flux.txt')
-        cpu_ = np.loadtxt(folder + '/cpu.txt')
+        air_temperature_ = np.loadtxt(folder_ + '/temperature.txt', delimiter=',')
+        air_relative_humidity_ = np.loadtxt(folder_ + '/relative_humidity.txt', delimiter=',')
+        area_ = np.loadtxt(folder_ + '/area.txt', delimiter=',')
+        height_top_, height_stratification_ = np.loadtxt(folder_ + '/heights.txt', delimiter=',')
+        vapour_flux_ = np.loadtxt(folder_ + '/vapour_flux.txt', delimiter=',')
+        cpu_ = np.loadtxt(folder + '/cpu.txt', delimiter=',')
 
         return air_temperature_, air_relative_humidity_, area_, height_top_, height_stratification_, \
-            vapour_flux_, cpu_
+            vapour_flux_, int(cpu_)
 
     def reconstruct_results(folder_, processed_rows_):
 
@@ -291,7 +291,7 @@ def air_flow(area: np.array, height_top: float, temperature_top: np.array, tempe
     delta_temperature = temperature_top - temperature_mean
     delta_pressure = density_air * gravity * (height_top - height_mean) * delta_temperature / temperature_mean
 
-    return area * np.sqrt(2 * abs(delta_pressure) / density_air) * delta_pressure / abs(delta_pressure)
+    return area * np.sqrt(2 * np.absolute(delta_pressure) / density_air) * delta_pressure / np.absolute(delta_pressure)
 
 
 def new_mean_temperature(area: np.array, height_external: float, temperature_external: np.array, heat: np.array) -> np.array:
