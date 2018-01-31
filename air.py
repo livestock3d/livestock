@@ -70,9 +70,14 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
     rows_ = [i
              for i in range(0, len(vapour_flux)-1)]
 
-    input_packages = [(index, temperature[index], convert_relative_humidity_to_unitless(relative_humidity[index]),
-                       latent_heat_flux(vapour_flux[index]), convert_vapour_flux_to_kgh(vapour_flux[index]),
-                       area, height_stratification, height_top)
+    input_packages = [(index,
+                       temperature[index],
+                       convert_relative_humidity_to_unitless(relative_humidity[index]),
+                       np.negative(latent_heat_flux(vapour_flux[index])),
+                       convert_vapour_flux_to_kgh(vapour_flux[index]),
+                       area,
+                       height_stratification,
+                       height_top)
                       for index in rows_]
 
     pool = multiprocessing.Pool(processes=cpu)
