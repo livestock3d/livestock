@@ -6,6 +6,7 @@ __author__ = "Christian Kongsgaard"
 # Module imports
 import numpy as np
 import multiprocessing
+from scipy.optimize import fsolve
 
 # Livestock imports
 
@@ -15,7 +16,7 @@ import multiprocessing
 
 def new_temperature_and_relative_humidity(folder: str) -> bool:
     """
-    Calculates a new temperatures and relative humidities for air volumes.
+    Calculates a new temperatures and relative humidity for air volumes.
 
     :param folder: Path to folder containing case files.
     :type folder: str
@@ -73,8 +74,7 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
     input_packages = [(index,
                        temperature[index],
                        convert_relative_humidity_to_unitless(relative_humidity[index]),
-                       np.negative(latent_heat_flux(vapour_flux[index])),
-                       convert_vapour_flux_to_kgh(vapour_flux[index]),
+                       vapour_flux[index],
                        area,
                        height_stratification,
                        height_top)
@@ -85,6 +85,65 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
     reconstruct_results(folder, processed_rows)
 
     return True
+
+
+def compute_temperature_relative_humidity(air_temperature_in_k, relative_humidity, vapour_volume_flux, volume):
+
+    # Fsolve function
+    def max_possible_vapour_flux(vapour_volume_flux_):
+
+        new_temperature = new_mean_temperature(volume, air_temperature_in_k,
+                                               np.negative(latent_heat_flux(vapour_volume_flux_)))
+        
+        return saturated_vapour_pressure(new_temperature) - \
+               new_mean_vapour_pressure(volume,
+                                        new_temperature,
+                                        vapour_pressure,
+                                        convert_vapour_flux_to_kgh(vapour_volume_flux_))
+
+    # Check if all cells have a vapour pressure below saturation after alteration of temp & relhum
+    new_temperature_check = new_mean_temperature(volume, air_temperature_in_k,
+                                               np.negative(latent_heat_flux(vapour_volume_flux)))
+
+    vapour_pressure = relative_humidity_to_vapour_pressure(relative_humidity,
+                                                           air_temperature_in_k)
+
+    if np.all(
+            np.less(new_mean_vapour_pressure(volume,
+                                             new_temperature_check,
+                                             vapour_pressure,
+                                             convert_vapour_flux_to_kgh(vapour_volume_flux)),
+                    saturated_vapour_pressure(new_temperature_check))):
+
+        return new_temperature_check, \
+               new_mean_relative_humidity(volume,
+                                          new_temperature_check,
+                                          vapour_pressure,
+                                          convert_vapour_flux_to_kgh(vapour_volume_flux)), \
+               np.negative(latent_heat_flux(vapour_volume_flux)), \
+               vapour_volume_flux
+
+
+    else:
+        possible_vapour_volume_flux = fsolve(max_possible_vapour_flux,
+                                             vapour_volume_flux)
+
+        available_vapour_volume_flux = np.minimum(possible_vapour_volume_flux,
+                                                  vapour_volume_flux)
+
+        latent_heat = np.negative(latent_heat_flux(available_vapour_volume_flux))
+
+        new_temperature_ = new_mean_temperature(volume,
+                                                air_temperature_in_k,
+                                                available_vapour_volume_flux)
+
+        return (new_temperature_,
+                new_mean_relative_humidity(volume,
+                                           new_temperature_,
+                                           vapour_pressure,
+                                           possible_vapour_volume_flux),
+                latent_heat,
+                possible_vapour_volume_flux)
 
 
 def run_row(input_package: list) -> tuple:
@@ -98,26 +157,20 @@ def run_row(input_package: list) -> tuple:
     """
 
     # unpack
-    row_index, temperature_time, relative_humidity_time, heat_flux_time_row, vapour_flux_time_row, area, \
+    row_index, temperature_time, relative_humidity_time, vapour_flux_time_row, area, \
         height_stratification, height_top = input_package
 
     # new mean temperature i K
     air_temperature_in_k = celsius_to_kelvin(temperature_time)
 
-    temperature_row = new_mean_temperature(area,
-                                           height_top,
-                                           air_temperature_in_k,
-                                           heat_flux_time_row)
-
-    # new relative humidity
-    relative_humidity_row = new_mean_relative_humidity(area,
-                                                       height_top,
-                                                       temperature_row,
-                                                       relative_humidity_to_vapour_pressure(
-                                                           relative_humidity_time,
-                                                           air_temperature_in_k),
-                                                       vapour_flux_time_row,
-                                                       )
+    # Get temperature and relative_humidity
+    temperature_row, \
+    relative_humidity_row, \
+    heat_flux_time_row, \
+    used_vapour_flux = compute_temperature_relative_humidity(air_temperature_in_k,
+                                                             relative_humidity_time,
+                                                             vapour_flux_time_row,
+                                                             area * height_top)
 
     # new stratified relative humidity
     stratified_relative_humidity_row = stratification(height_stratification,
@@ -131,7 +184,6 @@ def run_row(input_package: list) -> tuple:
                                                 kelvin_to_celsius(temperature_row),
                                                 height_top,
                                                 temperature_time)
-
 
     return (row_index, stratified_temperature_row,
             convert_relative_humidity_to_percentage(stratified_relative_humidity_row), heat_flux_time_row)
@@ -162,7 +214,7 @@ def convert_vapour_flux_to_kgh(vapour_flux: np.array) -> np.array:
     Converts a vapour flux from m\ :sup:`3`\/day to kg/h
     Density of water: 1000kg/m\ :sup:`3`\
     Hours per day: 24h/day
-    Conversion: 1000kg/m\ :sup:`3`\/24h/day
+    Conversion: 1000kg/m\ :sup:`3`\ / 24h/day
 
     :param vapour_flux: Vapour flux in m\ :sup:`3`\/day
     :type vapour_flux: numpy.array
@@ -199,7 +251,7 @@ def convert_relative_humidity_to_percentage(rh: np.array) -> np.array:
     return rh * 100
 
 
-def new_mean_relative_humidity(area: np.array, height_external: float, temperature_internal: np.array,
+def new_mean_relative_humidity(volume: np.array, temperature_internal: np.array,
                                vapour_pressure_external: np.array, vapour_production: np.array) -> np.array:
     """
     Computes a new mean vapour pressure and converts it in to a relative humidity.
@@ -207,10 +259,8 @@ def new_mean_relative_humidity(area: np.array, height_external: float, temperatu
     Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
     “Heat and Mass Transfer in Buildings.”
 
-    :param area: Area in m\ :sup:`2`
-    :type area: numpy.array
-    :param height_external: External height in m
-    :type height_external: numpy.array
+    :param volume: Air volume in m\ :sup:`3`
+    :type volume: numpy.array
     :param temperature_internal: External temperature in K
     :type temperature_internal: numpy.array
     :param vapour_pressure_external: External vapour pressure in Pa
@@ -221,13 +271,13 @@ def new_mean_relative_humidity(area: np.array, height_external: float, temperatu
     :rtype: numpy.array
     """
 
-    vapour_pressure = new_mean_vapour_pressure(area, height_external, temperature_internal, vapour_pressure_external,
+    vapour_pressure = new_mean_vapour_pressure(volume, temperature_internal, vapour_pressure_external,
                                                vapour_production)
 
     return vapour_pressure_to_relative_humidity(vapour_pressure, temperature_internal)
 
 
-def new_mean_vapour_pressure(area: np.array, height_external: float, temperature_internal: np.array,
+def new_mean_vapour_pressure(volume: np.array, temperature_internal: np.array,
                              vapour_pressure_external: np.array, vapour_production: np.array) -> np.array:
     """
     Calculates a new vapour pressure for the volume.
@@ -235,12 +285,10 @@ def new_mean_vapour_pressure(area: np.array, height_external: float, temperature
     Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
     “Heat and Mass Transfer in Buildings.”
 
-    :param area: Area in m\ :sup:`2`
-    :type area: numpy.array
-    :param temperature_internal: External temperature in K
+    :param volume: Volume in m\ :sup:`3`
+    :type volume: numpy.array
+    :param temperature_internal: Tempearture in K
     :type temperature_internal: numpy.array
-    :param height_external: External height in m
-    :type height_external: float
     :param vapour_pressure_external: External vapour pressure in Pa
     :type vapour_pressure_external: numpy.array
     :param vapour_production: Vapour production in kg/h
@@ -249,28 +297,25 @@ def new_mean_vapour_pressure(area: np.array, height_external: float, temperature
     :rtype: numpy.array
     """
 
-    volume_air = area * height_external  # m3
     gas_constant_vapour = 461.5  # J/kgK
     density_vapour = vapour_pressure_external/(gas_constant_vapour * temperature_internal)  # kg/m3
-    mass_vapour = density_vapour * volume_air  # kg
+    mass_vapour = density_vapour * volume  # kg
     new_mass_vapour = mass_vapour + vapour_production  # kg
-    new_density_vapour = new_mass_vapour / volume_air  # kg/m3
-    vapour_pressure = new_density_vapour * gas_constant_vapour * temperature_internal # Pa
+    new_density_vapour = new_mass_vapour / volume  # kg/m3
+    vapour_pressure = new_density_vapour * gas_constant_vapour * temperature_internal  # Pa
 
     return vapour_pressure  # Pa
 
 
-def new_mean_temperature(area: np.array, height_external: float, temperature_external: np.array, heat: np.array) -> np.array:
+def new_mean_temperature(volume: np.array, temperature_external: np.array, heat: np.array) -> np.array:
     """
     Calculates a new mean temperature for the volume.
 
     Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
     “Heat and Mass Transfer in Buildings.”
 
-    :param area: Area in m\ :sup:`2`
-    :type area: numpy.array
-    :param height_external: Top of the air volume in m
-    :type height_external: float
+    :param volume: Volume in m\ :sup:`3`
+    :type volume: numpy.array
     :param temperature_external: Temperature at the top of the air volume in K
     :type temperature_external: numpy.array
     :param heat: Added heat to the air volume in J/h
@@ -279,12 +324,11 @@ def new_mean_temperature(area: np.array, height_external: float, temperature_ext
     :rtype: numpy.array
     """
 
-    volume_air = area * height_external
     specific_heat_capacity = 1005  # J/kgK
-    density_air = 1.29 * 273 / temperature_external  # kg/m^3
-    energy_air = volume_air * specific_heat_capacity * density_air * temperature_external  # J
+    density_air = 1.29 * 273.15 / temperature_external  # kg/m^3
+    energy_air = volume * specific_heat_capacity * density_air * temperature_external  # J
 
-    return (energy_air + heat)/(volume_air * density_air * specific_heat_capacity)
+    return (energy_air + heat)/(volume * density_air * specific_heat_capacity)
 
 
 def celsius_to_kelvin(celsius: float) -> float:
@@ -335,11 +379,7 @@ def vapour_pressure_to_relative_humidity(vapour_pressure: float, temperature: fl
     :rtype: float
     """
 
-    temperature_c = kelvin_to_celsius(temperature)  # C
-    saturated_pressure = 288.68 * (1.098 + temperature_c/100)**8.02  # Pa
-    relative_humidity = vapour_pressure/saturated_pressure  # -
-
-    return relative_humidity
+    return vapour_pressure / saturated_vapour_pressure(temperature)  # -
 
 
 def relative_humidity_to_vapour_pressure(relative_humidity: float, temperature: float) -> float:
@@ -357,11 +397,7 @@ def relative_humidity_to_vapour_pressure(relative_humidity: float, temperature: 
     :rtype: float
     """
 
-    temperature_c = kelvin_to_celsius(temperature)  # C
-    saturated_pressure = 288.68 * (1.098 + temperature_c/100)**8.02  # Pa
-    vapour_pressure = relative_humidity * saturated_pressure  # Pa
-
-    return vapour_pressure
+    return relative_humidity * saturated_vapour_pressure(temperature)  # Pa
 
 
 def stratification(height: float, value_mean: float, height_top: float, value_top: float) -> float:
@@ -381,3 +417,21 @@ def stratification(height: float, value_mean: float, height_top: float, value_to
     """
 
     return value_mean - 2 * height * (value_mean - value_top)/height_top
+
+
+def saturated_vapour_pressure(temperature: float) -> float:
+    """
+    Computes the saturated vapour pressure for a given temperature.
+    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+    “Heat and Mass Transfer in Buildings.”
+
+    :param temperature: Temperature in Kelvin
+    :type temperature: float
+    :return: Vapour pressure in Pa
+    :rtype: float
+    """
+
+    # Make check. -109.8C is the temperature where the air can hold no water.
+    temperature_in_celsius = np.maximum(kelvin_to_celsius(temperature), -109)
+    return 288.68 * (1.098 + temperature_in_celsius/100) ** 8.02
+
