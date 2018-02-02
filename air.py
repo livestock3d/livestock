@@ -52,15 +52,18 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
         temperature_ = []
         relative_humidity_ = []
         latent_heat_flux_ = []
+        vapour_flux_ = []
 
         for row in sorted_rows:
             temperature_.append(row[1])
             relative_humidity_.append(row[2])
             latent_heat_flux_.append(row[3])
+            vapour_flux_.append(row[4])
 
         np.savetxt(folder_ + '/temperature_results.txt', temperature_, delimiter=',', fmt='%.4f')
         np.savetxt(folder_ + '/relative_humidity_results.txt', relative_humidity_, delimiter=',', fmt='%.4f')
         np.savetxt(folder_ + '/latent_heat_flux_results.txt', latent_heat_flux_, delimiter=',', fmt='%.4f')
+        np.savetxt(folder_ + '/vapour_flux_results.txt', vapour_flux_, delimiter=',', fmt='%.4f')
 
         return True
 
@@ -87,63 +90,67 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
     return True
 
 
-def compute_temperature_relative_humidity(air_temperature_in_k, relative_humidity, vapour_volume_flux, volume):
+def max_possible_vapour_flux(vapour_mass_flux, volume, temperature_in_kelvin, vapour_pressure):
 
     # Fsolve function
-    def max_possible_vapour_flux(vapour_volume_flux_):
+    new_temperature = new_mean_temperature(volume,
+                                           temperature_in_kelvin,
+                                           latent_heat_flux(vapour_mass_flux))
 
-        new_temperature = new_mean_temperature(volume, air_temperature_in_k,
-                                               np.negative(latent_heat_flux(vapour_volume_flux_)))
-        
-        return saturated_vapour_pressure(new_temperature) - \
-               new_mean_vapour_pressure(volume,
-                                        new_temperature,
-                                        vapour_pressure,
-                                        convert_vapour_flux_to_kgh(vapour_volume_flux_))
+    return saturated_vapour_pressure(new_temperature) - new_mean_vapour_pressure(volume,
+                                                                                 new_temperature,
+                                                                                 vapour_pressure,
+                                                                                 vapour_mass_flux)
+
+
+def compute_temperature_relative_humidity(temperature_in_k, relative_humidity, vapour_mass_flux, volume):
 
     # Check if all cells have a vapour pressure below saturation after alteration of temp & relhum
-    new_temperature_check = new_mean_temperature(volume, air_temperature_in_k,
-                                               np.negative(latent_heat_flux(vapour_volume_flux)))
+    new_temperature_check = new_mean_temperature(volume, temperature_in_k,
+                                                 latent_heat_flux(vapour_mass_flux))
 
     vapour_pressure = relative_humidity_to_vapour_pressure(relative_humidity,
-                                                           air_temperature_in_k)
+                                                           temperature_in_k)
 
     if np.all(
             np.less(new_mean_vapour_pressure(volume,
                                              new_temperature_check,
                                              vapour_pressure,
-                                             convert_vapour_flux_to_kgh(vapour_volume_flux)),
+                                             vapour_mass_flux),
                     saturated_vapour_pressure(new_temperature_check))):
 
-        return new_temperature_check, \
-               new_mean_relative_humidity(volume,
-                                          new_temperature_check,
-                                          vapour_pressure,
-                                          convert_vapour_flux_to_kgh(vapour_volume_flux)), \
-               np.negative(latent_heat_flux(vapour_volume_flux)), \
-               vapour_volume_flux
-
+        return [new_temperature_check,
+                new_mean_relative_humidity(volume,
+                                           new_temperature_check,
+                                           vapour_pressure,
+                                           vapour_mass_flux),
+                latent_heat_flux(vapour_mass_flux),
+                vapour_mass_flux]
 
     else:
-        possible_vapour_volume_flux = fsolve(max_possible_vapour_flux,
-                                             vapour_volume_flux)
+        # Loop over list so fsolve dont think the values in the list are dependent.
+        possible_vapour_mass_flux = []
+        for i in range(0, len(vapour_mass_flux)):
+            possible_vapour_mass_flux.append(fsolve(max_possible_vapour_flux,
+                                                    vapour_mass_flux[i],
+                                                    args=(volume[i], temperature_in_k, vapour_pressure)))
 
-        available_vapour_volume_flux = np.minimum(possible_vapour_volume_flux,
-                                                  vapour_volume_flux)
+        possible_vapour_mass_flux = np.array(possible_vapour_mass_flux).flatten()
+        available_vapour_mass_flux = np.minimum(possible_vapour_mass_flux, vapour_mass_flux)
 
-        latent_heat = np.negative(latent_heat_flux(available_vapour_volume_flux))
+        latent_heat = latent_heat_flux(available_vapour_mass_flux)
 
         new_temperature_ = new_mean_temperature(volume,
-                                                air_temperature_in_k,
-                                                available_vapour_volume_flux)
+                                                temperature_in_k,
+                                                latent_heat)
 
         return (new_temperature_,
                 new_mean_relative_humidity(volume,
                                            new_temperature_,
                                            vapour_pressure,
-                                           possible_vapour_volume_flux),
+                                           available_vapour_mass_flux),
                 latent_heat,
-                possible_vapour_volume_flux)
+                available_vapour_mass_flux)
 
 
 def run_row(input_package: list) -> tuple:
@@ -164,13 +171,13 @@ def run_row(input_package: list) -> tuple:
     air_temperature_in_k = celsius_to_kelvin(temperature_time)
 
     # Get temperature and relative_humidity
-    temperature_row, \
-    relative_humidity_row, \
-    heat_flux_time_row, \
-    used_vapour_flux = compute_temperature_relative_humidity(air_temperature_in_k,
-                                                             relative_humidity_time,
-                                                             vapour_flux_time_row,
-                                                             area * height_top)
+    [temperature_row,
+     relative_humidity_row,
+     heat_flux_time_row,
+     used_vapour_flux] = compute_temperature_relative_humidity(air_temperature_in_k,
+                                                               relative_humidity_time,
+                                                               convert_vapour_flux_to_kgh(vapour_flux_time_row),
+                                                               area * height_top)
 
     # new stratified relative humidity
     stratified_relative_humidity_row = stratification(height_stratification,
@@ -185,28 +192,31 @@ def run_row(input_package: list) -> tuple:
                                                 height_top,
                                                 temperature_time)
 
-    return (row_index, stratified_temperature_row,
-            convert_relative_humidity_to_percentage(stratified_relative_humidity_row), heat_flux_time_row)
+    return (row_index,
+            stratified_temperature_row,
+            convert_relative_humidity_to_percentage(stratified_relative_humidity_row),
+            heat_flux_time_row,
+            used_vapour_flux)
 
 
-def latent_heat_flux(vapour_volume_flux: np.array) -> np.array:
+def latent_heat_flux(vapour_mass_flux: np.array) -> np.array:
     """
     Computes the latent heat flux related to a certain evapotranspiration flux.
+    The latent heat flux is negative if the vapour flux is positive.
 
     Source: Manickathan, L. et al., 2018.
     Parametric study of the influence of environmental factors and tree properties on the
     transpirative cooling effect of trees. Agricultural and Forest Meteorology.
 
-    :param vapour_volume_flux: Vapour volume flux in m\ :sup:`3`\/day
-    :type vapour_volume_flux: numpy.array
-    :return: latent heat flux in J/h
+    :param vapour_mass_flux: Vapour volume flux in kg/h
+    :type vapour_mass_flux: numpy.array
+    :return: Latent heat flux in J/h.
     :rtype: numpy.array
     """
 
     latent_heat_of_vaporization = 2.5 * 10**6  # J/kg
-    vapour_mass_flux = vapour_volume_flux * 1000/24  # kg/h
 
-    return latent_heat_of_vaporization * vapour_mass_flux  # J/h
+    return np.negative(latent_heat_of_vaporization * vapour_mass_flux)  # J/h
 
 
 def convert_vapour_flux_to_kgh(vapour_flux: np.array) -> np.array:
@@ -277,7 +287,7 @@ def new_mean_relative_humidity(volume: np.array, temperature_internal: np.array,
     return vapour_pressure_to_relative_humidity(vapour_pressure, temperature_internal)
 
 
-def new_mean_vapour_pressure(volume: np.array, temperature_internal: np.array,
+def new_mean_vapour_pressure(volume: np.array, temperature: np.array,
                              vapour_pressure_external: np.array, vapour_production: np.array) -> np.array:
     """
     Calculates a new vapour pressure for the volume.
@@ -287,8 +297,8 @@ def new_mean_vapour_pressure(volume: np.array, temperature_internal: np.array,
 
     :param volume: Volume in m\ :sup:`3`
     :type volume: numpy.array
-    :param temperature_internal: Tempearture in K
-    :type temperature_internal: numpy.array
+    :param temperature_: Temperature in K
+    :type temperature: numpy.array
     :param vapour_pressure_external: External vapour pressure in Pa
     :type vapour_pressure_external: numpy.array
     :param vapour_production: Vapour production in kg/h
@@ -298,16 +308,15 @@ def new_mean_vapour_pressure(volume: np.array, temperature_internal: np.array,
     """
 
     gas_constant_vapour = 461.5  # J/kgK
-    density_vapour = vapour_pressure_external/(gas_constant_vapour * temperature_internal)  # kg/m3
+    density_vapour = vapour_pressure_external/(gas_constant_vapour * temperature)  # kg/m3
     mass_vapour = density_vapour * volume  # kg
     new_mass_vapour = mass_vapour + vapour_production  # kg
-    new_density_vapour = new_mass_vapour / volume  # kg/m3
-    vapour_pressure = new_density_vapour * gas_constant_vapour * temperature_internal  # Pa
+    vapour_pressure = (new_mass_vapour * gas_constant_vapour * temperature) / volume  # Pa
 
     return vapour_pressure  # Pa
 
 
-def new_mean_temperature(volume: np.array, temperature_external: np.array, heat: np.array) -> np.array:
+def new_mean_temperature(volume: np.array, temperature: np.array, heat: np.array) -> np.array:
     """
     Calculates a new mean temperature for the volume.
 
@@ -316,8 +325,8 @@ def new_mean_temperature(volume: np.array, temperature_external: np.array, heat:
 
     :param volume: Volume in m\ :sup:`3`
     :type volume: numpy.array
-    :param temperature_external: Temperature at the top of the air volume in K
-    :type temperature_external: numpy.array
+    :param temperature: Temperature at the top of the air volume in K
+    :type temperature: numpy.array
     :param heat: Added heat to the air volume in J/h
     :type heat: numpy.array
     :return: Temperature in K
@@ -325,8 +334,8 @@ def new_mean_temperature(volume: np.array, temperature_external: np.array, heat:
     """
 
     specific_heat_capacity = 1005  # J/kgK
-    density_air = 1.29 * 273.15 / temperature_external  # kg/m^3
-    energy_air = volume * specific_heat_capacity * density_air * temperature_external  # J
+    density_air = 1.29 * 273.15 / temperature  # kg/m^3
+    energy_air = volume * specific_heat_capacity * density_air * temperature  # J
 
     return (energy_air + heat)/(volume * density_air * specific_heat_capacity)
 
