@@ -6,7 +6,7 @@ __author__ = "Christian Kongsgaard"
 # Module imports
 import numpy as np
 import multiprocessing
-from scipy.optimize import fsolve
+from scipy.optimize import brentq
 
 # Livestock imports
 
@@ -35,12 +35,13 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
         # Load
         air_temperature_ = np.loadtxt(folder_ + '/temperature.txt', delimiter=',')
         air_relative_humidity_ = np.loadtxt(folder_ + '/relative_humidity.txt', delimiter=',')
+        wind_speed_ = np.loadtxt(folder_ + '/wind_speed.txt', delimiter=',')
         area_ = np.loadtxt(folder_ + '/area.txt', delimiter=',')
         height_top_, height_stratification_ = np.loadtxt(folder_ + '/heights.txt', delimiter=',')
         vapour_flux_ = np.loadtxt(folder_ + '/vapour_flux.txt', delimiter=',')
         cpu_ = np.loadtxt(folder + '/cpu.txt', delimiter=',')
 
-        return air_temperature_, air_relative_humidity_, area_, height_top_, height_stratification_, \
+        return air_temperature_, air_relative_humidity_, wind_speed_, area_, height_top_, height_stratification_, \
             vapour_flux_, int(cpu_)
 
     def reconstruct_results(folder_, processed_rows_):
@@ -68,7 +69,7 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
         return True
 
     # Run function
-    temperature, relative_humidity, area, height_top, height_stratification, vapour_flux, cpu = \
+    temperature, relative_humidity, wind_speed, area, height_top, height_stratification, vapour_flux, cpu = \
         get_files(folder)
 
     rows_ = [i
@@ -78,6 +79,7 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
                        temperature[index],
                        convert_relative_humidity_to_unitless(relative_humidity[index]),
                        vapour_flux[index],
+                       wind_speed[index],
                        area,
                        height_stratification,
                        height_top)
@@ -97,10 +99,9 @@ def max_possible_vapour_flux(vapour_mass_flux, volume, temperature_in_kelvin, va
                                            temperature_in_kelvin,
                                            latent_heat_flux(vapour_mass_flux))
 
-    return saturated_vapour_pressure(new_temperature) - new_mean_vapour_pressure(volume,
-                                                                                 new_temperature,
-                                                                                 vapour_pressure,
-                                                                                 vapour_mass_flux)
+    saturated_pressure = saturated_vapour_pressure(new_temperature)
+    actual_pressure = new_mean_vapour_pressure(volume, new_temperature, vapour_pressure, vapour_mass_flux)
+    return saturated_pressure - actual_pressure
 
 
 def compute_temperature_relative_humidity(temperature_in_k, relative_humidity, vapour_mass_flux, volume):
@@ -112,45 +113,40 @@ def compute_temperature_relative_humidity(temperature_in_k, relative_humidity, v
     vapour_pressure = relative_humidity_to_vapour_pressure(relative_humidity,
                                                            temperature_in_k)
 
-    if np.all(
-            np.less(new_mean_vapour_pressure(volume,
-                                             new_temperature_check,
-                                             vapour_pressure,
-                                             vapour_mass_flux),
-                    saturated_vapour_pressure(new_temperature_check))):
+    available_vapour_mass_flux = []
+    for i in range(0, len(vapour_mass_flux)):
+        new_vapour_pressure = new_mean_vapour_pressure(volume[i],
+                                                       new_temperature_check[i],
+                                                       vapour_pressure,
+                                                       vapour_mass_flux[i])
 
-        return [new_temperature_check,
-                new_mean_relative_humidity(volume,
-                                           new_temperature_check,
-                                           vapour_pressure,
-                                           vapour_mass_flux),
-                latent_heat_flux(vapour_mass_flux),
-                vapour_mass_flux]
+        new_saturated_pressure = saturated_vapour_pressure(new_temperature_check[i])
 
-    else:
-        # Loop over list so fsolve dont think the values in the list are dependent.
-        possible_vapour_mass_flux = []
-        for i in range(0, len(vapour_mass_flux)):
-            possible_vapour_mass_flux.append(fsolve(max_possible_vapour_flux,
-                                                    vapour_mass_flux[i],
-                                                    args=(volume[i], temperature_in_k, vapour_pressure)))
+        if new_vapour_pressure <= new_saturated_pressure:
+            available_vapour_mass_flux.append(vapour_mass_flux[i])
+        else:
+            possible_vapour_mass_flux = brentq(max_possible_vapour_flux,
+                                               -1,
+                                               vapour_mass_flux[i],
+                                               args=(volume[i], temperature_in_k, vapour_pressure))
 
-        possible_vapour_mass_flux = np.array(possible_vapour_mass_flux).flatten()
-        available_vapour_mass_flux = np.minimum(possible_vapour_mass_flux, vapour_mass_flux)
+            if possible_vapour_mass_flux < vapour_mass_flux[i]:
+                available_vapour_mass_flux.append(possible_vapour_mass_flux)
+            else:
+                # Should be a useless statement?
+                available_vapour_mass_flux.append(vapour_mass_flux[i])
 
-        latent_heat = latent_heat_flux(available_vapour_mass_flux)
-
-        new_temperature_ = new_mean_temperature(volume,
-                                                temperature_in_k,
-                                                latent_heat)
-
-        return (new_temperature_,
-                new_mean_relative_humidity(volume,
-                                           new_temperature_,
-                                           vapour_pressure,
-                                           available_vapour_mass_flux),
-                latent_heat,
-                available_vapour_mass_flux)
+    available_vapour_mass_flux = np.array(available_vapour_mass_flux).flatten()
+    latent_heat = latent_heat_flux(available_vapour_mass_flux)
+    new_temperature_ = new_mean_temperature(volume, temperature_in_k, latent_heat)
+    new_relative_humidity = new_mean_relative_humidity(volume,
+                                                       new_temperature_,
+                                                       vapour_pressure,
+                                                       available_vapour_mass_flux)
+    return (new_temperature_,
+            new_relative_humidity,
+            latent_heat,
+            available_vapour_mass_flux)
 
 
 def run_row(input_package: list) -> tuple:
@@ -164,12 +160,12 @@ def run_row(input_package: list) -> tuple:
     """
 
     # unpack
-    row_index, temperature_time, relative_humidity_time, vapour_flux_time_row, area, \
+    row_index, temperature_time, relative_humidity_time, vapour_flux_time_row, wind_speed, area, \
         height_stratification, height_top = input_package
 
     # new mean temperature i K
     air_temperature_in_k = celsius_to_kelvin(temperature_time)
-
+    #flux_corrected_volume = area * height_top + wind_speed_to_flux(wind_speed, height_top, cross_section_from_area(area))
     # Get temperature and relative_humidity
     [temperature_row,
      relative_humidity_row,
@@ -177,7 +173,7 @@ def run_row(input_package: list) -> tuple:
      used_vapour_flux] = compute_temperature_relative_humidity(air_temperature_in_k,
                                                                relative_humidity_time,
                                                                convert_vapour_flux_to_kgh(vapour_flux_time_row),
-                                                               area * height_top)
+                                                               height_top * area)
 
     # new stratified relative humidity
     stratified_relative_humidity_row = stratification(height_stratification,
@@ -297,7 +293,7 @@ def new_mean_vapour_pressure(volume: np.array, temperature: np.array,
 
     :param volume: Volume in m\ :sup:`3`
     :type volume: numpy.array
-    :param temperature_: Temperature in K
+    :param temperature: Temperature in K
     :type temperature: numpy.array
     :param vapour_pressure_external: External vapour pressure in Pa
     :type vapour_pressure_external: numpy.array
@@ -444,3 +440,28 @@ def saturated_vapour_pressure(temperature: float) -> float:
     temperature_in_celsius = np.maximum(kelvin_to_celsius(temperature), -109)
     return 288.68 * (1.098 + temperature_in_celsius/100) ** 8.02
 
+
+def wind_speed_to_hour_flux(wind_speed: float) -> float:
+    """
+    Converts wind speed into a hourly flux.
+    m/s to m\ :sup:`3`/h
+    m/s to m\ :sup:`3`/s = 1:sup:`2`
+    m\ :sup:`3`/s to m\ :sup:`3`/h = 3600s/h
+
+    :param wind_speed: Wind speed in m/s
+    :type wind_speed: float
+    :return: Wind flux in m\ :sup:`3`/h
+    :rtype: float
+    """
+
+    return wind_speed * 3600
+
+
+def cross_section_from_area(area: np.array) -> np.array:
+
+    return np.sqrt(4 * area/np.pi)
+
+
+def wind_speed_to_flux(wind_speed, height, cross_section):
+
+    return wind_speed_to_hour_flux(wind_speed) * height * cross_section
