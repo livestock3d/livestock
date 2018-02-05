@@ -45,6 +45,13 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
             vapour_flux_, int(cpu_)
 
     def reconstruct_results(folder_, processed_rows_):
+        """
+        Collects and saves the results when they have been simulated.
+
+        :param folder_: Folder where the results should be saved
+        :param processed_rows_: Processed result rows.
+        :return: True
+        """
 
         # Sort row list
         sorted_rows = sorted(processed_rows_)
@@ -92,9 +99,26 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
     return True
 
 
-def max_possible_vapour_flux(vapour_mass_flux, volume, temperature_in_kelvin, vapour_pressure):
+def max_possible_vapour_flux(vapour_mass_flux: float, volume: float,
+                             temperature_in_kelvin: float, vapour_pressure: float) -> float:
+    """
+    Computes the difference between the saturated vapour pressure of an air volume after adding the vapour
+    and latent heat flux to an air volume and the actual vapour pressure of an air volume.
 
-    # Fsolve function
+    :param vapour_mass_flux: Vapour mass flux in kg/h
+    :type vapour_mass_flux: float
+    :param volume: Air volume in m\ :sup:`3`\
+    :type volume: float
+    :param temperature_in_kelvin: Current temperature in K
+    :type temperature_in_kelvin: float
+    :param vapour_pressure: Current vapour pressure in Pa
+    :type vapour_pressure: float
+    :return: Difference between the saturated vapour pressure after adding the vapour and latent heat flux to
+    the air volume and the actual vapour pressure of the air volume.
+    :rtype: float
+    """
+
+    # Solve Function
     new_temperature = new_mean_temperature(volume,
                                            temperature_in_kelvin,
                                            latent_heat_flux(vapour_mass_flux))
@@ -104,7 +128,25 @@ def max_possible_vapour_flux(vapour_mass_flux, volume, temperature_in_kelvin, va
     return saturated_pressure - actual_pressure
 
 
-def compute_temperature_relative_humidity(temperature_in_k, relative_humidity, vapour_mass_flux, volume):
+def compute_temperature_relative_humidity(temperature_in_k: np.array, relative_humidity: np.array,
+                                          vapour_mass_flux: np.array, volume: np.array) -> tuple:
+    """
+    Computes the coupled relative humidity and temperature of an air volume given a vapour flux. The vapour pressure is
+    capped off so it can not exceed the saturated vapour pressure. This potential means that not the whole amount
+     of vapour flux will be used.
+
+    :param temperature_in_k: Current temperature of the air volume in K
+    :type temperature_in_k: numpy.array
+    :param relative_humidity: Current relative humidity of the air volume as unit less.
+    :type relative_humidity: numpy.array
+    :param vapour_mass_flux: Vapour mass flux to be added to the air volume in kg/h.
+    :type vapour_mass_flux: numpy.array
+    :param volume: Air volume in m\ :sup:`3`\
+    :type volume: numpy.array
+    :return: Tuple containing the new temperature in K, new relative humidity as unit less, the latent heat used and
+     the vapour flux used.
+    :rtype: tuple
+    """
 
     # Check if all cells have a vapour pressure below saturation after alteration of temp & relhum
     new_temperature_check = new_mean_temperature(volume, temperature_in_k,
