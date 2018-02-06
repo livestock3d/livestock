@@ -375,7 +375,10 @@ def new_mean_temperature(volume: np.array, temperature: np.array, heat: np.array
     density_air = 1.29 * 273.15 / temperature  # kg/m^3
     energy_air = volume * specific_heat_capacity * density_air * temperature  # J
 
-    return (energy_air + heat)/(volume * density_air * specific_heat_capacity)
+    # Create a check to make sure that the temperature can not go below 0C
+    new_temperature = np.maximum((energy_air + heat)/(volume * density_air * specific_heat_capacity), 273.15)
+
+    return new_temperature
 
 
 def celsius_to_kelvin(celsius: float) -> float:
@@ -480,6 +483,7 @@ def saturated_vapour_pressure(temperature: float) -> float:
 
     # Make check. -109.8C is the temperature where the air can hold no water.
     temperature_in_celsius = np.maximum(kelvin_to_celsius(temperature), -109)
+
     return 288.68 * (1.098 + temperature_in_celsius/100) ** 8.02
 
 
@@ -499,11 +503,32 @@ def wind_speed_to_hour_flux(wind_speed: float) -> float:
     return wind_speed * 3600
 
 
-def cross_section_from_area(area: np.array) -> np.array:
+def diameter_from_area(area: np.array) -> np.array:
+    """
+    Computes the diameter from a given area of a circle.
+    A = :math:`{\\pi}` * (d/2)\ :sup:`2` =>
+    d = :math:`{\\sqrt{4*A/{\\pi}}}`
+
+    :param area: Area of a circle in m
+    :type area: numpy.array
+    :return: Diameter in m
+    :rtype: numpy.array
+    """
 
     return np.sqrt(4 * area/np.pi)
 
 
-def wind_speed_to_flux(wind_speed, height, cross_section):
+def wind_speed_to_flux(wind_speed: np.array, height: np.array, cross_section: np.array) -> np.array:
+    """
+    Converts a wind speed through an area to a wind flux.
 
+    :param wind_speed: Wind speed in m/s
+    :type wind_speed: numpy.array
+    :param height: Height of the area in m
+    :type height: numpy.array
+    :param cross_section: Width of the area in m
+    :type cross_section: numpy.array
+    :return: Wind flux in m\ :sup:`3`/h
+    :rtype: numpy.array
+    """
     return wind_speed_to_hour_flux(wind_speed) * height * cross_section
