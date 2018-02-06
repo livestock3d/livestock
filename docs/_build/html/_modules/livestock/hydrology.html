@@ -21,6 +21,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -60,7 +61,7 @@
 <span class="c1"># Livestock imports</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">geometry</span> <span class="k">as</span> <span class="n">lg</span>
-<span class="k">except</span> <span class="n">ModuleNotFoundError</span><span class="p">:</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">geometry</span> <span class="k">as</span> <span class="nn">lg</span>
 
 <span class="c1"># -------------------------------------------------------------------------------------------------------------------- #</span>
@@ -280,7 +281,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Takes a mesh and converts it into CMF cells</span>
 <span class="sd">        :param mesh_path: Path to mesh .obj file</span>
-<span class="sd">        :param cmf_project: CMF project object</span>
+<span class="sd">        :param cmf_project: CMF project object.</span>
+<span class="sd">        :param delete_after_load: If True, it deletes the input files after they have been loaded.</span>
 <span class="sd">        :return: True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -339,7 +341,7 @@
 
             <span class="c1"># Install connections</span>
             <span class="n">cell_</span><span class="o">.</span><span class="n">install_connection</span><span class="p">(</span><span class="n">cmf</span><span class="o">.</span><span class="n">Richards</span><span class="p">)</span>
-            <span class="n">cell_</span><span class="o">.</span><span class="n">install_connection</span><span class="p">(</span><span class="n">cmf</span><span class="o">.</span><span class="n">GreenAmptInfiltration</span><span class="p">)</span>
+            <span class="n">cell_</span><span class="o">.</span><span class="n">install_connection</span><span class="p">(</span><span class="n">cmf</span><span class="o">.</span><span class="n">SimpleInfiltration</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">evapotranspiration_method</span> <span class="o">==</span> <span class="s1">&#39;penman_monteith&#39;</span><span class="p">:</span>
                 <span class="c1"># Install Penman &amp; Monteith method to calculate evapotranspiration_potential</span>
@@ -394,7 +396,7 @@
             <span class="n">cell</span><span class="o">.</span><span class="n">saturated_depth</span> <span class="o">=</span> <span class="n">cell_property_dict</span><span class="p">[</span><span class="s1">&#39;saturated_depth&#39;</span><span class="p">]</span>
 
         <span class="k">def</span> <span class="nf">flux_connections</span><span class="p">(</span><span class="n">cmf_project_</span><span class="p">,</span> <span class="n">cell_property_dict</span><span class="p">):</span>
-            <span class="n">cmf</span><span class="o">.</span><span class="n">connect_cells_with_flux</span><span class="p">(</span><span class="n">cmf_project_</span><span class="p">,</span> <span class="n">cmf</span><span class="o">.</span><span class="n">Darcy</span><span class="p">)</span>
+            <span class="n">cmf</span><span class="o">.</span><span class="n">connect_cells_with_flux</span><span class="p">(</span><span class="n">cmf_project_</span><span class="p">,</span> <span class="n">cmf</span><span class="o">.</span><span class="n">DarcyKinematic</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">cell_property_dict</span><span class="p">[</span><span class="s1">&#39;runoff_method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;kinematic&#39;</span><span class="p">:</span>
                 <span class="n">cmf</span><span class="o">.</span><span class="n">connect_cells_with_flux</span><span class="p">(</span><span class="n">cmf_project_</span><span class="p">,</span> <span class="n">cmf</span><span class="o">.</span><span class="n">KinematicSurfaceRunoff</span><span class="p">)</span>
@@ -1180,7 +1182,7 @@
       &copy;2018, Christian Kongsgaard Nielsen.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

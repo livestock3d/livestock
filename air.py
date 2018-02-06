@@ -280,7 +280,7 @@ def convert_relative_humidity_to_unitless(rh: np.array) -> np.array:
 
     :param rh: Relative humidity in %
     :type rh: numpy.array
-    :return: Relative humidity as unitless
+    :return: Relative humidity as unit less
     :rtype: numpy.array
     """
 
@@ -316,7 +316,7 @@ def new_mean_relative_humidity(volume: np.array, temperature_internal: np.array,
     :type vapour_pressure_external: numpy.array
     :param vapour_production: Vapour production in kg/h
     :type vapour_production: numpy.array
-    :return: Relative humidity - unitless
+    :return: Relative humidity - unit less
     :rtype: numpy.array
     """
 

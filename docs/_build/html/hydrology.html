@@ -21,6 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Livestock Misc" href="misc.html" />
@@ -96,7 +97,8 @@
 <code class="descname">mesh_to_cells</code><span class="sig-paren">(</span><em>cmf_project</em>, <em>mesh_path</em>, <em>delete_after_load=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/hydrology.html#CMFModel.mesh_to_cells"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.hydrology.CMFModel.mesh_to_cells" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a mesh and converts it into CMF cells
 :param mesh_path: Path to mesh .obj file
-:param cmf_project: CMF project object
+:param cmf_project: CMF project object.
+:param delete_after_load: If True, it deletes the input files after they have been loaded.
 :return: True</p>
 </dd></dl>
 
@@ -193,7 +195,7 @@
       &copy;2018, Christian Kongsgaard Nielsen.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
