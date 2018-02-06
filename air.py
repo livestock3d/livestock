@@ -207,7 +207,8 @@ def run_row(input_package: list) -> tuple:
 
     # new mean temperature i K
     air_temperature_in_k = celsius_to_kelvin(temperature_time)
-    #flux_corrected_volume = area * height_top + wind_speed_to_flux(wind_speed, height_top, cross_section_from_area(area))
+    flux_corrected_volume = area * height_top + wind_speed_to_flux(wind_speed, height_top, diameter_from_area(area))
+
     # Get temperature and relative_humidity
     [temperature_row,
      relative_humidity_row,
@@ -215,7 +216,7 @@ def run_row(input_package: list) -> tuple:
      used_vapour_flux] = compute_temperature_relative_humidity(air_temperature_in_k,
                                                                relative_humidity_time,
                                                                convert_vapour_flux_to_kgh(vapour_flux_time_row),
-                                                               height_top * area)
+                                                               flux_corrected_volume)
 
     # new stratified relative humidity
     stratified_relative_humidity_row = stratification(height_stratification,
@@ -531,4 +532,5 @@ def wind_speed_to_flux(wind_speed: np.array, height: np.array, cross_section: np
     :return: Wind flux in m\ :sup:`3`/h
     :rtype: numpy.array
     """
+
     return wind_speed_to_hour_flux(wind_speed) * height * cross_section
