@@ -822,7 +822,16 @@ class CMFModel:
         return project
 
 
-def cmf_results(path):
+def cmf_results(path: str) -> bool:
+    """
+    Process a CMF result file.
+
+    :param path: Folder containing the result file.
+    :type path: str
+    :return: True
+    :rtype: bool
+    """
+
     files = os.listdir(path)
     result_path = None
     lookup_path = None
@@ -847,8 +856,18 @@ def cmf_results(path):
     return True
 
 
-def cell_results(looking_for, result_file, folder):
-    """Processes cell results"""
+def cell_results(looking_for: str, result_file: str, folder: str) -> bool:
+    """Processes cell results after a desired parameter.
+
+    :param looking_for: Parameter to look for.
+    :type looking_for: str
+    :param result_file: Path of the result file.
+    :type result_file: str
+    :param folder: Path of the folder
+    :type folder: str
+    :return: True
+    :rtype: bool
+    """
 
     # Initialize
     result_tree = ET.tostring(ET.parse(result_file).getroot())
@@ -886,8 +905,19 @@ def cell_results(looking_for, result_file, folder):
     return True
 
 
-def layer_results(looking_for, result_file, folder):
-    """Processes layer results"""
+def layer_results(looking_for: str, result_file: str, folder: str) -> bool:
+    """
+    Processes layer results after a desired parameter.
+
+    :param looking_for: Parameter to look for.
+    :type looking_for: str
+    :param result_file: Path of the result file.
+    :type result_file: str
+    :param folder: Path of the folder
+    :type folder: str
+    :return: True
+    :rtype: bool
+    """
 
     # Initialize
     result_tree = ET.tostring(ET.parse(result_file).getroot())
@@ -922,7 +952,16 @@ def layer_results(looking_for, result_file, folder):
     return True
 
 
-def convert_cmf_points(points):
+def convert_cmf_points(points: str) -> list:
+    """
+    Convert a string of CMF points into a list of tuples with their coordinates.
+
+    :param points: CMF points
+    :type points: str
+    :return: List of tuples contain point coordniates
+    :rtype: list
+    """
+
     # convert to list
     point_list = points[1:-1]
     point_tuples = []
@@ -937,7 +976,15 @@ def convert_cmf_points(points):
     return point_tuples
 
 
-def surface_flux_results(path):
+def surface_flux_results(path: str) -> bool:
+    """
+    Generates the surface flux from a CMF result file.
+
+    :param path: Folder where the result file is located.
+    :type path: str
+    :return: True
+    :rtype: bool
+    """
 
     # Helper functions
     def read_files(path_):
