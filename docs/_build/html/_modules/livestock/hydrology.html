@@ -69,6 +69,9 @@
 
 
 <div class="viewcode-block" id="CMFModel"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel">[docs]</a><span class="k">class</span> <span class="nc">CMFModel</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class containing a CMF model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">folder</span>
@@ -83,6 +86,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="CMFModel.load_cmf_files"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.load_cmf_files">[docs]</a>    <span class="k">def</span> <span class="nf">load_cmf_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delete_after_load</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads the needed files for the CMF project to run.</span>
+
+<span class="sd">        :param delete_after_load: Delete after the files are loaded?</span>
+<span class="sd">        :type delete_after_load: bool</span>
+<span class="sd">        :return: True</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">load_weather</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">delete</span><span class="p">):</span>
 
@@ -280,10 +291,15 @@
 <div class="viewcode-block" id="CMFModel.mesh_to_cells"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.mesh_to_cells">[docs]</a>    <span class="k">def</span> <span class="nf">mesh_to_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmf_project</span><span class="p">,</span> <span class="n">mesh_path</span><span class="p">,</span> <span class="n">delete_after_load</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Takes a mesh and converts it into CMF cells</span>
+
 <span class="sd">        :param mesh_path: Path to mesh .obj file</span>
+<span class="sd">        :type mesh_path: str</span>
 <span class="sd">        :param cmf_project: CMF project object.</span>
+<span class="sd">        :type cmf_project: cmf.project</span>
 <span class="sd">        :param delete_after_load: If True, it deletes the input files after they have been loaded.</span>
+<span class="sd">        :type delete_after_load: bool</span>
 <span class="sd">        :return: True</span>
+<span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Convert obj to shapefile</span>
@@ -305,7 +321,18 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="CMFModel.add_tree"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.add_tree">[docs]</a>    <span class="k">def</span> <span class="nf">add_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmf_project</span><span class="p">,</span> <span class="n">cell_index</span><span class="p">,</span> <span class="n">property_dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Adds a tree to the model&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a tree to the model and sets the need properties for it.</span>
+
+<span class="sd">        :param cmf_project: CMF project</span>
+<span class="sd">        :type cmf_project: cmf.project</span>
+<span class="sd">        :param cell_index: Index of the cell where the tree should be added.</span>
+<span class="sd">        :type cell_index: int</span>
+<span class="sd">        :param property_dict: Dict with tree properties.</span>
+<span class="sd">        :type property_dict: dict</span>
+<span class="sd">        :return: True</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">cell</span> <span class="o">=</span> <span class="n">cmf_project</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">cell_index</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_vegetation_properties</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">property_dict</span><span class="p">)</span>
@@ -320,6 +347,17 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="CMFModel.set_vegetation_properties"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.set_vegetation_properties">[docs]</a>    <span class="k">def</span> <span class="nf">set_vegetation_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_</span><span class="p">:</span> <span class="n">cmf</span><span class="o">.</span><span class="n">Cell</span><span class="p">,</span> <span class="n">property_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the vegetation properties for a cell.</span>
+
+<span class="sd">        :param cell_: Cell to set properties for.</span>
+<span class="sd">        :type cell_: cmf.Cell</span>
+<span class="sd">        :param property_dict: Dict containing the needed properties.</span>
+<span class="sd">        :type property_dict: dict</span>
+<span class="sd">        :return: True</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">cell_</span><span class="o">.</span><span class="n">vegetation</span><span class="o">.</span><span class="n">Height</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">property_dict</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">])</span>
         <span class="n">cell_</span><span class="o">.</span><span class="n">vegetation</span><span class="o">.</span><span class="n">LAI</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">property_dict</span><span class="p">[</span><span class="s1">&#39;lai&#39;</span><span class="p">])</span>
         <span class="n">cell_</span><span class="o">.</span><span class="n">vegetation</span><span class="o">.</span><span class="n">albedo</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">property_dict</span><span class="p">[</span><span class="s1">&#39;albedo&#39;</span><span class="p">])</span>
@@ -334,7 +372,16 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="CMFModel.configure_cells"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.configure_cells">[docs]</a>    <span class="k">def</span> <span class="nf">configure_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmf_project</span><span class="p">:</span> <span class="n">cmf</span><span class="o">.</span><span class="n">project</span><span class="p">,</span> <span class="n">cell_properties_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Configure the cells&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configure and setup all needed information for the cells.</span>
+
+<span class="sd">        :param cmf_project: CMF project</span>
+<span class="sd">        :type cmf_project: cmf.project</span>
+<span class="sd">        :param cell_properties_dict: Dict with all the needed properties</span>
+<span class="sd">        :type cell_properties_dict: dict</span>
+<span class="sd">        :return: True</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Helper functions</span>
         <span class="k">def</span> <span class="nf">install_connections</span><span class="p">(</span><span class="n">cell_</span><span class="p">,</span> <span class="n">evapotranspiration_method</span><span class="p">):</span>
@@ -415,47 +462,13 @@
 
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="CMFModel.create_stream"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.create_stream">[docs]</a>    <span class="k">def</span> <span class="nf">create_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">shape_param</span><span class="p">,</span> <span class="n">outlet</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a stream&quot;&quot;&quot;</span>
-        <span class="c1"># ShapeParam(Tri) = [length, bankSlope, x, y, z, intialWaterDepth]</span>
-        <span class="c1"># ShapeParam(Rec) = [length, width, x, y, z, intialWaterDepth]</span>
-        <span class="n">reaches</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c1"># Create stream</span>
-        <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape_param</span><span class="p">)):</span>
-                <span class="n">reach_shape</span> <span class="o">=</span> <span class="n">cmf</span><span class="o">.</span><span class="n">TriangularReach</span><span class="p">(</span><span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-                <span class="n">reaches</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">NewReach</span><span class="p">(</span><span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">4</span><span class="p">],</span> <span class="n">reach_shape</span><span class="p">,</span> <span class="kc">False</span><span class="p">)])</span>
-                <span class="n">reaches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">depth</span><span class="p">(</span><span class="n">shape_param</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
-
-                <span class="c1"># Connect reaches</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">reaches</span><span class="p">:</span>
-                    <span class="k">pass</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">reaches</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape_param</span><span class="p">):</span>
-                    <span class="n">channel_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">NewOutlet</span><span class="p">(</span><span class="n">outlet</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">outlet</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">outlet</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-                    <span class="n">reaches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_downstream</span><span class="p">(</span><span class="n">channel_out</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">reaches</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_downstream</span><span class="p">(</span><span class="n">reaches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-
-        <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape_param</span><span class="p">)):</span>
-                <span class="n">reach_shape</span> <span class="o">=</span> <span class="n">cmf</span><span class="o">.</span><span class="n">RectangularReach</span><span class="p">(</span><span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-                <span class="n">reaches</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">NewReach</span><span class="p">(</span><span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape_param</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">4</span><span class="p">],</span> <span class="n">reach_shape</span><span class="p">,</span> <span class="kc">False</span><span class="p">)])</span>
-                <span class="n">reaches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">depth</span><span class="p">(</span><span class="n">shape_param</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
-
-                <span class="c1"># Connect reaches</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">reaches</span><span class="p">:</span>
-                    <span class="k">pass</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">reaches</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape_param</span><span class="p">):</span>
-                    <span class="n">channel_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">NewOutlet</span><span class="p">(</span><span class="n">outlet</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">outlet</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">outlet</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-                    <span class="n">reaches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_downstream</span><span class="p">(</span><span class="n">channel_out</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">reaches</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_downstream</span><span class="p">(</span><span class="n">reaches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span></div>
-
 <div class="viewcode-block" id="CMFModel.create_weather"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.create_weather">[docs]</a>    <span class="k">def</span> <span class="nf">create_weather</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmf_project</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates weather for the project&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates weather for the project</span>
+
+<span class="sd">        :param cmf_project: CMF project</span>
+<span class="sd">        :type cmf_project: cmf.project</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Helper functions</span>
         <span class="k">def</span> <span class="nf">create_time_series</span><span class="p">(</span><span class="n">analysis_length</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
@@ -552,6 +565,12 @@
             <span class="n">connect_weather_to_cells</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">cell_rain</span><span class="p">,</span> <span class="n">cell_meteo</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CMFModel.create_boundary_conditions"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.create_boundary_conditions">[docs]</a>    <span class="k">def</span> <span class="nf">create_boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmf_project</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a boundary condition for the CMF project.</span>
+
+<span class="sd">        :param cmf_project: CMF project to give a boundary conditions</span>
+<span class="sd">        :type cmf_project: cmf.project</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Helper functions</span>
         <span class="k">def</span> <span class="nf">set_inlet</span><span class="p">(</span><span class="n">boundary_condition_</span><span class="p">,</span> <span class="n">cmf_project_</span><span class="p">):</span>
@@ -612,7 +631,6 @@
                                       <span class="nb">float</span><span class="p">(</span><span class="n">boundary_condition_</span><span class="p">[</span><span class="s1">&#39;outlet_type&#39;</span><span class="p">][</span><span class="s1">&#39;connection_parameter&#39;</span><span class="p">]))</span>
 
         <span class="k">def</span> <span class="nf">set_boundary_condition</span><span class="p">(</span><span class="n">boundary_condition_</span><span class="p">,</span> <span class="n">bc_index</span><span class="p">,</span> <span class="n">cmf_project_</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;set_boundary_condition&#39;</span><span class="p">,</span> <span class="n">boundary_condition_</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">boundary_condition_</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;inlet&#39;</span><span class="p">:</span>
                 <span class="n">set_inlet</span><span class="p">(</span><span class="n">boundary_condition_</span><span class="p">,</span> <span class="n">cmf_project_</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">boundary_condition_</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;outlet&#39;</span><span class="p">:</span>
@@ -626,7 +644,14 @@
             <span class="n">set_boundary_condition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary_dict</span><span class="p">[</span><span class="n">boundary_condition</span><span class="p">],</span> <span class="n">index</span><span class="p">,</span> <span class="n">cmf_project</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CMFModel.config_outputs"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.config_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">config_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmf_project</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Function to set up result gathering dictionary&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to set up result gathering dictionary.</span>
+
+<span class="sd">        :param cmf_project: CMF project to collect from</span>
+<span class="sd">        :type cmf_project: cmf.project</span>
+<span class="sd">        :return: Empty result dictionary</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">out_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -649,6 +674,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">out_dict</span></div>
 
 <div class="viewcode-block" id="CMFModel.gather_results"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.gather_results">[docs]</a>    <span class="k">def</span> <span class="nf">gather_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmf_project</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Collects the produced results.</span>
+
+<span class="sd">        :param cmf_project: CMF project to collect from</span>
+<span class="sd">        :type cmf_project: cmf.project</span>
+<span class="sd">        :param time: Point in solver time</span>
+<span class="sd">        :type time: datetime.datetime</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">cell_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmf_project</span><span class="o">.</span><span class="n">cells</span><span class="p">)):</span>
             <span class="n">cell_name</span> <span class="o">=</span> <span class="s1">&#39;cell_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cell_index</span><span class="p">)</span>
@@ -740,11 +775,25 @@
                     <span class="c1">#    raise ValueError(&#39;Unknown result to collect. Result to collect was: &#39; + str(out_key))</span>
 
 <div class="viewcode-block" id="CMFModel.print_solver_time"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.print_solver_time">[docs]</a>    <span class="k">def</span> <span class="nf">print_solver_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">last_time</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints information at each solver time.</span>
+
+<span class="sd">        :param solver_time: The time the solver solves for.</span>
+<span class="sd">        :type solver_time: datetime.datetime</span>
+<span class="sd">        :param start_time: Time at the start of the simulation</span>
+<span class="sd">        :type start_time: datetime.datetime</span>
+<span class="sd">        :param last_time: Last time step</span>
+<span class="sd">        :type last_time: datetime.datetime</span>
+<span class="sd">        :param step: Current simulation step</span>
+<span class="sd">        :type step: int</span>
+<span class="sd">        :return: Current time</span>
+<span class="sd">        :rtype: datetime.datetime</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s1">&#39;verbosity&#39;</span><span class="p">]:</span>
             <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">start_time</span>
-            <span class="n">time_per_step</span> <span class="o">=</span> <span class="n">elapsed_time</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="p">(</span><span class="n">step</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">time_per_step</span> <span class="o">=</span> <span class="n">elapsed_time</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">time_left</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="p">(</span><span class="n">time_per_step</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s1">&#39;analysis_length&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">step</span><span class="p">)))</span>
             <span class="n">current_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">last_time</span><span class="p">)</span>
 
@@ -830,7 +879,12 @@
             <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="CMFModel.run_model"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.CMFModel.run_model">[docs]</a>    <span class="k">def</span> <span class="nf">run_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the model with everything&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runs the model with everything.</span>
+
+<span class="sd">        :return: Simulated CMF project</span>
+<span class="sd">        :rtype: cmf.project</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Initialize project</span>
         <span class="n">project</span> <span class="o">=</span> <span class="n">cmf</span><span class="o">.</span><span class="n">project</span><span class="p">()</span>
@@ -864,7 +918,16 @@
         <span class="k">return</span> <span class="n">project</span></div></div>
 
 
-<div class="viewcode-block" id="cmf_results"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.cmf_results">[docs]</a><span class="k">def</span> <span class="nf">cmf_results</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="cmf_results"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.cmf_results">[docs]</a><span class="k">def</span> <span class="nf">cmf_results</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process a CMF result file.</span>
+
+<span class="sd">    :param path: Folder containing the result file.</span>
+<span class="sd">    :type path: str</span>
+<span class="sd">    :return: True</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">result_path</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">lookup_path</span> <span class="o">=</span> <span class="kc">None</span>
@@ -889,8 +952,18 @@
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="cell_results"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.cell_results">[docs]</a><span class="k">def</span> <span class="nf">cell_results</span><span class="p">(</span><span class="n">looking_for</span><span class="p">,</span> <span class="n">result_file</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Processes cell results&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="cell_results"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.cell_results">[docs]</a><span class="k">def</span> <span class="nf">cell_results</span><span class="p">(</span><span class="n">looking_for</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">result_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Processes cell results after a desired parameter.</span>
+
+<span class="sd">    :param looking_for: Parameter to look for.</span>
+<span class="sd">    :type looking_for: str</span>
+<span class="sd">    :param result_file: Path of the result file.</span>
+<span class="sd">    :type result_file: str</span>
+<span class="sd">    :param folder: Path of the folder</span>
+<span class="sd">    :type folder: str</span>
+<span class="sd">    :return: True</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Initialize</span>
     <span class="n">result_tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">result_file</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">())</span>
@@ -928,8 +1001,19 @@
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="layer_results"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.layer_results">[docs]</a><span class="k">def</span> <span class="nf">layer_results</span><span class="p">(</span><span class="n">looking_for</span><span class="p">,</span> <span class="n">result_file</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Processes layer results&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="layer_results"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.layer_results">[docs]</a><span class="k">def</span> <span class="nf">layer_results</span><span class="p">(</span><span class="n">looking_for</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">result_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes layer results after a desired parameter.</span>
+
+<span class="sd">    :param looking_for: Parameter to look for.</span>
+<span class="sd">    :type looking_for: str</span>
+<span class="sd">    :param result_file: Path of the result file.</span>
+<span class="sd">    :type result_file: str</span>
+<span class="sd">    :param folder: Path of the folder</span>
+<span class="sd">    :type folder: str</span>
+<span class="sd">    :return: True</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Initialize</span>
     <span class="n">result_tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">result_file</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">())</span>
@@ -964,7 +1048,16 @@
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="convert_cmf_points"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.convert_cmf_points">[docs]</a><span class="k">def</span> <span class="nf">convert_cmf_points</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_cmf_points"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.convert_cmf_points">[docs]</a><span class="k">def</span> <span class="nf">convert_cmf_points</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a string of CMF points into a list of tuples with their coordinates.</span>
+
+<span class="sd">    :param points: CMF points</span>
+<span class="sd">    :type points: str</span>
+<span class="sd">    :return: List of tuples contain point coordniates</span>
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="c1"># convert to list</span>
     <span class="n">point_list</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">point_tuples</span> <span class="o">=</span> <span class="p">[]</span>
@@ -979,7 +1072,15 @@
     <span class="k">return</span> <span class="n">point_tuples</span></div>
 
 
-<div class="viewcode-block" id="surface_flux_results"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.surface_flux_results">[docs]</a><span class="k">def</span> <span class="nf">surface_flux_results</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="surface_flux_results"><a class="viewcode-back" href="../../hydrology.html#livestock.hydrology.surface_flux_results">[docs]</a><span class="k">def</span> <span class="nf">surface_flux_results</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates the surface flux from a CMF result file.</span>
+
+<span class="sd">    :param path: Folder where the result file is located.</span>
+<span class="sd">    :type path: str</span>
+<span class="sd">    :return: True</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Helper functions</span>
     <span class="k">def</span> <span class="nf">read_files</span><span class="p">(</span><span class="n">path_</span><span class="p">):</span>
