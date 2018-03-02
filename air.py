@@ -132,7 +132,7 @@ def compute_temperature_relative_humidity(temperature_in_k: np.array, relative_h
                                           vapour_mass_flux: np.array, volume: np.array) -> tuple:
     """
     Computes the coupled relative humidity and temperature of an air volume given a vapour flux. The vapour pressure is
-    capped off so it can not exceed the saturated vapour pressure. This potential means that not the whole amount
+    capped off so it can not exceed the saturated vapour pressure. This potentially means that not the whole amount
      of vapour flux will be used.
 
     :param temperature_in_k: Current temperature of the air volume in K

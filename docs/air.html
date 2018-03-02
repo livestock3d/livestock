@@ -1,0 +1,548 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Livestock Air &#8212; Livestock CPython Package 2018.3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2018.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Livestock Geometry" href="geometry.html" />
+    <link rel="prev" title="Welcome to Livestock CPython Package’s Documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-livestock.air">
+<span id="livestock-air"></span><h1>Livestock Air<a class="headerlink" href="#module-livestock.air" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="livestock.air.celsius_to_kelvin">
+<code class="descclassname">livestock.air.</code><code class="descname">celsius_to_kelvin</code><span class="sig-paren">(</span><em>celsius: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#celsius_to_kelvin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.celsius_to_kelvin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a temperature in Celsius to Kelvin.</p>
+<p>Source: <a class="reference external" href="https://en.wikipedia.org/wiki/Celsius">https://en.wikipedia.org/wiki/Celsius</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>celsius</strong> (<em>float</em>) – Temperature in Celsius</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Temperature in Kelvin</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.compute_temperature_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">compute_temperature_relative_humidity</code><span class="sig-paren">(</span><em>temperature_in_k: &lt;built-in function array&gt;</em>, <em>relative_humidity: &lt;built-in function array&gt;</em>, <em>vapour_mass_flux: &lt;built-in function array&gt;</em>, <em>volume: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; tuple<a class="reference internal" href="_modules/livestock/air.html#compute_temperature_relative_humidity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.compute_temperature_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the coupled relative humidity and temperature of an air volume given a vapour flux. The vapour pressure is
+capped off so it can not exceed the saturated vapour pressure. This potential means that not the whole amount</p>
+<blockquote>
+<div>of vapour flux will be used.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>temperature_in_k</strong> (<em>numpy.array</em>) – Current temperature of the air volume in K</li>
+<li><strong>relative_humidity</strong> (<em>numpy.array</em>) – Current relative humidity of the air volume as unit less.</li>
+<li><strong>vapour_mass_flux</strong> (<em>numpy.array</em>) – Vapour mass flux to be added to the air volume in kg/h.</li>
+<li><strong>volume</strong> – Air volume in m<sup>3</sup>    :type volume: numpy.array</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple containing the new temperature in K, new relative humidity as unit less, the latent heat used and
+the vapour flux used.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.convert_relative_humidity_to_percentage">
+<code class="descclassname">livestock.air.</code><code class="descname">convert_relative_humidity_to_percentage</code><span class="sig-paren">(</span><em>rh: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; &lt;built-in function array&gt;<a class="reference internal" href="_modules/livestock/air.html#convert_relative_humidity_to_percentage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.convert_relative_humidity_to_percentage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts relative humidity from percentage to an unit less number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rh</strong> (<em>numpy.array</em>) – Relative humidity as unitless</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Relative humidity in percentage</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.convert_relative_humidity_to_unitless">
+<code class="descclassname">livestock.air.</code><code class="descname">convert_relative_humidity_to_unitless</code><span class="sig-paren">(</span><em>rh: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; &lt;built-in function array&gt;<a class="reference internal" href="_modules/livestock/air.html#convert_relative_humidity_to_unitless"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.convert_relative_humidity_to_unitless" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts relative humidity from percentage to an unit less number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rh</strong> (<em>numpy.array</em>) – Relative humidity in %</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Relative humidity as unitless</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.convert_vapour_flux_to_kgh">
+<code class="descclassname">livestock.air.</code><code class="descname">convert_vapour_flux_to_kgh</code><span class="sig-paren">(</span><em>vapour_flux: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; &lt;built-in function array&gt;<a class="reference internal" href="_modules/livestock/air.html#convert_vapour_flux_to_kgh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.convert_vapour_flux_to_kgh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a vapour flux from m<sup>3</sup>/day to kg/h
+Density of water: 1000kg/m<sup>3</sup>    Hours per day: 24h/day
+Conversion: 1000kg/m<sup>3</sup>/ 24h/day</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vapour_flux</strong> (<em>numpy.array</em>) – Vapour flux in m<sup>3</sup>/day</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Vapour flux in kg/h</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.diameter_from_area">
+<code class="descclassname">livestock.air.</code><code class="descname">diameter_from_area</code><span class="sig-paren">(</span><em>area: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; &lt;built-in function array&gt;<a class="reference internal" href="_modules/livestock/air.html#diameter_from_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.diameter_from_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the diameter from a given area of a circle.
+A = <span class="math">{\pi}</span> * (d/2)<sup>2</sup> =&gt;
+d = <span class="math">{\sqrt{4*A/{\pi}}}</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>area</strong> (<em>numpy.array</em>) – Area of a circle in m</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Diameter in m</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.kelvin_to_celsius">
+<code class="descclassname">livestock.air.</code><code class="descname">kelvin_to_celsius</code><span class="sig-paren">(</span><em>kelvin: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#kelvin_to_celsius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.kelvin_to_celsius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a temperature in Kelvin to Celsius.</p>
+<p>Source: <a class="reference external" href="https://en.wikipedia.org/wiki/Celsius">https://en.wikipedia.org/wiki/Celsius</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kelvin</strong> (<em>float</em>) – Temperature in Kelvin</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Temperature in Celsius</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.latent_heat_flux">
+<code class="descclassname">livestock.air.</code><code class="descname">latent_heat_flux</code><span class="sig-paren">(</span><em>vapour_mass_flux: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; &lt;built-in function array&gt;<a class="reference internal" href="_modules/livestock/air.html#latent_heat_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.latent_heat_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the latent heat flux related to a certain evapotranspiration flux.
+The latent heat flux is negative if the vapour flux is positive.</p>
+<p>Source: Manickathan, L. et al., 2018.
+Parametric study of the influence of environmental factors and tree properties on the
+transpirative cooling effect of trees. Agricultural and Forest Meteorology.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vapour_mass_flux</strong> (<em>numpy.array</em>) – Vapour volume flux in kg/h</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Latent heat flux in J/h.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.max_possible_vapour_flux">
+<code class="descclassname">livestock.air.</code><code class="descname">max_possible_vapour_flux</code><span class="sig-paren">(</span><em>vapour_mass_flux: float</em>, <em>volume: float</em>, <em>temperature_in_kelvin: float</em>, <em>vapour_pressure: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#max_possible_vapour_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.max_possible_vapour_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the difference between the saturated vapour pressure of an air volume after adding the vapour
+and latent heat flux to an air volume and the actual vapour pressure of an air volume.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vapour_mass_flux</strong> (<em>float</em>) – Vapour mass flux in kg/h</li>
+<li><strong>volume</strong> – Air volume in m<sup>3</sup>    :type volume: float</li>
+<li><strong>temperature_in_kelvin</strong> (<em>float</em>) – Current temperature in K</li>
+<li><strong>vapour_pressure</strong> (<em>float</em>) – Current vapour pressure in Pa</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Difference between the saturated vapour pressure after adding the vapour and latent heat flux to</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>the air volume and the actual vapour pressure of the air volume.
+:rtype: float</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_mean_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">new_mean_relative_humidity</code><span class="sig-paren">(</span><em>volume: &lt;built-in function array&gt;</em>, <em>temperature_internal: &lt;built-in function array&gt;</em>, <em>vapour_pressure_external: &lt;built-in function array&gt;</em>, <em>vapour_production: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; &lt;built-in function array&gt;<a class="reference internal" href="_modules/livestock/air.html#new_mean_relative_humidity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.new_mean_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes a new mean vapour pressure and converts it in to a relative humidity.</p>
+<p>Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+“Heat and Mass Transfer in Buildings.”</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>volume</strong> (<em>numpy.array</em>) – Air volume in m<sup>3</sup></li>
+<li><strong>temperature_internal</strong> (<em>numpy.array</em>) – External temperature in K</li>
+<li><strong>vapour_pressure_external</strong> (<em>numpy.array</em>) – External vapour pressure in Pa</li>
+<li><strong>vapour_production</strong> (<em>numpy.array</em>) – Vapour production in kg/h</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Relative humidity - unitless</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_mean_temperature">
+<code class="descclassname">livestock.air.</code><code class="descname">new_mean_temperature</code><span class="sig-paren">(</span><em>volume: &lt;built-in function array&gt;</em>, <em>temperature: &lt;built-in function array&gt;</em>, <em>heat: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; &lt;built-in function array&gt;<a class="reference internal" href="_modules/livestock/air.html#new_mean_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.new_mean_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new mean temperature for the volume.</p>
+<p>Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+“Heat and Mass Transfer in Buildings.”</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>volume</strong> (<em>numpy.array</em>) – Volume in m<sup>3</sup></li>
+<li><strong>temperature</strong> (<em>numpy.array</em>) – Temperature at the top of the air volume in K</li>
+<li><strong>heat</strong> (<em>numpy.array</em>) – Added heat to the air volume in J/h</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Temperature in K</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_mean_vapour_pressure">
+<code class="descclassname">livestock.air.</code><code class="descname">new_mean_vapour_pressure</code><span class="sig-paren">(</span><em>volume: &lt;built-in function array&gt;</em>, <em>temperature: &lt;built-in function array&gt;</em>, <em>vapour_pressure_external: &lt;built-in function array&gt;</em>, <em>vapour_production: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; &lt;built-in function array&gt;<a class="reference internal" href="_modules/livestock/air.html#new_mean_vapour_pressure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.new_mean_vapour_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new vapour pressure for the volume.</p>
+<p>Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+“Heat and Mass Transfer in Buildings.”</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>volume</strong> (<em>numpy.array</em>) – Volume in m<sup>3</sup></li>
+<li><strong>temperature</strong> (<em>numpy.array</em>) – Temperature in K</li>
+<li><strong>vapour_pressure_external</strong> (<em>numpy.array</em>) – External vapour pressure in Pa</li>
+<li><strong>vapour_production</strong> (<em>numpy.array</em>) – Vapour production in kg/h</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">New vapour pressure in Pa</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.new_temperature_and_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">new_temperature_and_relative_humidity</code><span class="sig-paren">(</span><em>folder: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/livestock/air.html#new_temperature_and_relative_humidity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.new_temperature_and_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new temperatures and relative humidity for air volumes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>folder</strong> (<em>str</em>) – Path to folder containing case files.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.relative_humidity_to_vapour_pressure">
+<code class="descclassname">livestock.air.</code><code class="descname">relative_humidity_to_vapour_pressure</code><span class="sig-paren">(</span><em>relative_humidity: float</em>, <em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#relative_humidity_to_vapour_pressure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.relative_humidity_to_vapour_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert relative humidity to vapour pressure given a air temperature.</p>
+<p>Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+“Heat and Mass Transfer in Buildings.”</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>relative_humidity</strong> (<em>float</em>) – Relative humidity - unitless</li>
+<li><strong>temperature</strong> (<em>float</em>) – Air temperature in K</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Vapour pressure in Pa</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.run_row">
+<code class="descclassname">livestock.air.</code><code class="descname">run_row</code><span class="sig-paren">(</span><em>input_package: list</em><span class="sig-paren">)</span> &#x2192; tuple<a class="reference internal" href="_modules/livestock/air.html#run_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.run_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a new temperatures and relative humidity for a row. A row represent all cells to a given time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_package</strong> (<em>list</em>) – Input package with need inputs.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The row on which the calculation was performed.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.saturated_vapour_pressure">
+<code class="descclassname">livestock.air.</code><code class="descname">saturated_vapour_pressure</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#saturated_vapour_pressure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.saturated_vapour_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the saturated vapour pressure for a given temperature.
+Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+“Heat and Mass Transfer in Buildings.”</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temperature</strong> (<em>float</em>) – Temperature in Kelvin</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Vapour pressure in Pa</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.stratification">
+<code class="descclassname">livestock.air.</code><code class="descname">stratification</code><span class="sig-paren">(</span><em>height: float</em>, <em>value_mean: float</em>, <em>height_top: float</em>, <em>value_top: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#stratification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.stratification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the stratification of the temperature or relative humidity of the air volume.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>height</strong> (<em>float</em>) – Height at which the stratification value is wanted in m.</li>
+<li><strong>value_mean</strong> (<em>float</em>) – Mean value of the air volume. Assumed equal to the value at half of the height of the air volume.</li>
+<li><strong>height_top</strong> (<em>float</em>) – Height at the top of the boundary in m.</li>
+<li><strong>value_top</strong> (<em>float</em>) – Value at the top of the air volume</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Value at desired height.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.vapour_pressure_to_relative_humidity">
+<code class="descclassname">livestock.air.</code><code class="descname">vapour_pressure_to_relative_humidity</code><span class="sig-paren">(</span><em>vapour_pressure: float</em>, <em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#vapour_pressure_to_relative_humidity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.vapour_pressure_to_relative_humidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert vapour pressure to relative humidity given a air temperature</p>
+<p>Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+“Heat and Mass Transfer in Buildings.”</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vapour_pressure</strong> (<em>float</em>) – Vapour pressure in Pa</li>
+<li><strong>temperature</strong> (<em>float</em>) – Air temperature in K</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Relative humidity as unitless</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.wind_speed_to_flux">
+<code class="descclassname">livestock.air.</code><code class="descname">wind_speed_to_flux</code><span class="sig-paren">(</span><em>wind_speed: &lt;built-in function array&gt;</em>, <em>height: &lt;built-in function array&gt;</em>, <em>cross_section: &lt;built-in function array&gt;</em><span class="sig-paren">)</span> &#x2192; &lt;built-in function array&gt;<a class="reference internal" href="_modules/livestock/air.html#wind_speed_to_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.wind_speed_to_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a wind speed through an area to a wind flux.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>wind_speed</strong> (<em>numpy.array</em>) – Wind speed in m/s</li>
+<li><strong>height</strong> (<em>numpy.array</em>) – Height of the area in m</li>
+<li><strong>cross_section</strong> (<em>numpy.array</em>) – Width of the area in m</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Wind flux in m<sup>3</sup>/h</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.air.wind_speed_to_hour_flux">
+<code class="descclassname">livestock.air.</code><code class="descname">wind_speed_to_hour_flux</code><span class="sig-paren">(</span><em>wind_speed: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/livestock/air.html#wind_speed_to_hour_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.air.wind_speed_to_hour_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts wind speed into a hourly flux.
+m/s to m<sup>3</sup>/h
+m/s to m<sup>3</sup>/s = 1:sup:<cite>2</cite>
+m<sup>3</sup>/s to m<sup>3</sup>/h = 3600s/h</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>wind_speed</strong> (<em>float</em>) – Wind speed in m/s</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Wind flux in m<sup>3</sup>/h</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><strong>Go Back to:</strong>
+<a class="reference internal" href="index.html#livestock"><span class="std std-ref">Livestock Frontpage</span></a></p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Livestock CPython Package’s Documentation!</a></li>
+      <li>Next: <a href="geometry.html" title="next chapter">Livestock Geometry</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Christian Kongsgaard.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/air.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

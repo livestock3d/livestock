@@ -1,0 +1,620 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>livestock.air &#8212; Livestock CPython Package 2018.3 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2018.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for livestock.air</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Christian Kongsgaard&quot;</span>
+
+<span class="c1"># -------------------------------------------------------------------------------------------------------------------- #</span>
+<span class="c1"># Imports</span>
+
+<span class="c1"># Module imports</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">brentq</span>
+
+<span class="c1"># Livestock imports</span>
+
+
+<span class="c1"># -------------------------------------------------------------------------------------------------------------------- #</span>
+<span class="c1"># Livestock Air Functions</span>
+
+<div class="viewcode-block" id="new_temperature_and_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.new_temperature_and_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">new_temperature_and_relative_humidity</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a new temperatures and relative humidity for air volumes.</span>
+
+<span class="sd">    :param folder: Path to folder containing case files.</span>
+<span class="sd">    :type folder: str</span>
+<span class="sd">    :return: True</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Helper functions</span>
+    <span class="k">def</span> <span class="nf">get_files</span><span class="p">(</span><span class="n">folder_</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the case files and returns them as a tuple of lists</span>
+<span class="sd">        :param folder_: Path to case folder</span>
+<span class="sd">        :return: Tuple of lists</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load</span>
+        <span class="n">air_temperature_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/temperature.txt&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">air_relative_humidity_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/relative_humidity.txt&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">wind_speed_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/wind_speed.txt&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">area_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/area.txt&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">height_top_</span><span class="p">,</span> <span class="n">height_stratification_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/heights.txt&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">vapour_flux_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/vapour_flux.txt&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">cpu_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s1">&#39;/cpu.txt&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">air_temperature_</span><span class="p">,</span> <span class="n">air_relative_humidity_</span><span class="p">,</span> <span class="n">wind_speed_</span><span class="p">,</span> <span class="n">area_</span><span class="p">,</span> <span class="n">height_top_</span><span class="p">,</span> <span class="n">height_stratification_</span><span class="p">,</span> \
+            <span class="n">vapour_flux_</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">cpu_</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">reconstruct_results</span><span class="p">(</span><span class="n">folder_</span><span class="p">,</span> <span class="n">processed_rows_</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Collects and saves the results when they have been simulated.</span>
+
+<span class="sd">        :param folder_: Folder where the results should be saved</span>
+<span class="sd">        :param processed_rows_: Processed result rows.</span>
+<span class="sd">        :return: True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Sort row list</span>
+        <span class="n">sorted_rows</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">processed_rows_</span><span class="p">)</span>
+
+        <span class="c1"># create lists</span>
+        <span class="n">temperature_</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">relative_humidity_</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">latent_heat_flux_</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">vapour_flux_</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">sorted_rows</span><span class="p">:</span>
+            <span class="n">temperature_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">relative_humidity_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">latent_heat_flux_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">vapour_flux_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/temperature_results.txt&#39;</span><span class="p">,</span> <span class="n">temperature_</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/relative_humidity_results.txt&#39;</span><span class="p">,</span> <span class="n">relative_humidity_</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/latent_heat_flux_results.txt&#39;</span><span class="p">,</span> <span class="n">latent_heat_flux_</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">folder_</span> <span class="o">+</span> <span class="s1">&#39;/vapour_flux_results.txt&#39;</span><span class="p">,</span> <span class="n">vapour_flux_</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1"># Run function</span>
+    <span class="n">temperature</span><span class="p">,</span> <span class="n">relative_humidity</span><span class="p">,</span> <span class="n">wind_speed</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">height_top</span><span class="p">,</span> <span class="n">height_stratification</span><span class="p">,</span> <span class="n">vapour_flux</span><span class="p">,</span> <span class="n">cpu</span> <span class="o">=</span> \
+        <span class="n">get_files</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+
+    <span class="n">rows_</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span>
+             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vapour_flux</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+
+    <span class="n">input_packages</span> <span class="o">=</span> <span class="p">[(</span><span class="n">index</span><span class="p">,</span>
+                       <span class="n">temperature</span><span class="p">[</span><span class="n">index</span><span class="p">],</span>
+                       <span class="n">convert_relative_humidity_to_unitless</span><span class="p">(</span><span class="n">relative_humidity</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span>
+                       <span class="n">vapour_flux</span><span class="p">[</span><span class="n">index</span><span class="p">],</span>
+                       <span class="n">wind_speed</span><span class="p">[</span><span class="n">index</span><span class="p">],</span>
+                       <span class="n">area</span><span class="p">,</span>
+                       <span class="n">height_stratification</span><span class="p">,</span>
+                       <span class="n">height_top</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">rows_</span><span class="p">]</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">cpu</span><span class="p">)</span>
+    <span class="n">processed_rows</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">run_row</span><span class="p">,</span> <span class="n">input_packages</span><span class="p">)</span>
+    <span class="n">reconstruct_results</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">processed_rows</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="max_possible_vapour_flux"><a class="viewcode-back" href="../../air.html#livestock.air.max_possible_vapour_flux">[docs]</a><span class="k">def</span> <span class="nf">max_possible_vapour_flux</span><span class="p">(</span><span class="n">vapour_mass_flux</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">volume</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                             <span class="n">temperature_in_kelvin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">vapour_pressure</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the difference between the saturated vapour pressure of an air volume after adding the vapour</span>
+<span class="sd">    and latent heat flux to an air volume and the actual vapour pressure of an air volume.</span>
+
+<span class="sd">    :param vapour_mass_flux: Vapour mass flux in kg/h</span>
+<span class="sd">    :type vapour_mass_flux: float</span>
+<span class="sd">    :param volume: Air volume in m\ :sup:`3`\</span>
+<span class="sd">    :type volume: float</span>
+<span class="sd">    :param temperature_in_kelvin: Current temperature in K</span>
+<span class="sd">    :type temperature_in_kelvin: float</span>
+<span class="sd">    :param vapour_pressure: Current vapour pressure in Pa</span>
+<span class="sd">    :type vapour_pressure: float</span>
+<span class="sd">    :return: Difference between the saturated vapour pressure after adding the vapour and latent heat flux to</span>
+<span class="sd">    the air volume and the actual vapour pressure of the air volume.</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Solve Function</span>
+    <span class="n">new_temperature</span> <span class="o">=</span> <span class="n">new_mean_temperature</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span>
+                                           <span class="n">temperature_in_kelvin</span><span class="p">,</span>
+                                           <span class="n">latent_heat_flux</span><span class="p">(</span><span class="n">vapour_mass_flux</span><span class="p">))</span>
+
+    <span class="n">saturated_pressure</span> <span class="o">=</span> <span class="n">saturated_vapour_pressure</span><span class="p">(</span><span class="n">new_temperature</span><span class="p">)</span>
+    <span class="n">actual_pressure</span> <span class="o">=</span> <span class="n">new_mean_vapour_pressure</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">new_temperature</span><span class="p">,</span> <span class="n">vapour_pressure</span><span class="p">,</span> <span class="n">vapour_mass_flux</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">saturated_pressure</span> <span class="o">-</span> <span class="n">actual_pressure</span></div>
+
+
+<div class="viewcode-block" id="compute_temperature_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.compute_temperature_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">compute_temperature_relative_humidity</span><span class="p">(</span><span class="n">temperature_in_k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">relative_humidity</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
+                                          <span class="n">vapour_mass_flux</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">volume</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the coupled relative humidity and temperature of an air volume given a vapour flux. The vapour pressure is</span>
+<span class="sd">    capped off so it can not exceed the saturated vapour pressure. This potential means that not the whole amount</span>
+<span class="sd">     of vapour flux will be used.</span>
+
+<span class="sd">    :param temperature_in_k: Current temperature of the air volume in K</span>
+<span class="sd">    :type temperature_in_k: numpy.array</span>
+<span class="sd">    :param relative_humidity: Current relative humidity of the air volume as unit less.</span>
+<span class="sd">    :type relative_humidity: numpy.array</span>
+<span class="sd">    :param vapour_mass_flux: Vapour mass flux to be added to the air volume in kg/h.</span>
+<span class="sd">    :type vapour_mass_flux: numpy.array</span>
+<span class="sd">    :param volume: Air volume in m\ :sup:`3`\</span>
+<span class="sd">    :type volume: numpy.array</span>
+<span class="sd">    :return: Tuple containing the new temperature in K, new relative humidity as unit less, the latent heat used and</span>
+<span class="sd">     the vapour flux used.</span>
+<span class="sd">    :rtype: tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Check if all cells have a vapour pressure below saturation after alteration of temp &amp; relhum</span>
+    <span class="n">new_temperature_check</span> <span class="o">=</span> <span class="n">new_mean_temperature</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">temperature_in_k</span><span class="p">,</span>
+                                                 <span class="n">latent_heat_flux</span><span class="p">(</span><span class="n">vapour_mass_flux</span><span class="p">))</span>
+
+    <span class="n">vapour_pressure</span> <span class="o">=</span> <span class="n">relative_humidity_to_vapour_pressure</span><span class="p">(</span><span class="n">relative_humidity</span><span class="p">,</span>
+                                                           <span class="n">temperature_in_k</span><span class="p">)</span>
+
+    <span class="n">available_vapour_mass_flux</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vapour_mass_flux</span><span class="p">)):</span>
+        <span class="n">new_vapour_pressure</span> <span class="o">=</span> <span class="n">new_mean_vapour_pressure</span><span class="p">(</span><span class="n">volume</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                                       <span class="n">new_temperature_check</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                                       <span class="n">vapour_pressure</span><span class="p">,</span>
+                                                       <span class="n">vapour_mass_flux</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="n">new_saturated_pressure</span> <span class="o">=</span> <span class="n">saturated_vapour_pressure</span><span class="p">(</span><span class="n">new_temperature_check</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">new_vapour_pressure</span> <span class="o">&lt;=</span> <span class="n">new_saturated_pressure</span><span class="p">:</span>
+            <span class="n">available_vapour_mass_flux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vapour_mass_flux</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">possible_vapour_mass_flux</span> <span class="o">=</span> <span class="n">brentq</span><span class="p">(</span><span class="n">max_possible_vapour_flux</span><span class="p">,</span>
+                                               <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                                               <span class="n">vapour_mass_flux</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                               <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">volume</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">temperature_in_k</span><span class="p">,</span> <span class="n">vapour_pressure</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">possible_vapour_mass_flux</span> <span class="o">&lt;</span> <span class="n">vapour_mass_flux</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">available_vapour_mass_flux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">possible_vapour_mass_flux</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Should be a useless statement?</span>
+                <span class="n">available_vapour_mass_flux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vapour_mass_flux</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="n">available_vapour_mass_flux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">available_vapour_mass_flux</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">latent_heat</span> <span class="o">=</span> <span class="n">latent_heat_flux</span><span class="p">(</span><span class="n">available_vapour_mass_flux</span><span class="p">)</span>
+    <span class="n">new_temperature_</span> <span class="o">=</span> <span class="n">new_mean_temperature</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">temperature_in_k</span><span class="p">,</span> <span class="n">latent_heat</span><span class="p">)</span>
+    <span class="n">new_relative_humidity</span> <span class="o">=</span> <span class="n">new_mean_relative_humidity</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span>
+                                                       <span class="n">new_temperature_</span><span class="p">,</span>
+                                                       <span class="n">vapour_pressure</span><span class="p">,</span>
+                                                       <span class="n">available_vapour_mass_flux</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">new_temperature_</span><span class="p">,</span>
+            <span class="n">new_relative_humidity</span><span class="p">,</span>
+            <span class="n">latent_heat</span><span class="p">,</span>
+            <span class="n">available_vapour_mass_flux</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_row"><a class="viewcode-back" href="../../air.html#livestock.air.run_row">[docs]</a><span class="k">def</span> <span class="nf">run_row</span><span class="p">(</span><span class="n">input_package</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a new temperatures and relative humidity for a row. A row represent all cells to a given time.</span>
+
+<span class="sd">    :param input_package: Input package with need inputs.</span>
+<span class="sd">    :type input_package: list</span>
+<span class="sd">    :return: The row on which the calculation was performed.</span>
+<span class="sd">    :rtype: tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># unpack</span>
+    <span class="n">row_index</span><span class="p">,</span> <span class="n">temperature_time</span><span class="p">,</span> <span class="n">relative_humidity_time</span><span class="p">,</span> <span class="n">vapour_flux_time_row</span><span class="p">,</span> <span class="n">wind_speed</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> \
+        <span class="n">height_stratification</span><span class="p">,</span> <span class="n">height_top</span> <span class="o">=</span> <span class="n">input_package</span>
+
+    <span class="c1"># new mean temperature i K</span>
+    <span class="n">air_temperature_in_k</span> <span class="o">=</span> <span class="n">celsius_to_kelvin</span><span class="p">(</span><span class="n">temperature_time</span><span class="p">)</span>
+    <span class="n">flux_corrected_volume</span> <span class="o">=</span> <span class="n">area</span> <span class="o">*</span> <span class="n">height_top</span> <span class="o">+</span> <span class="n">wind_speed_to_flux</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">,</span> <span class="n">height_top</span><span class="p">,</span> <span class="n">diameter_from_area</span><span class="p">(</span><span class="n">area</span><span class="p">))</span>
+
+    <span class="c1"># Get temperature and relative_humidity</span>
+    <span class="p">[</span><span class="n">temperature_row</span><span class="p">,</span>
+     <span class="n">relative_humidity_row</span><span class="p">,</span>
+     <span class="n">heat_flux_time_row</span><span class="p">,</span>
+     <span class="n">used_vapour_flux</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_temperature_relative_humidity</span><span class="p">(</span><span class="n">air_temperature_in_k</span><span class="p">,</span>
+                                                               <span class="n">relative_humidity_time</span><span class="p">,</span>
+                                                               <span class="n">convert_vapour_flux_to_kgh</span><span class="p">(</span><span class="n">vapour_flux_time_row</span><span class="p">),</span>
+                                                               <span class="n">flux_corrected_volume</span><span class="p">)</span>
+
+    <span class="c1"># new stratified relative humidity</span>
+    <span class="n">stratified_relative_humidity_row</span> <span class="o">=</span> <span class="n">stratification</span><span class="p">(</span><span class="n">height_stratification</span><span class="p">,</span>
+                                                      <span class="n">relative_humidity_row</span><span class="p">,</span>
+                                                      <span class="n">height_top</span><span class="p">,</span>
+                                                      <span class="n">relative_humidity_time</span>
+                                                      <span class="p">)</span>
+
+    <span class="c1"># new stratified temperature in C</span>
+    <span class="n">stratified_temperature_row</span> <span class="o">=</span> <span class="n">stratification</span><span class="p">(</span><span class="n">height_stratification</span><span class="p">,</span>
+                                                <span class="n">kelvin_to_celsius</span><span class="p">(</span><span class="n">temperature_row</span><span class="p">),</span>
+                                                <span class="n">height_top</span><span class="p">,</span>
+                                                <span class="n">temperature_time</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">row_index</span><span class="p">,</span>
+            <span class="n">stratified_temperature_row</span><span class="p">,</span>
+            <span class="n">convert_relative_humidity_to_percentage</span><span class="p">(</span><span class="n">stratified_relative_humidity_row</span><span class="p">),</span>
+            <span class="n">heat_flux_time_row</span><span class="p">,</span>
+            <span class="n">used_vapour_flux</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="latent_heat_flux"><a class="viewcode-back" href="../../air.html#livestock.air.latent_heat_flux">[docs]</a><span class="k">def</span> <span class="nf">latent_heat_flux</span><span class="p">(</span><span class="n">vapour_mass_flux</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the latent heat flux related to a certain evapotranspiration flux.</span>
+<span class="sd">    The latent heat flux is negative if the vapour flux is positive.</span>
+
+<span class="sd">    Source: Manickathan, L. et al., 2018.</span>
+<span class="sd">    Parametric study of the influence of environmental factors and tree properties on the</span>
+<span class="sd">    transpirative cooling effect of trees. Agricultural and Forest Meteorology.</span>
+
+<span class="sd">    :param vapour_mass_flux: Vapour volume flux in kg/h</span>
+<span class="sd">    :type vapour_mass_flux: numpy.array</span>
+<span class="sd">    :return: Latent heat flux in J/h.</span>
+<span class="sd">    :rtype: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">latent_heat_of_vaporization</span> <span class="o">=</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span>  <span class="c1"># J/kg</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">negative</span><span class="p">(</span><span class="n">latent_heat_of_vaporization</span> <span class="o">*</span> <span class="n">vapour_mass_flux</span><span class="p">)</span>  <span class="c1"># J/h</span></div>
+
+
+<div class="viewcode-block" id="convert_vapour_flux_to_kgh"><a class="viewcode-back" href="../../air.html#livestock.air.convert_vapour_flux_to_kgh">[docs]</a><span class="k">def</span> <span class="nf">convert_vapour_flux_to_kgh</span><span class="p">(</span><span class="n">vapour_flux</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a vapour flux from m\ :sup:`3`\/day to kg/h</span>
+<span class="sd">    Density of water: 1000kg/m\ :sup:`3`\</span>
+<span class="sd">    Hours per day: 24h/day</span>
+<span class="sd">    Conversion: 1000kg/m\ :sup:`3`\ / 24h/day</span>
+
+<span class="sd">    :param vapour_flux: Vapour flux in m\ :sup:`3`\/day</span>
+<span class="sd">    :type vapour_flux: numpy.array</span>
+<span class="sd">    :return: Vapour flux in kg/h</span>
+<span class="sd">    :rtype: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">vapour_flux</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">/</span> <span class="mi">24</span></div>
+
+
+<div class="viewcode-block" id="convert_relative_humidity_to_unitless"><a class="viewcode-back" href="../../air.html#livestock.air.convert_relative_humidity_to_unitless">[docs]</a><span class="k">def</span> <span class="nf">convert_relative_humidity_to_unitless</span><span class="p">(</span><span class="n">rh</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts relative humidity from percentage to an unit less number.</span>
+
+<span class="sd">    :param rh: Relative humidity in %</span>
+<span class="sd">    :type rh: numpy.array</span>
+<span class="sd">    :return: Relative humidity as unitless</span>
+<span class="sd">    :rtype: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">rh</span> <span class="o">/</span> <span class="mi">100</span></div>
+
+
+<div class="viewcode-block" id="convert_relative_humidity_to_percentage"><a class="viewcode-back" href="../../air.html#livestock.air.convert_relative_humidity_to_percentage">[docs]</a><span class="k">def</span> <span class="nf">convert_relative_humidity_to_percentage</span><span class="p">(</span><span class="n">rh</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts relative humidity from percentage to an unit less number.</span>
+
+<span class="sd">    :param rh: Relative humidity as unitless</span>
+<span class="sd">    :type rh: numpy.array</span>
+<span class="sd">    :return: Relative humidity in percentage</span>
+<span class="sd">    :rtype: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">rh</span> <span class="o">*</span> <span class="mi">100</span></div>
+
+
+<div class="viewcode-block" id="new_mean_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">new_mean_relative_humidity</span><span class="p">(</span><span class="n">volume</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
+                               <span class="n">vapour_pressure_external</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">vapour_production</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes a new mean vapour pressure and converts it in to a relative humidity.</span>
+
+<span class="sd">    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.</span>
+<span class="sd">    “Heat and Mass Transfer in Buildings.”</span>
+
+<span class="sd">    :param volume: Air volume in m\ :sup:`3`</span>
+<span class="sd">    :type volume: numpy.array</span>
+<span class="sd">    :param temperature_internal: External temperature in K</span>
+<span class="sd">    :type temperature_internal: numpy.array</span>
+<span class="sd">    :param vapour_pressure_external: External vapour pressure in Pa</span>
+<span class="sd">    :type vapour_pressure_external: numpy.array</span>
+<span class="sd">    :param vapour_production: Vapour production in kg/h</span>
+<span class="sd">    :type vapour_production: numpy.array</span>
+<span class="sd">    :return: Relative humidity - unitless</span>
+<span class="sd">    :rtype: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vapour_pressure</span> <span class="o">=</span> <span class="n">new_mean_vapour_pressure</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">,</span> <span class="n">vapour_pressure_external</span><span class="p">,</span>
+                                               <span class="n">vapour_production</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">vapour_pressure_to_relative_humidity</span><span class="p">(</span><span class="n">vapour_pressure</span><span class="p">,</span> <span class="n">temperature_internal</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="new_mean_vapour_pressure"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_vapour_pressure">[docs]</a><span class="k">def</span> <span class="nf">new_mean_vapour_pressure</span><span class="p">(</span><span class="n">volume</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
+                             <span class="n">vapour_pressure_external</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">vapour_production</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a new vapour pressure for the volume.</span>
+
+<span class="sd">    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.</span>
+<span class="sd">    “Heat and Mass Transfer in Buildings.”</span>
+
+<span class="sd">    :param volume: Volume in m\ :sup:`3`</span>
+<span class="sd">    :type volume: numpy.array</span>
+<span class="sd">    :param temperature: Temperature in K</span>
+<span class="sd">    :type temperature: numpy.array</span>
+<span class="sd">    :param vapour_pressure_external: External vapour pressure in Pa</span>
+<span class="sd">    :type vapour_pressure_external: numpy.array</span>
+<span class="sd">    :param vapour_production: Vapour production in kg/h</span>
+<span class="sd">    :type vapour_production: numpy.array</span>
+<span class="sd">    :return: New vapour pressure in Pa</span>
+<span class="sd">    :rtype: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">gas_constant_vapour</span> <span class="o">=</span> <span class="mf">461.5</span>  <span class="c1"># J/kgK</span>
+    <span class="n">density_vapour</span> <span class="o">=</span> <span class="n">vapour_pressure_external</span><span class="o">/</span><span class="p">(</span><span class="n">gas_constant_vapour</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span>  <span class="c1"># kg/m3</span>
+    <span class="n">mass_vapour</span> <span class="o">=</span> <span class="n">density_vapour</span> <span class="o">*</span> <span class="n">volume</span>  <span class="c1"># kg</span>
+    <span class="n">new_mass_vapour</span> <span class="o">=</span> <span class="n">mass_vapour</span> <span class="o">+</span> <span class="n">vapour_production</span>  <span class="c1"># kg</span>
+    <span class="n">vapour_pressure</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_mass_vapour</span> <span class="o">*</span> <span class="n">gas_constant_vapour</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span> <span class="o">/</span> <span class="n">volume</span>  <span class="c1"># Pa</span>
+
+    <span class="k">return</span> <span class="n">vapour_pressure</span>  <span class="c1"># Pa</span></div>
+
+
+<div class="viewcode-block" id="new_mean_temperature"><a class="viewcode-back" href="../../air.html#livestock.air.new_mean_temperature">[docs]</a><span class="k">def</span> <span class="nf">new_mean_temperature</span><span class="p">(</span><span class="n">volume</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">heat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a new mean temperature for the volume.</span>
+
+<span class="sd">    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.</span>
+<span class="sd">    “Heat and Mass Transfer in Buildings.”</span>
+
+<span class="sd">    :param volume: Volume in m\ :sup:`3`</span>
+<span class="sd">    :type volume: numpy.array</span>
+<span class="sd">    :param temperature: Temperature at the top of the air volume in K</span>
+<span class="sd">    :type temperature: numpy.array</span>
+<span class="sd">    :param heat: Added heat to the air volume in J/h</span>
+<span class="sd">    :type heat: numpy.array</span>
+<span class="sd">    :return: Temperature in K</span>
+<span class="sd">    :rtype: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">specific_heat_capacity</span> <span class="o">=</span> <span class="mi">1005</span>  <span class="c1"># J/kgK</span>
+    <span class="n">density_air</span> <span class="o">=</span> <span class="mf">1.29</span> <span class="o">*</span> <span class="mf">273.15</span> <span class="o">/</span> <span class="n">temperature</span>  <span class="c1"># kg/m^3</span>
+    <span class="n">energy_air</span> <span class="o">=</span> <span class="n">volume</span> <span class="o">*</span> <span class="n">specific_heat_capacity</span> <span class="o">*</span> <span class="n">density_air</span> <span class="o">*</span> <span class="n">temperature</span>  <span class="c1"># J</span>
+
+    <span class="c1"># Create a check to make sure that the temperature can not go below 0C</span>
+    <span class="n">new_temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">((</span><span class="n">energy_air</span> <span class="o">+</span> <span class="n">heat</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">volume</span> <span class="o">*</span> <span class="n">density_air</span> <span class="o">*</span> <span class="n">specific_heat_capacity</span><span class="p">),</span> <span class="mf">273.15</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_temperature</span></div>
+
+
+<div class="viewcode-block" id="celsius_to_kelvin"><a class="viewcode-back" href="../../air.html#livestock.air.celsius_to_kelvin">[docs]</a><span class="k">def</span> <span class="nf">celsius_to_kelvin</span><span class="p">(</span><span class="n">celsius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a temperature in Celsius to Kelvin.</span>
+
+<span class="sd">    Source: https://en.wikipedia.org/wiki/Celsius</span>
+
+<span class="sd">    :param celsius: Temperature in Celsius</span>
+<span class="sd">    :type celsius: float</span>
+<span class="sd">    :return: Temperature in Kelvin</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">kelvin</span> <span class="o">=</span> <span class="n">celsius</span> <span class="o">+</span> <span class="mf">273.15</span>
+
+    <span class="k">return</span> <span class="n">kelvin</span></div>
+
+
+<div class="viewcode-block" id="kelvin_to_celsius"><a class="viewcode-back" href="../../air.html#livestock.air.kelvin_to_celsius">[docs]</a><span class="k">def</span> <span class="nf">kelvin_to_celsius</span><span class="p">(</span><span class="n">kelvin</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a temperature in Kelvin to Celsius.</span>
+
+<span class="sd">    Source: https://en.wikipedia.org/wiki/Celsius</span>
+
+<span class="sd">    :param kelvin: Temperature in Kelvin</span>
+<span class="sd">    :type kelvin: float</span>
+<span class="sd">    :return: Temperature in Celsius</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">celsius</span> <span class="o">=</span> <span class="n">kelvin</span> <span class="o">-</span> <span class="mf">273.15</span>
+    <span class="k">return</span> <span class="n">celsius</span></div>
+
+
+<div class="viewcode-block" id="vapour_pressure_to_relative_humidity"><a class="viewcode-back" href="../../air.html#livestock.air.vapour_pressure_to_relative_humidity">[docs]</a><span class="k">def</span> <span class="nf">vapour_pressure_to_relative_humidity</span><span class="p">(</span><span class="n">vapour_pressure</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert vapour pressure to relative humidity given a air temperature</span>
+
+<span class="sd">    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.</span>
+<span class="sd">    “Heat and Mass Transfer in Buildings.”</span>
+
+<span class="sd">    :param vapour_pressure: Vapour pressure in Pa</span>
+<span class="sd">    :type vapour_pressure: float</span>
+<span class="sd">    :param temperature: Air temperature in K</span>
+<span class="sd">    :type temperature: float</span>
+<span class="sd">    :return: Relative humidity as unitless</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">vapour_pressure</span> <span class="o">/</span> <span class="n">saturated_vapour_pressure</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>  <span class="c1"># -</span></div>
+
+
+<div class="viewcode-block" id="relative_humidity_to_vapour_pressure"><a class="viewcode-back" href="../../air.html#livestock.air.relative_humidity_to_vapour_pressure">[docs]</a><span class="k">def</span> <span class="nf">relative_humidity_to_vapour_pressure</span><span class="p">(</span><span class="n">relative_humidity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert relative humidity to vapour pressure given a air temperature.</span>
+
+<span class="sd">    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.</span>
+<span class="sd">    “Heat and Mass Transfer in Buildings.”</span>
+
+<span class="sd">    :type temperature: float</span>
+<span class="sd">    :type relative_humidity: float</span>
+<span class="sd">    :param relative_humidity: Relative humidity - unitless</span>
+<span class="sd">    :param temperature: Air temperature in K</span>
+<span class="sd">    :return: Vapour pressure in Pa</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">relative_humidity</span> <span class="o">*</span> <span class="n">saturated_vapour_pressure</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>  <span class="c1"># Pa</span></div>
+
+
+<div class="viewcode-block" id="stratification"><a class="viewcode-back" href="../../air.html#livestock.air.stratification">[docs]</a><span class="k">def</span> <span class="nf">stratification</span><span class="p">(</span><span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">value_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">value_top</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the stratification of the temperature or relative humidity of the air volume.</span>
+
+<span class="sd">    :param height: Height at which the stratification value is wanted in m.</span>
+<span class="sd">    :type height: float</span>
+<span class="sd">    :param value_mean: Mean value of the air volume. Assumed equal to the value at half of the height of the air volume.</span>
+<span class="sd">    :type value_mean: float</span>
+<span class="sd">    :param height_top: Height at the top of the boundary in m.</span>
+<span class="sd">    :type height_top: float</span>
+<span class="sd">    :param value_top: Value at the top of the air volume</span>
+<span class="sd">    :type value_top: float</span>
+<span class="sd">    :return: Value at desired height.</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">value_mean</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="p">(</span><span class="n">value_mean</span> <span class="o">-</span> <span class="n">value_top</span><span class="p">)</span><span class="o">/</span><span class="n">height_top</span></div>
+
+
+<div class="viewcode-block" id="saturated_vapour_pressure"><a class="viewcode-back" href="../../air.html#livestock.air.saturated_vapour_pressure">[docs]</a><span class="k">def</span> <span class="nf">saturated_vapour_pressure</span><span class="p">(</span><span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the saturated vapour pressure for a given temperature.</span>
+<span class="sd">    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.</span>
+<span class="sd">    “Heat and Mass Transfer in Buildings.”</span>
+
+<span class="sd">    :param temperature: Temperature in Kelvin</span>
+<span class="sd">    :type temperature: float</span>
+<span class="sd">    :return: Vapour pressure in Pa</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Make check. -109.8C is the temperature where the air can hold no water.</span>
+    <span class="n">temperature_in_celsius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">kelvin_to_celsius</span><span class="p">(</span><span class="n">temperature</span><span class="p">),</span> <span class="o">-</span><span class="mi">109</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mf">288.68</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.098</span> <span class="o">+</span> <span class="n">temperature_in_celsius</span><span class="o">/</span><span class="mi">100</span><span class="p">)</span> <span class="o">**</span> <span class="mf">8.02</span></div>
+
+
+<div class="viewcode-block" id="wind_speed_to_hour_flux"><a class="viewcode-back" href="../../air.html#livestock.air.wind_speed_to_hour_flux">[docs]</a><span class="k">def</span> <span class="nf">wind_speed_to_hour_flux</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts wind speed into a hourly flux.</span>
+<span class="sd">    m/s to m\ :sup:`3`/h</span>
+<span class="sd">    m/s to m\ :sup:`3`/s = 1:sup:`2`</span>
+<span class="sd">    m\ :sup:`3`/s to m\ :sup:`3`/h = 3600s/h</span>
+
+<span class="sd">    :param wind_speed: Wind speed in m/s</span>
+<span class="sd">    :type wind_speed: float</span>
+<span class="sd">    :return: Wind flux in m\ :sup:`3`/h</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">wind_speed</span> <span class="o">*</span> <span class="mi">3600</span></div>
+
+
+<div class="viewcode-block" id="diameter_from_area"><a class="viewcode-back" href="../../air.html#livestock.air.diameter_from_area">[docs]</a><span class="k">def</span> <span class="nf">diameter_from_area</span><span class="p">(</span><span class="n">area</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the diameter from a given area of a circle.</span>
+<span class="sd">    A = :math:`{\\pi}` * (d/2)\ :sup:`2` =&gt;</span>
+<span class="sd">    d = :math:`{\\sqrt{4*A/{\\pi}}}`</span>
+
+<span class="sd">    :param area: Area of a circle in m</span>
+<span class="sd">    :type area: numpy.array</span>
+<span class="sd">    :return: Diameter in m</span>
+<span class="sd">    :rtype: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">area</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="wind_speed_to_flux"><a class="viewcode-back" href="../../air.html#livestock.air.wind_speed_to_flux">[docs]</a><span class="k">def</span> <span class="nf">wind_speed_to_flux</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">cross_section</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a wind speed through an area to a wind flux.</span>
+
+<span class="sd">    :param wind_speed: Wind speed in m/s</span>
+<span class="sd">    :type wind_speed: numpy.array</span>
+<span class="sd">    :param height: Height of the area in m</span>
+<span class="sd">    :type height: numpy.array</span>
+<span class="sd">    :param cross_section: Width of the area in m</span>
+<span class="sd">    :type cross_section: numpy.array</span>
+<span class="sd">    :return: Wind flux in m\ :sup:`3`/h</span>
+<span class="sd">    :rtype: numpy.array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">wind_speed_to_hour_flux</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">)</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="n">cross_section</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Christian Kongsgaard.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
