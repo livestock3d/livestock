@@ -1,0 +1,128 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Livestock SSH &#8212; Livestock CPython Package 2018.3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2018.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Livestock Misc" href="misc.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-livestock.ssh">
+<span id="livestock-ssh"></span><h1>Livestock SSH<a class="headerlink" href="#module-livestock.ssh" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="livestock.ssh.check_for_remote_folder">
+<code class="descclassname">livestock.ssh.</code><code class="descname">check_for_remote_folder</code><span class="sig-paren">(</span><em>sftp_connect: &lt;function SSHClient.open_sftp at 0x0000027049115510&gt;</em>, <em>folder_to_check: str</em>, <em>check_for: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/livestock/ssh.html#check_for_remote_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.ssh.check_for_remote_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if remote folder exists in the desired location. If do exists the function returns True.
+Otherwise is creates the folder and then returns True.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sftp_connect</strong> (<em>paramiko.SSHClient</em><em>(</em><em>)</em><em>open_sftp</em><em>(</em><em>)</em>) – SFTP connection</li>
+<li><strong>folder_to_check</strong> (<em>str</em>) – Path where there should be looked.</li>
+<li><strong>check_for</strong> (<em>str</em>) – Folder, which existence is wanted.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="livestock.ssh.ssh_connection">
+<code class="descclassname">livestock.ssh.</code><code class="descname">ssh_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/livestock/ssh.html#ssh_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livestock.ssh.ssh_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function opens up a SSH connection to a remote machine (Ubuntu-machine) based on inputs from the in_data.txt
+file. Once it is logged in then function activates the anaconda environment livestock_env, sends the commands,
+awaits their completion (by looking for a out.txt file, which is only written upon completion of the commands)
+and returns the wanted files back to the local machine.</p>
+</dd></dl>
+
+<p><strong>Go Back to:</strong></p>
+<p><a class="reference external" href="https://ocni-dtu.github.io/">Livestock Frontpage</a></p>
+<p><a class="reference external" href="https://ocni-dtu.github.io/livestock/index.html">Livestock PyPi</a></p>
+<p><a class="reference external" href="https://ocni-dtu.github.io/livestock_gh/index.html">Livestock Grasshopper</a></p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="misc.html" title="previous chapter">Livestock Misc</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Christian Kongsgaard.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/ssh.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

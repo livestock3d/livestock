@@ -1,14 +1,12 @@
 __author__ = "Christian Kongsgaard"
-__license__ = "MIT"
-__version__ = "0.0.1"
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Imports
 
 # Module imports
 import numpy as np
-import os
 import multiprocessing
+from scipy.optimize import brentq
 
 # Livestock imports
 
@@ -18,7 +16,7 @@ import multiprocessing
 
 def new_temperature_and_relative_humidity(folder: str) -> bool:
     """
-    Calculates a new temperatures and relative humidities for air volumes.
+    Calculates a new temperatures and relative humidity for air volumes.
 
     :param folder: Path to folder containing case files.
     :type folder: str
@@ -34,93 +32,64 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
         :return: Tuple of lists
         """
 
-        # helper functions
-        def file_to_numpy(folder_path, file_name):
-            file_obj = open(folder_path + '/' + file_name + '.txt', 'r')
-            lines = file_obj.readlines()
-            file_obj.close()
-            clean_lines = [float(element.strip())
-                           for line in lines
-                           for element in line.split(',')]
+        # Load
+        air_temperature_ = np.loadtxt(folder_ + '/temperature.txt', delimiter=',')
+        air_relative_humidity_ = np.loadtxt(folder_ + '/relative_humidity.txt', delimiter=',')
+        wind_speed_ = np.loadtxt(folder_ + '/wind_speed.txt', delimiter=',')
+        area_ = np.loadtxt(folder_ + '/area.txt', delimiter=',')
+        height_top_, height_stratification_ = np.loadtxt(folder_ + '/heights.txt', delimiter=',')
+        vapour_flux_ = np.loadtxt(folder_ + '/vapour_flux.txt', delimiter=',')
+        cpu_ = np.loadtxt(folder + '/cpu.txt', delimiter=',')
 
-            return np.array(clean_lines)
-
-        def get_heights(folder_path):
-            file_obj = open(folder_path + '/heights.txt', 'r')
-            lines = file_obj.readlines()
-            file_obj.close()
-
-            return float(lines[0].strip()), float(lines[1].strip())
-
-        def file_to_numpy_matrix(folder_path, file_name):
-            file_obj = open(folder_path + '/' + file_name + '.txt', 'r')
-            lines = file_obj.readlines()
-            file_obj.close()
-            clean_lines = [[float(element.strip())
-                            for element in line.split(',')]
-                           for line in lines]
-
-            return np.array(clean_lines)
-
-        def get_cpu(folder_path):
-            file_obj = open(folder_path + '/cpu.txt', 'r')
-            line = file_obj.readline()
-            file_obj.close()
-
-            return int(line.strip())
-
-        # run function
-        air_temperature_ = file_to_numpy(folder_, 'temperature')
-        air_relative_humidity_ = file_to_numpy(folder_, 'relative_humidity')
-        area_ = file_to_numpy(folder_, 'area')
-        height_top_, height_stratification_ = get_heights(folder_)
-        heat_flux_ = file_to_numpy_matrix(folder_, 'heat_flux')
-        vapour_flux_ = file_to_numpy_matrix(folder_, 'vapour_flux')
-        cpu_ = get_cpu(folder_)
-
-        return air_temperature_, air_relative_humidity_, area_, height_top_, height_stratification_, heat_flux_, \
-            vapour_flux_, cpu_
+        return air_temperature_, air_relative_humidity_, wind_speed_, area_, height_top_, height_stratification_, \
+            vapour_flux_, int(cpu_)
 
     def reconstruct_results(folder_, processed_rows_):
+        """
+        Collects and saves the results when they have been simulated.
+
+        :param folder_: Folder where the results should be saved
+        :param processed_rows_: Processed result rows.
+        :return: True
+        """
+
         # Sort row list
         sorted_rows = sorted(processed_rows_)
 
-        # open result files
-        temperature_file = open(folder_ + '/temperature_results.txt', 'w')
-        relhum_file = open(folder_ + '/relative_humidity_results.txt', 'w')
+        # create lists
+        temperature_ = []
+        relative_humidity_ = []
+        latent_heat_flux_ = []
+        vapour_flux_ = []
 
-        for row_number in sorted_rows:
+        for row in sorted_rows:
+            temperature_.append(row[1])
+            relative_humidity_.append(row[2])
+            latent_heat_flux_.append(row[3])
+            vapour_flux_.append(row[4])
 
-            # process temperature files
-            temp_path = folder_ + '/temp_' + str(row_number) + '.txt'
-            temp_obj = open(temp_path, 'r')
-            line = temp_obj.readline()
-            temperature_file.write(line + '\n')
-            temp_obj.close()
-            os.remove(temp_path)
-
-            # process relative humidity files
-            relhum_path = folder + '/relhum_' + str(row_number) + '.txt'
-            relhum_obj = open(relhum_path, 'r')
-            line = relhum_obj.readline()
-            relhum_file.write(line + '\n')
-            relhum_obj.close()
-            os.remove(relhum_path)
-
-        temperature_file.close()
-        relhum_file.close()
+        np.savetxt(folder_ + '/temperature_results.txt', temperature_, delimiter=',', fmt='%.4f')
+        np.savetxt(folder_ + '/relative_humidity_results.txt', relative_humidity_, delimiter=',', fmt='%.4f')
+        np.savetxt(folder_ + '/latent_heat_flux_results.txt', latent_heat_flux_, delimiter=',', fmt='%.4f')
+        np.savetxt(folder_ + '/vapour_flux_results.txt', vapour_flux_, delimiter=',', fmt='%.4f')
 
         return True
 
     # Run function
-    temperature, relative_humidity, area, height_top, height_stratification, heat_flux, vapour_flux, cpu = \
+    temperature, relative_humidity, wind_speed, area, height_top, height_stratification, vapour_flux, cpu = \
         get_files(folder)
 
     rows_ = [i
-             for i in range(0, len(heat_flux)-1)]
+             for i in range(0, len(vapour_flux)-1)]
 
-    input_packages = [(folder, index, temperature[index], relative_humidity[index], heat_flux[index],
-                       vapour_flux[index], area, height_stratification, height_top)
+    input_packages = [(index,
+                       temperature[index],
+                       convert_relative_humidity_to_unitless(relative_humidity[index]),
+                       vapour_flux[index],
+                       wind_speed[index],
+                       area,
+                       height_stratification,
+                       height_top)
                       for index in rows_]
 
     pool = multiprocessing.Pool(processes=cpu)
@@ -130,43 +99,122 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
     return True
 
 
-def run_row(input_package: list) -> float:
+def max_possible_vapour_flux(vapour_mass_flux: float, volume: float,
+                             temperature_in_kelvin: float, vapour_pressure: float) -> float:
     """
-    Calculates a new temperatures and relative humidities for a row. A row represent all cells to a given time.
+    Computes the difference between the saturated vapour pressure of an air volume after adding the vapour
+    and latent heat flux to an air volume and the actual vapour pressure of an air volume.
+
+    :param vapour_mass_flux: Vapour mass flux in kg/h
+    :type vapour_mass_flux: float
+    :param volume: Air volume in m\ :sup:`3`\
+    :type volume: float
+    :param temperature_in_kelvin: Current temperature in K
+    :type temperature_in_kelvin: float
+    :param vapour_pressure: Current vapour pressure in Pa
+    :type vapour_pressure: float
+    :return: Difference between the saturated vapour pressure after adding the vapour and latent heat flux to the air volume and the actual vapour pressure of the air volume.
+    :rtype: float
+    """
+
+    # Solve Function
+    new_temperature = new_mean_temperature(volume,
+                                           temperature_in_kelvin,
+                                           latent_heat_flux(vapour_mass_flux))
+
+    saturated_pressure = saturated_vapour_pressure(new_temperature)
+    actual_pressure = new_mean_vapour_pressure(volume, new_temperature, vapour_pressure, vapour_mass_flux)
+    return saturated_pressure - actual_pressure
+
+
+def compute_temperature_relative_humidity(temperature_in_k: np.array, relative_humidity: np.array,
+                                          vapour_mass_flux: np.array, volume: np.array) -> tuple:
+    """
+    Computes the coupled relative humidity and temperature of an air volume given a vapour flux. The vapour pressure is
+    capped off so it can not exceed the saturated vapour pressure. This potentially means that not the whole amount of vapour flux will be used.
+
+    :param temperature_in_k: Current temperature of the air volume in K
+    :type temperature_in_k: numpy.array
+    :param relative_humidity: Current relative humidity of the air volume as unit less.
+    :type relative_humidity: numpy.array
+    :param vapour_mass_flux: Vapour mass flux to be added to the air volume in kg/h.
+    :type vapour_mass_flux: numpy.array
+    :param volume: Air volume in m\ :sup:`3`\
+    :type volume: numpy.array
+    :return: Tuple containing the new temperature in K, new relative humidity as unit less, the latent heat used and
+     the vapour flux used.
+    :rtype: tuple
+    """
+
+    # Check if all cells have a vapour pressure below saturation after alteration of temp & relhum
+    new_temperature_check = new_mean_temperature(volume, temperature_in_k,
+                                                 latent_heat_flux(vapour_mass_flux))
+
+    vapour_pressure = relative_humidity_to_vapour_pressure(relative_humidity,
+                                                           temperature_in_k)
+
+    available_vapour_mass_flux = []
+    for i in range(0, len(vapour_mass_flux)):
+        new_vapour_pressure = new_mean_vapour_pressure(volume[i],
+                                                       new_temperature_check[i],
+                                                       vapour_pressure,
+                                                       vapour_mass_flux[i])
+
+        new_saturated_pressure = saturated_vapour_pressure(new_temperature_check[i])
+
+        if new_vapour_pressure <= new_saturated_pressure:
+            available_vapour_mass_flux.append(vapour_mass_flux[i])
+        else:
+            possible_vapour_mass_flux = brentq(max_possible_vapour_flux,
+                                               -1,
+                                               vapour_mass_flux[i],
+                                               args=(volume[i], temperature_in_k, vapour_pressure))
+
+            if possible_vapour_mass_flux < vapour_mass_flux[i]:
+                available_vapour_mass_flux.append(possible_vapour_mass_flux)
+            else:
+                # Should be a useless statement?
+                available_vapour_mass_flux.append(vapour_mass_flux[i])
+
+    available_vapour_mass_flux = np.array(available_vapour_mass_flux).flatten()
+    latent_heat = latent_heat_flux(available_vapour_mass_flux)
+    new_temperature_ = new_mean_temperature(volume, temperature_in_k, latent_heat)
+    new_relative_humidity = new_mean_relative_humidity(volume,
+                                                       new_temperature_,
+                                                       vapour_pressure,
+                                                       available_vapour_mass_flux)
+    return (new_temperature_,
+            new_relative_humidity,
+            latent_heat,
+            available_vapour_mass_flux)
+
+
+def run_row(input_package: list) -> tuple:
+    """
+    Calculates a new temperatures and relative humidity for a row. A row represent all cells to a given time.
 
     :param input_package: Input package with need inputs.
     :type input_package: list
     :return: The row on which the calculation was performed.
-    :rtype: float
+    :rtype: tuple
     """
 
     # unpack
-    folder_, row_index, temperature_time, relative_humidity_time, heat_flux_time_row, vapour_flux_time_row, area, \
+    row_index, temperature_time, relative_humidity_time, vapour_flux_time_row, wind_speed, area, \
         height_stratification, height_top = input_package
 
     # new mean temperature i K
     air_temperature_in_k = celsius_to_kelvin(temperature_time)
-    temperature_row = new_mean_temperature(area,
-                                           height_top,
-                                           air_temperature_in_k,
-                                           heat_flux_time_row)
+    flux_corrected_volume = area * height_top + wind_speed_to_flux(wind_speed, height_top, diameter_from_area(area))
 
-    # air flow
-    air_flow_row = air_flow(area,
-                            height_top,
-                            air_temperature_in_k,
-                            temperature_row)
-
-    # new relative humidity
-    relative_humidity_row = new_mean_relative_humidity(area,
-                                                       height_top,
-                                                       temperature_row,
-                                                       relative_humidity_to_vapour_pressure(
-                                                           relative_humidity_time,
-                                                           air_temperature_in_k),
-                                                       vapour_flux_time_row,
-                                                       air_flow_row
-                                                       )
+    # Get temperature and relative_humidity
+    [temperature_row,
+     relative_humidity_row,
+     heat_flux_time_row,
+     used_vapour_flux] = compute_temperature_relative_humidity(air_temperature_in_k,
+                                                               relative_humidity_time,
+                                                               convert_vapour_flux_to_kgh(vapour_flux_time_row),
+                                                               flux_corrected_volume)
 
     # new stratified relative humidity
     stratified_relative_humidity_row = stratification(height_stratification,
@@ -181,131 +229,155 @@ def run_row(input_package: list) -> float:
                                                 height_top,
                                                 temperature_time)
 
-    # write results
-    temp_file = open(folder_ + '/temp_' + str(row_index) + '.txt', 'w')
-    temp_file.write(','.join(stratified_temperature_row.astype(str)))
-    temp_file.close()
-
-    relhum_file = open(folder_ + '/relhum_' + str(row_index) + '.txt', 'w')
-    relhum_file.write(','.join(stratified_relative_humidity_row.astype(str)))
-    relhum_file.close()
-
-    return row_index
+    return (row_index,
+            stratified_temperature_row,
+            convert_relative_humidity_to_percentage(stratified_relative_humidity_row),
+            heat_flux_time_row,
+            used_vapour_flux)
 
 
-def new_mean_relative_humidity(area: float, height_external: float, temperature_internal: float,
-                               vapour_pressure_external: float, vapour_production: float, air_flow_: float) -> float:
+def latent_heat_flux(vapour_mass_flux: np.array) -> np.array:
+    """
+    Computes the latent heat flux related to a certain evapotranspiration flux.
+    The latent heat flux is negative if the vapour flux is positive.
+
+    Source: Manickathan, L. et al., 2018.
+    Parametric study of the influence of environmental factors and tree properties on the
+    transpirative cooling effect of trees. Agricultural and Forest Meteorology.
+
+    :param vapour_mass_flux: Vapour volume flux in kg/h
+    :type vapour_mass_flux: numpy.array
+    :return: Latent heat flux in J/h.
+    :rtype: numpy.array
+    """
+
+    latent_heat_of_vaporization = 2.5 * 10**6  # J/kg
+
+    return np.negative(latent_heat_of_vaporization * vapour_mass_flux)  # J/h
+
+
+def convert_vapour_flux_to_kgh(vapour_flux: np.array) -> np.array:
+    """
+    Converts a vapour flux from m\ :sup:`3`\/day to kg/h
+    Density of water: 1000kg/m\ :sup:`3`\
+    Hours per day: 24h/day
+    Conversion: 1000kg/m\ :sup:`3`\ / 24h/day
+
+    :param vapour_flux: Vapour flux in m\ :sup:`3`\/day
+    :type vapour_flux: numpy.array
+    :return: Vapour flux in kg/h
+    :rtype: numpy.array
+    """
+
+    return vapour_flux * 1000 / 24
+
+
+def convert_relative_humidity_to_unitless(rh: np.array) -> np.array:
+    """
+    Converts relative humidity from percentage to an unit less number.
+
+    :param rh: Relative humidity in %
+    :type rh: numpy.array
+    :return: Relative humidity as unit less
+    :rtype: numpy.array
+    """
+
+    return rh / 100
+
+
+def convert_relative_humidity_to_percentage(rh: np.array) -> np.array:
+    """
+    Converts relative humidity from percentage to an unit less number.
+
+    :param rh: Relative humidity as unitless
+    :type rh: numpy.array
+    :return: Relative humidity in percentage
+    :rtype: numpy.array
+    """
+
+    return rh * 100
+
+
+def new_mean_relative_humidity(volume: np.array, temperature_internal: np.array,
+                               vapour_pressure_external: np.array, vapour_production: np.array) -> np.array:
     """
     Computes a new mean vapour pressure and converts it in to a relative humidity.
 
-    Source: ????
+    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+    “Heat and Mass Transfer in Buildings.”
 
-    :param area: Area in m\ :sup:`2`
-    :type area: float
-    :param height_external: External height in m
-    :type height_external: float
+    :param volume: Air volume in m\ :sup:`3`
+    :type volume: numpy.array
     :param temperature_internal: External temperature in K
-    :type temperature_internal: float
+    :type temperature_internal: numpy.array
     :param vapour_pressure_external: External vapour pressure in Pa
-    :type vapour_pressure_external: float
-    :param vapour_production: Vapour production in kg/s
-    :type vapour_production: float
-    :param air_flow_: Air flow in m\ :sup:`3`\/s
-    :type air_flow_: float
-    :return: Relative humidity - unitless
-    :rtype: float
+    :type vapour_pressure_external: numpy.array
+    :param vapour_production: Vapour production in kg/h
+    :type vapour_production: numpy.array
+    :return: Relative humidity - unit less
+    :rtype: numpy.array
     """
 
-    vapour_pressure = new_mean_vapour_pressure(area, height_external, temperature_internal, vapour_pressure_external,
-                                               vapour_production, air_flow_)
+    vapour_pressure = new_mean_vapour_pressure(volume, temperature_internal, vapour_pressure_external,
+                                               vapour_production)
 
     return vapour_pressure_to_relative_humidity(vapour_pressure, temperature_internal)
 
 
-def new_mean_vapour_pressure(area: float, height_external: float, temperature_internal: float,
-                             vapour_pressure_external: float, vapour_production: float, air_flow_: float) -> float:
+def new_mean_vapour_pressure(volume: np.array, temperature: np.array,
+                             vapour_pressure_external: np.array, vapour_production: np.array) -> np.array:
     """
     Calculates a new vapour pressure for the volume.
-    Source: ????
 
-    :param area: Area in m\ :sup:`2`
-    :type area: float
-    :param temperature_internal: External temperature in K
-    :type temperature_internal: float
-    :param height_external: External height in m
-    :type height_external: float
+    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+    “Heat and Mass Transfer in Buildings.”
+
+    :param volume: Volume in m\ :sup:`3`
+    :type volume: numpy.array
+    :param temperature: Temperature in K
+    :type temperature: numpy.array
     :param vapour_pressure_external: External vapour pressure in Pa
-    :type vapour_pressure_external: float
-    :param vapour_production: Vapour production in kg/s
-    :type vapour_production: float
-    :param air_flow_: Air flow in m\ :sup:`3`\/s
-    :type air_flow_: float
+    :type vapour_pressure_external: numpy.array
+    :param vapour_production: Vapour production in kg/h
+    :type vapour_production: numpy.array
     :return: New vapour pressure in Pa
-    :rtype: float
+    :rtype: numpy.array
     """
 
-    volume_air = area * height_external  # m^3
     gas_constant_vapour = 461.5  # J/kgK
+    density_vapour = vapour_pressure_external/(gas_constant_vapour * temperature)  # kg/m3
+    mass_vapour = density_vapour * volume  # kg
+    new_mass_vapour = mass_vapour + vapour_production  # kg
+    vapour_pressure = (new_mass_vapour * gas_constant_vapour * temperature) / volume  # Pa
 
-    contact = air_flow_ / (gas_constant_vapour * temperature_internal)  # kg/sPa
-    capacity = volume_air / (gas_constant_vapour * temperature_internal)  # m3kg/J
-    vapour_pressure = vapour_pressure_external + vapour_production/contact * (1 - np.exp(-contact/capacity))  # Pa
-
-    return vapour_pressure
-
-
-def air_flow(area: float, height_top: float, temperature_top: float, temperature_mean: float) -> float:
-    """
-    Calculates an air flow based on an mean temperature for the volume.
-
-    Source: ???
-
-    :param area: Area in m\ :sup:`2`
-    :type area: float
-    :param height_top: Top of the air volume in m
-    :type height_top: float
-    :param temperature_top: Temperature at the top of the air volume in K
-    :type temperature_top: float
-    :param temperature_mean: Mean Temperature of the volume in K
-    :type temperature_mean: float
-    :return: Air flow in m\ :sup:`3`\/s
-    :rtype: float
-    """
-
-    density_air = 1.29 * 273 / temperature_top  # kg/m^3
-    gravity = 9.81  # m/s^2
-    height_mean = height_top / 2  # m
-
-    delta_temperature = temperature_top - temperature_mean
-    delta_pressure = density_air * gravity * (height_top - height_mean) * delta_temperature / temperature_mean
-
-    return area * np.sqrt(2 * abs(delta_pressure) / density_air) * delta_pressure / abs(delta_pressure)
+    return vapour_pressure  # Pa
 
 
-def new_mean_temperature(area: float, height_external: float, temperature_external: float, heat: float) -> float:
+def new_mean_temperature(volume: np.array, temperature: np.array, heat: np.array) -> np.array:
     """
     Calculates a new mean temperature for the volume.
 
-    Source: ???
+    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+    “Heat and Mass Transfer in Buildings.”
 
-    :param area: Area in m\ :sup:`2`
-    :type area: float
-    :param height_external: Top of the air volume in m
-    :type height_external: float
-    :param temperature_external: Temperature at the top of the air volume in K
-    :type temperature_external: float
-    :param heat: Added heat to the air volume in J
-    :type heat: float
+    :param volume: Volume in m\ :sup:`3`
+    :type volume: numpy.array
+    :param temperature: Temperature at the top of the air volume in K
+    :type temperature: numpy.array
+    :param heat: Added heat to the air volume in J/h
+    :type heat: numpy.array
     :return: Temperature in K
-    :rtype: float
+    :rtype: numpy.array
     """
 
-    volume_air = area * height_external
     specific_heat_capacity = 1005  # J/kgK
-    density_air = 1.29 * 273 / temperature_external  # kg/m^3
-    energy_air = volume_air * specific_heat_capacity * density_air * temperature_external  # J
+    density_air = 1.29 * 273.15 / temperature  # kg/m^3
+    energy_air = volume * specific_heat_capacity * density_air * temperature  # J
 
-    return (energy_air + heat)/(volume_air * density_air * specific_heat_capacity)
+    # Create a check to make sure that the temperature can not go below 0C
+    new_temperature = np.maximum((energy_air + heat)/(volume * density_air * specific_heat_capacity), 273.15)
+
+    return new_temperature
 
 
 def celsius_to_kelvin(celsius: float) -> float:
@@ -345,7 +417,8 @@ def vapour_pressure_to_relative_humidity(vapour_pressure: float, temperature: fl
     """
     Convert vapour pressure to relative humidity given a air temperature
 
-    Source: ???
+    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+    “Heat and Mass Transfer in Buildings.”
 
     :param vapour_pressure: Vapour pressure in Pa
     :type vapour_pressure: float
@@ -355,18 +428,15 @@ def vapour_pressure_to_relative_humidity(vapour_pressure: float, temperature: fl
     :rtype: float
     """
 
-    temperature_c = kelvin_to_celsius(temperature)  # C
-    saturated_pressure = 288.68 * (1.098 + temperature_c/100)**8.02  # Pa
-    relative_humidity = vapour_pressure/saturated_pressure  # -
-
-    return relative_humidity
+    return vapour_pressure / saturated_vapour_pressure(temperature)  # -
 
 
 def relative_humidity_to_vapour_pressure(relative_humidity: float, temperature: float) -> float:
     """
     Convert relative humidity to vapour pressure given a air temperature.
 
-    Source: ???
+    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+    “Heat and Mass Transfer in Buildings.”
 
     :type temperature: float
     :type relative_humidity: float
@@ -376,24 +446,18 @@ def relative_humidity_to_vapour_pressure(relative_humidity: float, temperature: 
     :rtype: float
     """
 
-    temperature_c = kelvin_to_celsius(temperature)  # C
-    saturated_pressure = 288.68 * (1.098 + temperature_c/100)**8.02  # Pa
-    vapour_pressure = relative_humidity * saturated_pressure  # Pa
-
-    return vapour_pressure
+    return relative_humidity * saturated_vapour_pressure(temperature)  # Pa
 
 
 def stratification(height: float, value_mean: float, height_top: float, value_top: float) -> float:
     """
     Calculates the stratification of the temperature or relative humidity of the air volume.
 
-    Source: ???
-
-    :param height: Height at which the stratification value is wanted. in m.
+    :param height: Height at which the stratification value is wanted in m.
     :type height: float
     :param value_mean: Mean value of the air volume. Assumed equal to the value at half of the height of the air volume.
     :type value_mean: float
-    :param height_top: Height at the top of the boundary. in m
+    :param height_top: Height at the top of the boundary in m.
     :type height_top: float
     :param value_top: Value at the top of the air volume
     :type value_top: float
@@ -404,103 +468,67 @@ def stratification(height: float, value_mean: float, height_top: float, value_to
     return value_mean - 2 * height * (value_mean - value_top)/height_top
 
 
-def water_evaporation(volume_air: float, temperature: float, water: float, fraction_of_evaporation: float) -> tuple:
+def saturated_vapour_pressure(temperature: float) -> float:
     """
-    Computes the change in temperature for a volume caused by the evaporation of a given water volume.
+    Computes the saturated vapour pressure for a given temperature.
+    Source: Peuhkuri, Ruut, and Carsten Rode. 2016.
+    “Heat and Mass Transfer in Buildings.”
 
-    :param volume_air: Air volume in m3
-    :type volume_air: float
-    :param temperature: Air temperature in K
+    :param temperature: Temperature in Kelvin
     :type temperature: float
-    :param water: Water introduced into the air volume to lower the temperature in m3
-    :type water: float
-    :param fraction_of_evaporation: Fraction of the water which is evaporated.
-    :type fraction_of_evaporation: float
-    :return: New temperature in K, energy needed for the evaporation in J and the vapour gain of the volume in kg
+    :return: Vapour pressure in Pa
     :rtype: float
     """
 
-    specific_heat_capacity = 1005  # J/kgK
-    density_air = 1.29 * 273 / temperature  # kg/m^3
-    heat_of_evaporation_water = 2257000  # J/kg
-    density_water = 1000  # kg/m3
+    # Make check. -109.8C is the temperature where the air can hold no water.
+    temperature_in_celsius = np.maximum(kelvin_to_celsius(temperature), -109)
 
-    vapour_gain = water * density_water * fraction_of_evaporation  # kg
-    energy_of_evaporation = water * heat_of_evaporation_water * fraction_of_evaporation  # J
-    energy_air = volume_air * specific_heat_capacity * density_air * temperature  # J
-    new_temperature = (energy_air - energy_of_evaporation)/(volume_air * specific_heat_capacity * density_air)  #K
-
-    return new_temperature, energy_of_evaporation, vapour_gain
+    return 288.68 * (1.098 + temperature_in_celsius/100) ** 8.02
 
 
-def water_evaporation_template_wrapper(local_path):
+def wind_speed_to_hour_flux(wind_speed: float) -> float:
+    """
+    Converts wind speed into a hourly flux.
+    m/s to m\ :sup:`3`/h
+    m/s to m\ :sup:`3`/s = 1:sup:`2`
+    m\ :sup:`3`/s to m\ :sup:`3`/h = 3600s/h
 
-    def read_files(result_path):
+    :param wind_speed: Wind speed in m/s
+    :type wind_speed: float
+    :return: Wind flux in m\ :sup:`3`/h
+    :rtype: float
+    """
 
-        volume_file = open(result_path + '/volume.txt', 'r')
-        volume_lines = volume_file.readlines()
-        volume_file.close()
-        volume_ = [float(v.strip())
-                   for line in volume_lines
-                   for v in line.split(',')]
+    return wind_speed * 3600
 
-        # Create Temperature file
-        temp_file = open(result_path + '/temperature.txt', 'r')
-        temp_lines = temp_file.readlines()
-        temp_file.close()
-        temperature_ = [float(t.strip())
-                        for line in temp_lines
-                        for t in line.split(',')]
 
-        # Create water file
-        water_file = open(result_path + '/water.txt', 'r')
-        water_lines = water_file.readlines()
-        water_file.close()
-        water_ = [float(w.strip())
-                  for line in water_lines
-                  for w in line.split(',')]
+def diameter_from_area(area: np.array) -> np.array:
+    """
+    Computes the diameter from a given area of a circle.
+    A = :math:`{\\pi}` * (d/2)\ :sup:`2` =>
+    d = :math:`{\\sqrt{4*A/{\\pi}}}`
 
-        # Create fraction file
-        fraction_file = open(result_path + '/fraction.txt', 'r')
-        fraction_lines = fraction_file.readlines()
-        fraction_file.close()
-        fraction_ = [float(f.strip())
-                     for line in fraction_lines
-                     for f in line.split(',')]
+    :param area: Area of a circle in m
+    :type area: numpy.array
+    :return: Diameter in m
+    :rtype: numpy.array
+    """
 
-        return volume_, temperature_, water_, fraction_
+    return np.sqrt(4 * area/np.pi)
 
-    def write_files(write_path, temperature_, energy, vapour):
 
-        # Create Temperature file
-        temp_file = open(write_path + '/temperature.txt', 'w')
-        temp_file.write(','.join([str(t)
-                                  for t in temperature_]))
-        temp_file.close()
+def wind_speed_to_flux(wind_speed: np.array, height: np.array, cross_section: np.array) -> np.array:
+    """
+    Converts a wind speed through an area to a wind flux.
 
-        # Create volume file
-        energy_file = open(write_path + '/energy.txt', 'w')
-        energy_file.write(','.join([str(e)
-                                    for e in energy]))
-        energy_file.close()
+    :param wind_speed: Wind speed in m/s
+    :type wind_speed: numpy.array
+    :param height: Height of the area in m
+    :type height: numpy.array
+    :param cross_section: Width of the area in m
+    :type cross_section: numpy.array
+    :return: Wind flux in m\ :sup:`3`/h
+    :rtype: numpy.array
+    """
 
-        # Create water file
-        vapour_file = open(write_path + '/vapour.txt', 'w')
-        vapour_file.write(','.join([str(v)
-                                    for v in vapour]))
-        vapour_file.close()
-
-        return True
-
-    volume, temperature, water, fraction = read_files(local_path)
-    new_temperature = []
-    energy_of_evaporation = []
-    vapour_gain = []
-
-    for i in range(0, len(volume)):
-        nt, ee, vg = water_evaporation(volume[i], temperature[i], water[i], fraction[i])
-        new_temperature.append(nt)
-        energy_of_evaporation.append(ee)
-        vapour_gain.append(vg)
-
-    write_files(local_path, new_temperature, energy_of_evaporation, vapour_gain)
+    return wind_speed_to_hour_flux(wind_speed) * height * cross_section

@@ -27,6 +27,9 @@ except ImportError:
 
 
 class CMFModel:
+    """
+    Class containing a CMF model
+    """
 
     def __init__(self, folder):
         self.folder = folder
@@ -41,6 +44,14 @@ class CMFModel:
         self.results = {}
 
     def load_cmf_files(self, delete_after_load=False):
+        """
+        Loads the needed files for the CMF project to run.
+
+        :param delete_after_load: Delete after the files are loaded?
+        :type delete_after_load: bool
+        :return: True
+        :rtype: bool
+        """
 
         def load_weather(folder, delete):
 
@@ -238,10 +249,15 @@ class CMFModel:
     def mesh_to_cells(self, cmf_project, mesh_path, delete_after_load=True):
         """
         Takes a mesh and converts it into CMF cells
+
         :param mesh_path: Path to mesh .obj file
+        :type mesh_path: str
         :param cmf_project: CMF project object.
+        :type cmf_project: cmf.project
         :param delete_after_load: If True, it deletes the input files after they have been loaded.
+        :type delete_after_load: bool
         :return: True
+        :rtype: bool
         """
 
         # Convert obj to shapefile
@@ -263,7 +279,18 @@ class CMFModel:
         return True
 
     def add_tree(self, cmf_project, cell_index, property_dict):
-        """Adds a tree to the model"""
+        """
+        Adds a tree to the model and sets the need properties for it.
+
+        :param cmf_project: CMF project
+        :type cmf_project: cmf.project
+        :param cell_index: Index of the cell where the tree should be added.
+        :type cell_index: int
+        :param property_dict: Dict with tree properties.
+        :type property_dict: dict
+        :return: True
+        :rtype: bool
+        """
 
         cell = cmf_project.cells[int(cell_index)]
         self.set_vegetation_properties(cell, property_dict)
@@ -278,6 +305,17 @@ class CMFModel:
         return True
 
     def set_vegetation_properties(self, cell_: cmf.Cell, property_dict: dict):
+        """
+        Sets the vegetation properties for a cell.
+
+        :param cell_: Cell to set properties for.
+        :type cell_: cmf.Cell
+        :param property_dict: Dict containing the needed properties.
+        :type property_dict: dict
+        :return: True
+        :rtype: bool
+        """
+
         cell_.vegetation.Height = float(property_dict['height'])
         cell_.vegetation.LAI = float(property_dict['lai'])
         cell_.vegetation.albedo = float(property_dict['albedo'])
@@ -292,7 +330,16 @@ class CMFModel:
         return True
 
     def configure_cells(self, cmf_project: cmf.project, cell_properties_dict: dict):
-        """Configure the cells"""
+        """
+        Configure and setup all needed information for the cells.
+
+        :param cmf_project: CMF project
+        :type cmf_project: cmf.project
+        :param cell_properties_dict: Dict with all the needed properties
+        :type cell_properties_dict: dict
+        :return: True
+        :rtype: bool
+        """
 
         # Helper functions
         def install_connections(cell_, evapotranspiration_method):
@@ -373,47 +420,13 @@ class CMFModel:
 
         return True
 
-    def create_stream(self, shape, shape_param, outlet):
-        """Create a stream"""
-        # ShapeParam(Tri) = [length, bankSlope, x, y, z, intialWaterDepth]
-        # ShapeParam(Rec) = [length, width, x, y, z, intialWaterDepth]
-        reaches = []
-
-        # Create stream
-        if shape == 0:
-            for i in range(len(shape_param)):
-                reach_shape = cmf.TriangularReach(shape_param[i][0],shape_param[i][1])
-                reaches.append([self.project.NewReach(shape_param[i][2], shape_param[i][3], shape_param[i][4], reach_shape, False)])
-                reaches[-1].depth(shape_param[5])
-
-                # Connect reaches
-                if not reaches:
-                    pass
-                elif len(reaches) == len(shape_param):
-                    channel_out = self.project.NewOutlet(outlet[0], outlet[1], outlet[2])
-                    reaches[-1].set_downstream(channel_out)
-                else:
-                    reaches[-2].set_downstream(reaches[-1])
-
-        elif shape == 1:
-            for i in range(len(shape_param)):
-                reach_shape = cmf.RectangularReach(shape_param[i][0],shape_param[i][1])
-                reaches.append([self.project.NewReach(shape_param[i][2], shape_param[i][3], shape_param[i][4], reach_shape, False)])
-                reaches[-1].depth(shape_param[5])
-
-                # Connect reaches
-                if not reaches:
-                    pass
-                elif len(reaches) == len(shape_param):
-                    channel_out = self.project.NewOutlet(outlet[0], outlet[1], outlet[2])
-                    reaches[-1].set_downstream(channel_out)
-                else:
-                    reaches[-2].set_downstream(reaches[-1])
-        else:
-            return None
-
     def create_weather(self, cmf_project):
-        """Creates weather for the project"""
+        """
+        Creates weather for the project
+
+        :param cmf_project: CMF project
+        :type cmf_project: cmf.project
+        """
 
         # Helper functions
         def create_time_series(analysis_length, time_step=1.0):
@@ -510,6 +523,12 @@ class CMFModel:
             connect_weather_to_cells(cell, cell_rain, cell_meteo)
 
     def create_boundary_conditions(self, cmf_project):
+        """
+        Set a boundary condition for the CMF project.
+
+        :param cmf_project: CMF project to give a boundary conditions
+        :type cmf_project: cmf.project
+        """
 
         # Helper functions
         def set_inlet(boundary_condition_, cmf_project_):
@@ -570,7 +589,6 @@ class CMFModel:
                                       float(boundary_condition_['outlet_type']['connection_parameter']))
 
         def set_boundary_condition(boundary_condition_, bc_index, cmf_project_):
-            print('set_boundary_condition', boundary_condition_)
             if boundary_condition_['type'] == 'inlet':
                 set_inlet(boundary_condition_, cmf_project_)
             elif boundary_condition_['type'] == 'outlet':
@@ -584,7 +602,14 @@ class CMFModel:
             set_boundary_condition(self.boundary_dict[boundary_condition], index, cmf_project)
 
     def config_outputs(self, cmf_project):
-        """Function to set up result gathering dictionary"""
+        """
+        Function to set up result gathering dictionary.
+
+        :param cmf_project: CMF project to collect from
+        :type cmf_project: cmf.project
+        :return: Empty result dictionary
+        :rtype: dict
+        """
 
         out_dict = {}
 
@@ -607,6 +632,16 @@ class CMFModel:
         self.results = out_dict
 
     def gather_results(self, cmf_project, time):
+        """
+        Collects the produced results.
+
+        :param cmf_project: CMF project to collect from
+        :type cmf_project: cmf.project
+        :param time: Point in solver time
+        :type time: datetime.datetime
+        :return:
+        :rtype:
+        """
 
         for cell_index in range(0, len(cmf_project.cells)):
             cell_name = 'cell_' + str(cell_index)
@@ -698,11 +733,25 @@ class CMFModel:
                     #    raise ValueError('Unknown result to collect. Result to collect was: ' + str(out_key))
 
     def print_solver_time(self, solver_time, start_time, last_time, step):
+        """
+        Prints information at each solver time.
+
+        :param solver_time: The time the solver solves for.
+        :type solver_time: datetime.datetime
+        :param start_time: Time at the start of the simulation
+        :type start_time: datetime.datetime
+        :param last_time: Last time step
+        :type last_time: datetime.datetime
+        :param step: Current simulation step
+        :type step: int
+        :return: Current time
+        :rtype: datetime.datetime
+        """
 
         if self.solver_settings['verbosity']:
             now = datetime.datetime.now()
             elapsed_time = now - start_time
-            time_per_step = elapsed_time.total_seconds()/(step+1)
+            time_per_step = elapsed_time.total_seconds()/(step + 1)
             time_left = datetime.timedelta(seconds=(time_per_step * (self.solver_settings['analysis_length'] - step)))
             current_time = (now - last_time)
 
@@ -788,7 +837,12 @@ class CMFModel:
             return True
 
     def run_model(self):
-        """Runs the model with everything"""
+        """
+        Runs the model with everything.
+
+        :return: Simulated CMF project
+        :rtype: cmf.project
+        """
 
         # Initialize project
         project = cmf.project()
@@ -822,7 +876,16 @@ class CMFModel:
         return project
 
 
-def cmf_results(path):
+def cmf_results(path: str) -> bool:
+    """
+    Process a CMF result file.
+
+    :param path: Folder containing the result file.
+    :type path: str
+    :return: True
+    :rtype: bool
+    """
+
     files = os.listdir(path)
     result_path = None
     lookup_path = None
@@ -847,8 +910,18 @@ def cmf_results(path):
     return True
 
 
-def cell_results(looking_for, result_file, folder):
-    """Processes cell results"""
+def cell_results(looking_for: str, result_file: str, folder: str) -> bool:
+    """Processes cell results after a desired parameter.
+
+    :param looking_for: Parameter to look for.
+    :type looking_for: str
+    :param result_file: Path of the result file.
+    :type result_file: str
+    :param folder: Path of the folder
+    :type folder: str
+    :return: True
+    :rtype: bool
+    """
 
     # Initialize
     result_tree = ET.tostring(ET.parse(result_file).getroot())
@@ -886,8 +959,19 @@ def cell_results(looking_for, result_file, folder):
     return True
 
 
-def layer_results(looking_for, result_file, folder):
-    """Processes layer results"""
+def layer_results(looking_for: str, result_file: str, folder: str) -> bool:
+    """
+    Processes layer results after a desired parameter.
+
+    :param looking_for: Parameter to look for.
+    :type looking_for: str
+    :param result_file: Path of the result file.
+    :type result_file: str
+    :param folder: Path of the folder
+    :type folder: str
+    :return: True
+    :rtype: bool
+    """
 
     # Initialize
     result_tree = ET.tostring(ET.parse(result_file).getroot())
@@ -922,7 +1006,16 @@ def layer_results(looking_for, result_file, folder):
     return True
 
 
-def convert_cmf_points(points):
+def convert_cmf_points(points: str) -> list:
+    """
+    Convert a string of CMF points into a list of tuples with their coordinates.
+
+    :param points: CMF points
+    :type points: str
+    :return: List of tuples contain point coordniates
+    :rtype: list
+    """
+
     # convert to list
     point_list = points[1:-1]
     point_tuples = []
@@ -937,7 +1030,15 @@ def convert_cmf_points(points):
     return point_tuples
 
 
-def surface_flux_results(path):
+def surface_flux_results(path: str) -> bool:
+    """
+    Generates the surface flux from a CMF result file.
+
+    :param path: Folder where the result file is located.
+    :type path: str
+    :return: True
+    :rtype: bool
+    """
 
     # Helper functions
     def read_files(path_):
