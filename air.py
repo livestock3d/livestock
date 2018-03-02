@@ -382,9 +382,9 @@ def new_mean_temperature(volume: np.array, temperature: np.array, heat: np.array
 
 def celsius_to_kelvin(celsius: float) -> float:
     """
-    Converts a temperature in Celsius to Kelvin.
+    Converts a temperature in Celsius to Kelvin. `Source`__
 
-    Source: https://en.wikipedia.org/wiki/Celsius
+    __ https://en.wikipedia.org/wiki/Celsius
 
     :param celsius: Temperature in Celsius
     :type celsius: float
@@ -399,9 +399,9 @@ def celsius_to_kelvin(celsius: float) -> float:
 
 def kelvin_to_celsius(kelvin: float) -> float:
     """
-    Converts a temperature in Kelvin to Celsius.
+    Converts a temperature in Kelvin to Celsius. `Source`__
 
-    Source: https://en.wikipedia.org/wiki/Celsius
+    __ https://en.wikipedia.org/wiki/Celsius
 
     :param kelvin: Temperature in Kelvin
     :type kelvin: float
@@ -488,10 +488,10 @@ def saturated_vapour_pressure(temperature: float) -> float:
 
 def wind_speed_to_hour_flux(wind_speed: float) -> float:
     """
-    Converts wind speed into a hourly flux.
-    m/s to m\ :sup:`3`/h
-    m/s to m\ :sup:`3`/s = 1:sup:`2`
-    m\ :sup:`3`/s to m\ :sup:`3`/h = 3600s/h
+    | Converts wind speed into a hourly flux.
+    | m/s to m\ :sup:`3` /h =>
+    | m/s to m\ :sup:`3` /s = 1\ :sup:`2`
+    | m\ :sup:`3`/s to m\ :sup:`3`/h = 3600s/h
 
     :param wind_speed: Wind speed in m/s
     :type wind_speed: float
@@ -504,9 +504,9 @@ def wind_speed_to_hour_flux(wind_speed: float) -> float:
 
 def diameter_from_area(area: np.array) -> np.array:
     """
-    Computes the diameter from a given area of a circle.
-    A = :math:`{\\pi}` * (d/2)\ :sup:`2` =>
-    d = :math:`{\\sqrt{4*A/{\\pi}}}`
+    | Computes the diameter from a given area of a circle.
+    | A = :math:`{\\pi}` * (d/2)\ :sup:`2` =>
+    | d = :math:`{\\sqrt{4*A/{\\pi}}}`
 
     :param area: Area of a circle in m
     :type area: numpy.array
