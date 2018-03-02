@@ -113,8 +113,7 @@ def max_possible_vapour_flux(vapour_mass_flux: float, volume: float,
     :type temperature_in_kelvin: float
     :param vapour_pressure: Current vapour pressure in Pa
     :type vapour_pressure: float
-    :return: Difference between the saturated vapour pressure after adding the vapour and latent heat flux to
-    the air volume and the actual vapour pressure of the air volume.
+    :return: Difference between the saturated vapour pressure after adding the vapour and latent heat flux to the air volume and the actual vapour pressure of the air volume.
     :rtype: float
     """
 
@@ -132,8 +131,7 @@ def compute_temperature_relative_humidity(temperature_in_k: np.array, relative_h
                                           vapour_mass_flux: np.array, volume: np.array) -> tuple:
     """
     Computes the coupled relative humidity and temperature of an air volume given a vapour flux. The vapour pressure is
-    capped off so it can not exceed the saturated vapour pressure. This potentially means that not the whole amount
-     of vapour flux will be used.
+    capped off so it can not exceed the saturated vapour pressure. This potentially means that not the whole amount of vapour flux will be used.
 
     :param temperature_in_k: Current temperature of the air volume in K
     :type temperature_in_k: numpy.array
