@@ -1,0 +1,10 @@
+Undocumented Python objects
+===========================
+livestock.geometry
+------------------
+Functions:
+ * angle_between_vectors
+ * line_intersection
+ * lowest_face_vertex
+ * ray_triangle_intersection
+
