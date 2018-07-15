@@ -1,6 +1,5 @@
 __author__ = "Christian Kongsgaard"
 __license__ = "MIT"
-__version__ = "0.0.1"
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # Imports
@@ -15,15 +14,187 @@ import xml.etree.ElementTree as ET
 import os
 import xmltodict
 import ast
+import json
+import typing
 
 # Livestock imports
 try:
     from . import geometry as lg
 except ImportError:
     import geometry as lg
+from logger import logger
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
+
+def mesh_to_cells(cmf_project, mesh_path, delete_after_load=True):
+    """
+    Takes a mesh and converts it into CMF cells
+
+    :param mesh_path: Path to mesh .obj file
+    :type mesh_path: str
+    :param cmf_project: CMF project object.
+    :type cmf_project: cmf.project
+    :param delete_after_load: If True, it deletes the input files after they have been loaded.
+    :type delete_after_load: bool
+    :return: True
+    :rtype: bool
+    """
+
+    # Convert obj to shapefile
+    shape_path = os.path.split(mesh_path)[0] + '/mesh.shp'
+    lg.obj_to_shp(mesh_path, shape_path)
+    polygons = Shapefile(shape_path)
+    logger.info('Converted .obj to .shp')
+
+    for polygon in polygons:
+        cmf.geometry.create_cell(cmf_project, polygon.shape, polygon.height, polygon.id)
+
+    # Build topology
+    cmf.geometry.mesh_project(cmf_project, verbose=False)
+    logger.info('Build cells in project')
+
+    if delete_after_load:
+        os.remove(mesh_path)
+        os.remove(shape_path)
+        os.remove(os.path.split(mesh_path)[0] + '/mesh.dbf')
+        os.remove(os.path.split(mesh_path)[0] + '/mesh.shx')
+        logger.info('Removed mesh files')
+
+    return cmf_project
+
+
+def set_vegetation_properties(cell_: cmf.Cell, property_dict: dict):
+    """
+    Sets the vegetation properties for a cell.
+
+    :param cell_: Cell to set properties for.
+    :type cell_: cmf.Cell
+    :param property_dict: Dict containing the needed properties.
+    :type property_dict: dict
+    :return: True
+    :rtype: bool
+    """
+
+    cell_.vegetation.Height = float(property_dict['height'])
+    cell_.vegetation.LAI = float(property_dict['lai'])
+    cell_.vegetation.albedo = float(property_dict['albedo'])
+    cell_.vegetation.CanopyClosure = float(property_dict['canopy_closure'])
+    cell_.vegetation.CanopyParExtinction = float(property_dict['canopy_par'])
+    cell_.vegetation.CanopyCapacityPerLAI = float(property_dict['canopy_capacity'])
+    cell_.vegetation.StomatalResistance = float(property_dict['stomatal_res'])
+    cell_.vegetation.RootDepth = float(property_dict['root_depth'])
+    cell_.vegetation.fraction_at_rootdepth = float(property_dict['root_fraction'])
+    cell_.vegetation.LeafWidth = float(property_dict['leaf_width'])
+
+    logger.info(f'Sat vegetation properties for cell at: {cell_.get_position()}')
+
+    return cell_
+
+
+def add_tree_to_project(cmf_project, cell_index, property_dict):
+    """
+    Adds a tree to the model and sets the need properties for it.
+
+    :param cmf_project: CMF project
+    :type cmf_project: cmf.project
+    :param cell_index: Index of the cell where the tree should be added.
+    :type cell_index: int
+    :param property_dict: Dict with tree properties.
+    :type property_dict: dict
+    :return: True
+    :rtype: bool
+    """
+
+    cell = cmf_project.cells[int(cell_index)]
+    set_vegetation_properties(cell, property_dict)
+    name = 'canopy_'+str(cell_index)
+    cell.add_storage(name, 'C')
+
+    cmf.Rainfall(cell.canopy, cell, False, True)
+    cmf.Rainfall(cell.surfacewater, cell, True, False)
+    cmf.RutterInterception(cell.canopy, cell.surfacewater, cell)
+    cmf.CanopyStorageEvaporation(cell.canopy, cell.evaporation, cell)
+
+    logger.info(f'Added a tree to cell at: {cell_.get_position()}')
+
+    return cmf_project
+
+
+def load_cmf_files(folder: str, delete_after_load=False) -> tuple:
+    """
+    Loads the needed files for the CMF project to run.
+
+    :param delete_after_load: Delete after the files are loaded?
+    :type delete_after_load: bool
+    :return: True
+    :rtype: bool
+    """
+
+    # Load files and assign data to variables
+    ground_dict = load_ground(folder, delete_after_load)
+    mesh_path = load_mesh(folder)
+
+    weather_dict = load_input_data(os.path.join(folder, 'weather.json'), delete_after_load)
+    trees_dict = load_input_data(os.path.join(folder, 'tree.json'), delete_after_load)
+    outputs = load_input_data(os.path.join(folder, 'output.json'), delete_after_load)
+    solver_settings = load_input_data(os.path.join(folder, 'solver.json'), delete_after_load)
+    boundary_dict = load_input_data(os.path.join(folder, 'boundary_condition.json'), delete_after_load)
+
+    return ground_dict, mesh_path, weather_dict, trees_dict, outputs, solver_settings, boundary_dict
+
+
+
+def load_input_data(path: str, delete: bool) -> typing.Union[None, dict]:
+
+    # look for file
+    if os.path.isfile(path):
+
+        with open(path, 'r') as file:
+            input_dict = json.load(file)
+
+        # delete file
+        if delete:
+            os.remove(path)
+
+        return input_dict
+
+    else:
+        logger.info(f'{os.path.split(path)[1]} not found')
+        return None
+
+
+def load_ground(folder, delete):
+
+        # look for file
+        if os.path.isfile(folder + '/ground.json'):
+            ground_path = folder + '/ground.json'
+
+            with open(ground_path, 'r') as file:
+                ground_dict = json.load(file)
+
+            # delete file
+            if delete:
+                os.remove(ground_path)
+
+            return ground_dict
+
+        else:
+            logger.error(f'Cannot find ground.json in folder: {folder}')
+            raise FileNotFoundError(f'Cannot find ground.json in folder: {folder}')
+
+
+def load_mesh(folder):
+
+    # look for file
+    if os.path.isfile(folder + '/mesh.obj'):
+        mesh_path = folder + '/mesh.obj'
+
+    else:
+        logger.error(f'Cannot find mesh.json in folder: {folder}')
+        raise FileNotFoundError(f'Cannot find mesh.json in folder: {folder}')
+
+    return mesh_path
 
 
 class CMFModel:
