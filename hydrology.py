@@ -202,7 +202,7 @@ def load_mesh(folder):
 def create_retention_curve(retention_curve: dict) -> cmf.VanGenuchtenMualem:
     """
     Converts a dict of retention curve parameters into a CMF van Genuchten-Mualem retention curve.
-    :param r_curve_: dict
+    :param retention_curve: dict
     :return: CMF retention curve
     """
 
@@ -215,46 +215,47 @@ def create_retention_curve(retention_curve: dict) -> cmf.VanGenuchtenMualem:
 
     return curve
 
-def install_cell_connections(cell_, evapotranspiration_method):
+
+def install_cell_connections(cell: cmf.Cell, evapotranspiration_method: str) -> cmf.Cell:
 
     # Install connections
-    cell_.install_connection(cmf.Richards)
-    cell_.install_connection(cmf.SimpleInfiltration)
+    cell.install_connection(cmf.Richards)
+    cell.install_connection(cmf.SimpleInfiltration)
 
 
     if evapotranspiration_method == 'penman_monteith':
         # Install Penman & Monteith method to calculate evapotranspiration_potential
-        cell_.install_connection(cmf.PenmanMonteithET)
+        cell.install_connection(cmf.PenmanMonteithET)
 
         #Install surface water evaporation
-        cmf.PenmanEvaporation(cell_.surfacewater, cell_.evaporation, cell_.meteorology)
+        cmf.PenmanEvaporation(cell.surfacewater, cell.evaporation, cell.meteorology)
 
         logger.debug(f'Install Richards connection, simpleinfiltration, Penman-Monteith evapotranspiration and '
-                     f'Penman evaporation for cell at: {cell_.get_position()}')
+                     f'Penman evaporation for cell at: {cell.get_position()}')
 
     elif evapotranspiration_method == 'shuttleworth_wallace':
         # Install Shuttleworth-Wallace method to calculate evapotranspiration
-        cell_.install_connection(cmf.ShuttleworthWallace)
+        cell.install_connection(cmf.ShuttleworthWallace)
 
         # Install surface water evaporation
-        cmf.PenmanEvaporation(cell_.surfacewater, cell_.evaporation, cell_.meteorology)
+        cmf.PenmanEvaporation(cell.surfacewater, cell.evaporation, cell.meteorology)
 
         logger.debug(f'Install Richards connection, simpleinfiltration, Shuttleworth-Wallace evapotranspiration and '
-                     f'Penman evaporation for cell at: {cell_.get_position()}')
+                     f'Penman evaporation for cell at: {cell.get_position()}')
 
-    return cell_
+    return cell
 
 
-def install_flux_connections(cmf_project, cell_property_dict):
+def install_flux_connections(cmf_project: cmf.project, cell_properties: dict) -> cmf.project:
 
     cmf.connect_cells_with_flux(cmf_project, cmf.DarcyKinematic)
     logger.info('Installed Darcy kinematic for all cells in project.')
 
-    if cell_property_dict['runoff_method'] == 'kinematic':
+    if cell_properties['runoff_method'] == 'kinematic':
         cmf.connect_cells_with_flux(cmf_project, cmf.KinematicSurfaceRunoff)
         logger.info('Installed kinematic surface run-off')
 
-    elif cell_property_dict['runoff_method'] == 'diffusive':
+    elif cell_properties['runoff_method'] == 'diffusive':
         cmf.DiffusiveSurfaceRunoff.set_linear_slope(1e-8)
         cmf.connect_cells_with_flux(cmf_project, cmf.DiffusiveSurfaceRunoff)
         logger.info('Installed diffusive surface run-off. Slope set to 1e-8.')
@@ -262,30 +263,40 @@ def install_flux_connections(cmf_project, cell_property_dict):
     return cmf_project
 
 
-def build_cell(cell_id, cmf_project_, cell_property_dict, r_curve_):
-    cell = cmf_project_.cells[int(float(cell_id))]
+def build_cell(cell_id: int, cmf_project: cmf.project, cell_properties: dict,
+               r_curve: cmf.VanGenuchtenMualem) -> cmf.project:
+
+    cell = cmf_project.cells[cell_id]
+    logger.debug(f'Building cell with ID: {cell_id}')
 
     # Add layers
-    for i in range(0, len(cell_property_dict['layers'])):
-        cell.add_layer(float(cell_property_dict['layers'][i]), r_curve_)
+    for i in range(0, len(cell_properties['layers'])):
+        cell.add_layer(float(cell_properties['layers'][i]), r_curve)
 
-    install_connections(cell, cell_property_dict['et_method'])
+    install_cell_connections(cell, cell_properties['et_method'])
 
-    self.set_vegetation_properties(cell, cell_property_dict['vegetation_properties'])
+    set_vegetation_properties(cell, cell_properties['vegetation_properties'])
 
-    if cell_property_dict['manning']:
-        cell.surfacewater.set_nManning(float(cell_property_dict['manning']))
+    if cell_properties['manning']:
+        cell.surfacewater.set_nManning(cell_properties['manning'])
+        logger.debug(f'Sat Manning roughness to: {cell_properties["manning"]}')
 
-    if cell_property_dict['puddle_depth']:
-        cell.surfacewater.puddledepth = cell_property_dict['puddle_depth']
+    if cell_properties['puddle_depth']:
+        cell.surfacewater.puddledepth = cell_properties['puddle_depth']
+        logger.debug(f'Sat puddle depth to: {cell_properties["puddle_depth"]}')
 
-    if cell_property_dict['surface_water_volume']:
-        cell.surfacewater.volume = cell_property_dict['surface_water_volume']
+    if cell_properties['surface_water_volume']:
+        cell.surfacewater.volume = cell_properties['surface_water_volume']
+        logger.info(f'Sat surface water to {cell_properties["surface_water_volume"]} for cell with ID: {cell_id}')
 
     # Set initial saturation
-    cell.saturated_depth = cell_property_dict['saturated_depth']
+    cell.saturated_depth = cell_properties['saturated_depth']
+    logger.debug(f'Sat saturated depth to {cell_properties["saturated_depth"]}')
 
-def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict):
+    return cmf_project
+
+
+def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict) -> cmf.project:
     """
     Configure and setup all needed information for the cells.
 
@@ -300,15 +311,17 @@ def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict):
     # Helper functions
 
     # Convert retention curve parameters into CMF retention curve
-    r_curve = retention_curve(cell_properties_dict['retention_curve'])
+    r_curve = create_retention_curve(cell_properties_dict['retention_curve'])
 
     for cell_index in cell_properties_dict['face_indices']:
         build_cell(cell_index, cmf_project, cell_properties_dict, r_curve)
 
     # Connect fluxes
-    flux_connections(cmf_project, cell_properties_dict)
+    install_flux_connections(cmf_project, cell_properties_dict)
 
-    return True
+    logger.info('Configured all cells in project.')
+
+    return cmf_project
 
 class CMFModel:
     """
