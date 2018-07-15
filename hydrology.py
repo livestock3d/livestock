@@ -45,7 +45,7 @@ def mesh_to_cells(cmf_project, mesh_path, delete_after_load=True):
     shape_path = os.path.split(mesh_path)[0] + '/mesh.shp'
     lg.obj_to_shp(mesh_path, shape_path)
     polygons = Shapefile(shape_path)
-    logger.info('Converted .obj to .shp')
+    logger.debug('Converted .obj to .shp')
 
     for polygon in polygons:
         cmf.geometry.create_cell(cmf_project, polygon.shape, polygon.height, polygon.id)
@@ -87,7 +87,7 @@ def set_vegetation_properties(cell_: cmf.Cell, property_dict: dict):
     cell_.vegetation.fraction_at_rootdepth = float(property_dict['root_fraction'])
     cell_.vegetation.LeafWidth = float(property_dict['leaf_width'])
 
-    logger.info(f'Sat vegetation properties for cell at: {cell_.get_position()}')
+    logger.debug(f'Sat vegetation properties for cell at: {cell_.get_position()}')
 
     return cell_
 
@@ -116,7 +116,7 @@ def add_tree_to_project(cmf_project, cell_index, property_dict):
     cmf.RutterInterception(cell.canopy, cell.surfacewater, cell)
     cmf.CanopyStorageEvaporation(cell.canopy, cell.evaporation, cell)
 
-    logger.info(f'Added a tree to cell at: {cell_.get_position()}')
+    logger.debug(f'Added a tree to cell at: {cell_.get_position()}')
 
     return cmf_project
 
@@ -140,6 +140,8 @@ def load_cmf_files(folder: str, delete_after_load=False) -> tuple:
     outputs = load_input_data(os.path.join(folder, 'output.json'), delete_after_load)
     solver_settings = load_input_data(os.path.join(folder, 'solver.json'), delete_after_load)
     boundary_dict = load_input_data(os.path.join(folder, 'boundary_condition.json'), delete_after_load)
+
+    logger.info('Loaded input files')
 
     return ground_dict, mesh_path, weather_dict, trees_dict, outputs, solver_settings, boundary_dict
 
@@ -196,6 +198,117 @@ def load_mesh(folder):
 
     return mesh_path
 
+
+def create_retention_curve(retention_curve: dict) -> cmf.VanGenuchtenMualem:
+    """
+    Converts a dict of retention curve parameters into a CMF van Genuchten-Mualem retention curve.
+    :param r_curve_: dict
+    :return: CMF retention curve
+    """
+
+    curve = cmf.VanGenuchtenMualem(retention_curve['K_sat'], retention_curve['phi'],
+                                   retention_curve['alpha'], retention_curve['n'],
+                                   retention_curve['m'])
+    curve.l = retention_curve['l']
+
+    logger.debug(f'Created retention curve.')
+
+    return curve
+
+def install_cell_connections(cell_, evapotranspiration_method):
+
+    # Install connections
+    cell_.install_connection(cmf.Richards)
+    cell_.install_connection(cmf.SimpleInfiltration)
+
+
+    if evapotranspiration_method == 'penman_monteith':
+        # Install Penman & Monteith method to calculate evapotranspiration_potential
+        cell_.install_connection(cmf.PenmanMonteithET)
+
+        #Install surface water evaporation
+        cmf.PenmanEvaporation(cell_.surfacewater, cell_.evaporation, cell_.meteorology)
+
+        logger.debug(f'Install Richards connection, simpleinfiltration, Penman-Monteith evapotranspiration and '
+                     f'Penman evaporation for cell at: {cell_.get_position()}')
+
+    elif evapotranspiration_method == 'shuttleworth_wallace':
+        # Install Shuttleworth-Wallace method to calculate evapotranspiration
+        cell_.install_connection(cmf.ShuttleworthWallace)
+
+        # Install surface water evaporation
+        cmf.PenmanEvaporation(cell_.surfacewater, cell_.evaporation, cell_.meteorology)
+
+        logger.debug(f'Install Richards connection, simpleinfiltration, Shuttleworth-Wallace evapotranspiration and '
+                     f'Penman evaporation for cell at: {cell_.get_position()}')
+
+    return cell_
+
+
+def install_flux_connections(cmf_project, cell_property_dict):
+
+    cmf.connect_cells_with_flux(cmf_project, cmf.DarcyKinematic)
+    logger.info('Installed Darcy kinematic for all cells in project.')
+
+    if cell_property_dict['runoff_method'] == 'kinematic':
+        cmf.connect_cells_with_flux(cmf_project, cmf.KinematicSurfaceRunoff)
+        logger.info('Installed kinematic surface run-off')
+
+    elif cell_property_dict['runoff_method'] == 'diffusive':
+        cmf.DiffusiveSurfaceRunoff.set_linear_slope(1e-8)
+        cmf.connect_cells_with_flux(cmf_project, cmf.DiffusiveSurfaceRunoff)
+        logger.info('Installed diffusive surface run-off. Slope set to 1e-8.')
+
+    return cmf_project
+
+
+def build_cell(cell_id, cmf_project_, cell_property_dict, r_curve_):
+    cell = cmf_project_.cells[int(float(cell_id))]
+
+    # Add layers
+    for i in range(0, len(cell_property_dict['layers'])):
+        cell.add_layer(float(cell_property_dict['layers'][i]), r_curve_)
+
+    install_connections(cell, cell_property_dict['et_method'])
+
+    self.set_vegetation_properties(cell, cell_property_dict['vegetation_properties'])
+
+    if cell_property_dict['manning']:
+        cell.surfacewater.set_nManning(float(cell_property_dict['manning']))
+
+    if cell_property_dict['puddle_depth']:
+        cell.surfacewater.puddledepth = cell_property_dict['puddle_depth']
+
+    if cell_property_dict['surface_water_volume']:
+        cell.surfacewater.volume = cell_property_dict['surface_water_volume']
+
+    # Set initial saturation
+    cell.saturated_depth = cell_property_dict['saturated_depth']
+
+def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict):
+    """
+    Configure and setup all needed information for the cells.
+
+    :param cmf_project: CMF project
+    :type cmf_project: cmf.project
+    :param cell_properties_dict: Dict with all the needed properties
+    :type cell_properties_dict: dict
+    :return: True
+    :rtype: bool
+    """
+
+    # Helper functions
+
+    # Convert retention curve parameters into CMF retention curve
+    r_curve = retention_curve(cell_properties_dict['retention_curve'])
+
+    for cell_index in cell_properties_dict['face_indices']:
+        build_cell(cell_index, cmf_project, cell_properties_dict, r_curve)
+
+    # Connect fluxes
+    flux_connections(cmf_project, cell_properties_dict)
+
+    return True
 
 class CMFModel:
     """
