@@ -323,6 +323,7 @@ def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict) -> cmf
 
     return cmf_project
 
+
 class CMFModel:
     """
     Class containing a CMF model
