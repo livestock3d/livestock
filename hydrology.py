@@ -324,6 +324,192 @@ def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict) -> cmf
     return cmf_project
 
 
+def config_outputs(cmf_project: cmf.project, output_configuration: dict) -> dict:
+    """
+    Function to set up result gathering dictionary.
+
+    :param cmf_project: CMF project to collect from
+    :type cmf_project: cmf.project
+    :return: Empty result dictionary
+    :rtype: dict
+    """
+
+    results = {}
+
+    for cell_index in range(0, len(cmf_project.cells)):
+        cell_name = 'cell_' + str(cell_index)
+        results[cell_name] = {}
+
+        # Set all cell related outputs
+        for cell_output in output_configuration['cell']:
+            results[cell_name][str(cell_output)] = []
+
+        for layer_index in range(0, len(cmf_project.cells[cell_index].layers)):
+            layer_name = 'layer_' + str(layer_index)
+            results[cell_name][layer_name] = {}
+
+            # Set all layer related outputs
+            for layer_output in output_configuration['layer']:
+                results[cell_name][layer_name][layer_output] = []
+
+    return results
+
+
+def gather_results(cmf_project: cmf.project, results: dict, time: datetime.datetime):
+    """
+    Collects the produced results.
+
+    :param cmf_project: CMF project to collect from
+    :type cmf_project: cmf.project
+    :param time: Point in solver time
+    :type time: datetime.datetime
+    :return:
+    :rtype:
+    """
+
+    for cell_index in range(0, len(cmf_project.cells)):
+        cell_name = 'cell_' + str(cell_index)
+
+        for out_key in results[cell_name].keys():
+
+            # Collect cell related results
+            if out_key == 'evaporation':
+                evap = cmf_project.cells[cell_index].evaporation
+
+                flux_at_time = 0
+                for flux, node in evap.fluxes(time):
+                    flux_at_time += flux
+
+                results[cell_name][out_key].append(flux_at_time)
+
+            if out_key == 'transpiration':
+                transp = cmf_project.cells[cell_index].transpiration
+
+                flux_at_time = 0
+                for flux, node in transp.fluxes(time):
+                    flux_at_time += flux
+
+                results[cell_name][out_key].append(flux_at_time)
+
+            if out_key == 'surface_water_volume':
+                volume = cmf_project.cells[cell_index].surfacewater.volume
+                results[cell_name][out_key].append(volume)
+
+            if out_key == 'surface_water_flux':
+                water = cmf_project.cells[cell_index].get_surfacewater()
+
+                flux_and_node = []
+                for flux, node in water.fluxes(time):
+                    flux_and_node.append((flux, node))
+
+                results[cell_name][out_key].append(flux_and_node)
+
+            if out_key == 'heat_flux':
+                results[cell_name][out_key].append(cmf_project.cells[cell_index].heat_flux(time))
+
+            if out_key == 'aerodynamic_resistance':
+                results[cell_name][out_key].append(
+                    cmf_project.cells[cell_index].get_aerodynamic_resistance(time))
+
+        for layer_index in range(0, len(cmf_project.cells[cell_index].layers)):
+            layer_name = 'layer_' + str(layer_index)
+
+            for out_key in results[cell_name][layer_name].keys():
+
+                # Collect layer related results
+
+                if out_key == 'potential':
+                    results[cell_name][layer_name][out_key].append(
+                        cmf_project.cells[cell_index].layers[layer_index].potential)
+
+                if out_key == 'theta':
+                    results[cell_name][layer_name][out_key].append(
+                        cmf_project.cells[cell_index].layers[layer_index].theta)
+
+                if out_key == 'volumetric_flux':
+                    layer = cmf_project.cells[cell_index].layers[layer_index].get_3d_flux(time)
+
+                    """
+                    flux_and_node = []
+                    for flux, node in layer.fluxes(time):
+                        flux_and_node.append((flux, node))
+                    """
+
+                    results[cell_name][layer_name][out_key].append(layer)
+
+                if out_key == 'volume':
+                    results[cell_name][layer_name][out_key].append(
+                        cmf_project.cells[cell_index].layers[layer_index].volume)
+
+                if out_key == 'wetness':
+                    results[cell_name][layer_name][out_key].append(
+                        cmf_project.cells[cell_index].layers[layer_index].wetness)
+
+
+def get_analysis_length(analysis_length: list) -> datetime.timedelta:
+
+    length, quantity = analysis_length
+
+    if quantity == 'h':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(hours=length)
+    elif quantity == 'm':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(minutes=length)
+    elif quantity == 's':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(seconds=length)
+
+
+def get_time_step(time_step: list) -> datetime.timedelta:
+    step_size, quantity = time_step
+
+    if quantity == 'y':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(days=step_size * 365)
+
+    elif quantity == 'h':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(hours=step_size)
+    elif quantity == 'm':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(minutes=step_size)
+    elif quantity == 's':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(seconds=step_size)
+
+
+def solve_project(cmf_project, solver_settings, ):
+    """Solves the model"""
+
+    # Create solver, set time and set up results
+    solver = cmf.CVodeIntegrator(cmf_project, solver_settings['tolerance'])
+    solver.t = cmf.Time(solver_settings['start_time']['day'], solver_settings['start_time']['month'],
+                        solver_settings['start_time']['year'])
+    config_outputs(cmf_project)
+
+    # Save initial conditions to results
+    gather_results(cmf_project, solver.t)
+
+    # Set timer
+    start_time = datetime.datetime.now()
+    step = 0
+    last = start_time
+
+    analysis_length = get_analysis_length(solver_settings['analysis_length'])
+    time_step = get_time_step(solver_settings['time_step'])
+
+    # Run solver and save results at each time step
+    for t in solver.run(solver.t,
+                        solver.t + analysis_length,
+                        time_step):
+
+        gather_results(cmf_project, t)
+        last = print_solver_time(t, start_time, last, step)
+        step += 1
+
+    return True
+
 class CMFModel:
     """
     Class containing a CMF model

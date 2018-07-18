@@ -15,8 +15,8 @@ import logging
 
 
 def logger():
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    log = logging.getLogger(__name__)
+    log.setLevel(logging.DEBUG)
 
     # Formatter
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -35,8 +35,8 @@ def logger():
     file_debug.setLevel(logging.DEBUG)
     file_debug.setFormatter(formatter)
 
-    logger.addHandler(stream)
-    logger.addHandler(file_debug)
-    logger.addHandler(file_info)
+    log.addHandler(stream)
+    log.addHandler(file_debug)
+    log.addHandler(file_info)
 
-    return logger
+    return log
