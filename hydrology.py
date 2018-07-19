@@ -16,6 +16,7 @@ import xmltodict
 import ast
 import json
 import typing
+import progressbar
 
 # Livestock imports
 try:
@@ -27,7 +28,7 @@ from logger import logger
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
 
-def mesh_to_cells(cmf_project, mesh_path, delete_after_load=True):
+def mesh_to_cells(cmf_project: cmf.project, mesh_path: str, delete_after_load=True) -> cmf.project:
     """
     Takes a mesh and converts it into CMF cells
 
@@ -166,7 +167,7 @@ def load_input_data(path: str, delete: bool) -> typing.Union[None, dict]:
         return None
 
 
-def load_ground(folder, delete):
+def load_ground(folder: str, delete: bool) -> dict:
 
         # look for file
         if os.path.isfile(folder + '/ground.json'):
@@ -186,7 +187,7 @@ def load_ground(folder, delete):
             raise FileNotFoundError(f'Cannot find ground.json in folder: {folder}')
 
 
-def load_mesh(folder):
+def load_mesh(folder: str) -> str:
 
     # look for file
     if os.path.isfile(folder + '/mesh.obj'):
@@ -479,36 +480,94 @@ def get_time_step(time_step: list) -> datetime.timedelta:
         return datetime.timedelta(seconds=step_size)
 
 
-def solve_project(cmf_project, solver_settings, ):
+def solve_project(cmf_project: cmf.project, solver_settings: dict, outputs: dict) -> dict:
     """Solves the model"""
 
     # Create solver, set time and set up results
     solver = cmf.CVodeIntegrator(cmf_project, solver_settings['tolerance'])
     solver.t = cmf.Time(solver_settings['start_time']['day'], solver_settings['start_time']['month'],
                         solver_settings['start_time']['year'])
-    config_outputs(cmf_project)
+
+    results = config_outputs(cmf_project, outputs)
 
     # Save initial conditions to results
-    gather_results(cmf_project, solver.t)
+    gather_results(cmf_project, results, solver.t)
 
-    # Set timer
-    start_time = datetime.datetime.now()
-    step = 0
-    last = start_time
 
     analysis_length = get_analysis_length(solver_settings['analysis_length'])
     time_step = get_time_step(solver_settings['time_step'])
+    number_of_steps = analysis_length.total_seconds()/time_step.total_seconds()
 
     # Run solver and save results at each time step
-    for t in solver.run(solver.t,
-                        solver.t + analysis_length,
-                        time_step):
+    widgets = [' [', progressbar.Timer(), '] ', progressbar.Bar(), ' [', progressbar.AdaptiveETA(), ' ]']
+    bar = progressbar.ProgressBar(max_value=number_of_steps, widgets=widgets)
+    for index, time_ in enumerate(solver.run(solver.t,
+                                  solver.t + analysis_length,
+                                  time_step)):
 
-        gather_results(cmf_project, t)
-        last = print_solver_time(t, start_time, last, step)
-        step += 1
+        gather_results(cmf_project, results, time_)
+        bar.update(index)
 
-    return True
+    return results
+
+
+def save_results(results: dict, folder: str):
+    """Saves the computed results to a json file"""
+
+    path = os.path.join(folder, 'results.json')
+
+    with open(path, 'w') as file:
+        json.dump(results, file)
+
+
+def create_weather(cmf_project):
+    pass
+
+
+def create_boundary_conditions(cmf_project):
+    pass
+
+
+def run_model(folder: str):
+    """
+    Runs the model with everything.
+
+    :return: Simulated CMF project
+    :rtype: cmf.project
+    """
+
+    # Initialize project
+    project = cmf.project()
+    ground_dict, mesh_path, weather_dict, trees_dict, outputs, solver_settings, boundary_dict = load_cmf_files(folder)
+
+    # Add cells and properties to them
+    project = mesh_to_cells(project, mesh_path)
+
+    for key in ground_dict.keys():
+        configure_cells(project, ground_dict[key])
+
+    if trees_dict:
+        for key in trees_dict.keys():
+            add_tree_to_project(project,
+                                trees_dict[key]['face_index'],
+                                trees_dict[key]['property'])
+
+    # Create the weather
+    if weather_dict:
+        create_weather(project)
+
+    # Create boundary conditions
+    if boundary_dict:
+        create_boundary_conditions(project)
+
+    # Run solver
+    results = solve_project(project, solver_settings, outputs)
+
+    # Save the results
+    save_results(results, folder)
+
+    return project
+
 
 class CMFModel:
     """
