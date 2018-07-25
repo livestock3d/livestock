@@ -7,9 +7,10 @@ __version__ = "0.0.1"
 
 # Module imports
 import shapely
-from shapely.geometry import Polygon
+import shapely.geometry
 import shapefile
 import numpy as np
+import typing
 
 # Livestock imports
 
@@ -230,7 +231,7 @@ def centroid_z(polygon: shapely.geometry.Polygon) -> float:
     return mean_z
 
 
-def obj_to_polygons(obj_file: str) -> list:
+def obj_to_polygons(obj_file: str) -> typing.List[shapely.geometry.Polygon]:
     """
     Converts an .obj file into a list of shapely polygons.
 
@@ -248,7 +249,7 @@ def obj_to_polygons(obj_file: str) -> list:
         for vertex, _, __ in face:
             face_vertices.append(vertices[vertex-1])
 
-        polygon = Polygon(face_vertices)
+        polygon = shapely.geometry.Polygon(face_vertices)
         polygons.append(polygon)
 
     return polygons
@@ -267,13 +268,17 @@ def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) -> shapefile._S
     :rtype: shapefile._Shape
     """
 
+    # TODO - Remove if needed
+    """ 
     # first convert shapely to geojson
     try:
         shapely_to_geojson = shapely.geometry.mapping
     except:
         import shapely.geometry
         shapely_to_geojson = shapely.geometry.mapping
+    """
 
+    shapely_to_geojson = shapely.geometry.mapping
     geoj = shapely_to_geojson(shapely_geometry)
 
     # create empty pyshp shape
@@ -325,7 +330,7 @@ def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) -> shapefile._S
     return record
 
 
-def obj_to_shp(obj_file: str, shp_file:str ) -> bool:
+def obj_to_shp(obj_file: str, shp_file: str) -> bool:
     """
     Convert an .obj file into a shape file.
 
