@@ -14,9 +14,14 @@ def clean():
 clean()
 file_obj = r'C:\Users\Christian\Dropbox\Arbejde\DTU BYG\Livestock\livestock\livestock\test\test_data\drainage_flow\drain_mesh.obj'
 
-imported_mesh = bpy.ops.import_scene.obj(filepath=file_obj, axis_forward='X', axis_up='Z',)
-mesh = bmesh.new()
-mesh.from_mesh(imported_mesh)
+bpy.ops.import_scene.obj(filepath=file_obj, axis_forward='X', axis_up='Z',)
+imported_mesh = bpy.context.selected_objects[-1]
 
-for face in mesh.faces:
-    print(face.clac_center_median())
+me = imported_mesh.data
+bm = bmesh.new()
+
+# Get a BMesh representation
+bm.from_mesh(me)
+
+for face in bm.faces:
+    print(face.calc_center_median())

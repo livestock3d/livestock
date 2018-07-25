@@ -14,7 +14,7 @@ import logging
 # Livestock Loggers
 
 
-def logger():
+def livestock_logger():
     log = logging.getLogger(__name__)
     log.setLevel(logging.DEBUG)
 

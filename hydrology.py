@@ -23,10 +23,13 @@ try:
     from . import geometry as lg
 except ImportError:
     import geometry as lg
-from logger import logger
+from log import livestock_logger
+
+logger = livestock_logger()
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
+
 
 def mesh_to_cells(cmf_project: cmf.project, mesh_path: str, delete_after_load=True) -> cmf.project:
     """
@@ -147,7 +150,6 @@ def load_cmf_files(folder: str, delete_after_load=False) -> tuple:
     return ground_dict, mesh_path, weather_dict, trees_dict, outputs, solver_settings, boundary_dict
 
 
-
 def load_input_data(path: str, delete: bool) -> typing.Union[None, dict]:
 
     # look for file
@@ -228,7 +230,7 @@ def install_cell_connections(cell: cmf.Cell, evapotranspiration_method: str) -> 
         # Install Penman & Monteith method to calculate evapotranspiration_potential
         cell.install_connection(cmf.PenmanMonteithET)
 
-        #Install surface water evaporation
+        # Install surface water evaporation
         cmf.PenmanEvaporation(cell.surfacewater, cell.evaporation, cell.meteorology)
 
         logger.debug(f'Install Richards connection, simpleinfiltration, Penman-Monteith evapotranspiration and '

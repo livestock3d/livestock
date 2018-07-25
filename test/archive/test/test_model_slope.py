@@ -1,6 +1,6 @@
 import hydrology as hy
 import cmf
-import test.helper_functions as helper
+import test.archive.helper_functions as helper
 
 
 folder_path = r'C:\Users\ocni\PycharmProjects\livestock\test\test_data\cmf_slope'

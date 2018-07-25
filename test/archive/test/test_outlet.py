@@ -1,7 +1,7 @@
 import hydrology as hy
 from matplotlib import pyplot as plt
 import numpy as np
-import test.helper_functions as helper
+import test.archive.helper_functions as helper
 import xmltodict
 import xml.etree.ElementTree as ET
 import cmf
@@ -22,8 +22,7 @@ def load_results(folder):
 
     return cell_0, cell_1, layer_0, layer_1
 
-
-def plot_inlet(folder):
+def plot_outlet(folder):
     cell0_vol, cell1_vol, layer0_vol, layer1_vol = load_results(folder)
 
     x = np.linspace(0, len(cell0_vol), len(cell0_vol))
@@ -49,7 +48,7 @@ def plot_inlet(folder):
 
 def test_inlet():
 
-    folder_path = r'C:\Users\Christian\Dropbox\Arbejde\DTU BYG\Livestock\livestock\livestock\test\test_data\cmf_boundary_conditions\inlet'
+    folder_path = r'C:\Users\Christian\Dropbox\Arbejde\DTU BYG\Livestock\livestock\livestock\test\test_data\cmf_boundary_conditions\outlet'
     helper.unpack(folder_path)
 
     model = hy.CMFModel(folder_path)
@@ -57,7 +56,7 @@ def test_inlet():
 
     print(cmf.describe(p))
 
-    plot_inlet(folder_path)
+    plot_outlet(folder_path)
 
 
 test_inlet()
