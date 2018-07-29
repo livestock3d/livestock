@@ -492,7 +492,6 @@ def solve_project(cmf_project: cmf.project, solver_settings: dict, outputs: dict
     # Save initial conditions to results
     gather_results(cmf_project, results, solver.t)
 
-
     analysis_length = get_analysis_length(solver_settings['analysis_length'])
     time_step = get_time_step(solver_settings['time_step'])
     number_of_steps = analysis_length.total_seconds()/time_step.total_seconds()
