@@ -1,0 +1,10 @@
+[
+  "test_geometry.py::test_shapely_to_pyshp[0]",
+  "test_geometry.py::test_shapely_to_pyshp[1]",
+  "test_geometry.py::test_obj_to_polygons[0]",
+  "test_geometry.py::test_obj_to_polygons[1]",
+  "test_geometry.py::test_centroid_z[0]",
+  "test_geometry.py::test_centroid_z[1]",
+  "test_geometry.py::test_obj_to_shp[0]",
+  "test_geometry.py::test_obj_to_shp[1]"
+]

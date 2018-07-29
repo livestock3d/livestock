@@ -1,0 +1,8 @@
+scipy
+numpy
+paramiko
+pyshp
+shapely
+cmf
+xmltodict
+dbfread
