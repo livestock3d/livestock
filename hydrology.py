@@ -19,11 +19,8 @@ import typing
 import progressbar
 
 # Livestock imports
-try:
-    from . import geometry as lg
-except ImportError:
-    import geometry as lg
-from log import livestock_logger
+from livestock import geometry as lg
+from livestock.log import livestock_logger
 
 logger = livestock_logger()
 

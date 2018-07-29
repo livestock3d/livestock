@@ -4,13 +4,13 @@ __license__ = "MIT"
 # -------------------------------------------------------------------------------------------------------------------- #
 # Imports
 
-
 # Module imports
 import os
+import shapefile
 
 # Livestock imports
-import geometry
-import shapefile
+from livestock import geometry
+
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
@@ -29,7 +29,6 @@ def test_shapely_to_pyshp(shapely_polygons):
         assert shape.parts[0] == 0
         assert isinstance(shape.points, tuple)
         assert shape.shapeType == 15
-
 
 
 def test_obj_to_polygons(obj_file_paths):

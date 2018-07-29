@@ -9,7 +9,7 @@ import pytest
 import os
 
 # Livestock imports
-import geometry
+from livestock import geometry
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
