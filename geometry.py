@@ -278,48 +278,47 @@ def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) -> shapefile._S
         shapely_to_geojson = shapely.geometry.mapping
     """
 
-    shapely_to_geojson = shapely.geometry.mapping
-    geoj = shapely_to_geojson(shapely_geometry)
+    geo_json = shapely.geometry.mapping(shapely_geometry)
 
     # create empty pyshp shape
     record = shapefile._Shape()
 
     # set shape type
-    if geoj["type"] == "Null":
+    if geo_json["type"] == "Null":
         pyshp_type = 0
-    elif geoj["type"] == "Point":
+    elif geo_json["type"] == "Point":
         pyshp_type = 1
-    elif geoj["type"] == "LineString":
+    elif geo_json["type"] == "LineString":
         pyshp_type = 3
-    elif geoj["type"] == "Polygon":
+    elif geo_json["type"] == "Polygon":
         pyshp_type = 15
-    elif geoj["type"] == "MultiPoint":
+    elif geo_json["type"] == "MultiPoint":
         pyshp_type = 8
-    elif geoj["type"] == "MultiLineString":
+    elif geo_json["type"] == "MultiLineString":
         pyshp_type = 3
-    elif geoj["type"] == "MultiPolygon":
+    elif geo_json["type"] == "MultiPolygon":
         pyshp_type = 5
 
     record.shapeType = pyshp_type
 
     # set points and parts
-    if geoj["type"] == "Point":
-        record.points = geoj["coordinates"]
+    if geo_json["type"] == "Point":
+        record.points = geo_json["coordinates"]
         record.parts = [0]
 
-    elif geoj["type"] in ("MultiPoint", "Linestring"):
-        record.points = geoj["coordinates"]
+    elif geo_json["type"] in ("MultiPoint", "Linestring"):
+        record.points = geo_json["coordinates"]
         record.parts = [0]
 
-    elif geoj["type"] in "Polygon":
-        record.points = geoj["coordinates"][0]
+    elif geo_json["type"] in "Polygon":
+        record.points = geo_json["coordinates"][0]
         record.parts = [0]
 
-    elif geoj["type"] in ("MultiPolygon", "MultiLineString"):
+    elif geo_json["type"] in ("MultiPolygon", "MultiLineString"):
         index = 0
         points = []
         parts = []
-        for each_multi in geoj["coordinates"]:
+        for each_multi in geo_json["coordinates"]:
             points.extend(each_multi[0])
             parts.append(index)
             index += len(each_multi[0])

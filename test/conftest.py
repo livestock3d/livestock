@@ -9,7 +9,7 @@ import pytest
 import os
 
 # Livestock imports
-
+import geometry
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
@@ -25,3 +25,8 @@ def data_folder():
 def obj_file_paths(data_folder, request):
     obj_folder = os.path.join(data_folder, 'obj_to_shp')
     return os.path.join(obj_folder, f'mesh_{request.param}.obj')
+
+
+@pytest.fixture()
+def shapely_polygons(obj_file_paths):
+    return geometry.obj_to_polygons(obj_file_paths)
