@@ -3,6 +3,6 @@ numpy
 paramiko
 pyshp
 shapely
-cmf
+cmf=1.2
 xmltodict
 dbfread
