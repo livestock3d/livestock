@@ -126,28 +126,34 @@ def load_cmf_files(folder: str, delete_after_load=False) -> tuple:
     """
     Loads the needed files for the CMF project to run.
 
+    :param folder: Folder where the input files are located
     :param delete_after_load: Delete after the files are loaded?
-    :type delete_after_load: bool
     :return: True
-    :rtype: bool
     """
 
     # Load files and assign data to variables
-    ground_dict = load_ground(folder, delete_after_load)
+    ground = load_ground(folder, delete_after_load)
     mesh_path = load_mesh(folder)
 
-    weather_dict = load_input_data(os.path.join(folder, 'weather.json'), delete_after_load)
-    trees_dict = load_input_data(os.path.join(folder, 'tree.json'), delete_after_load)
-    outputs = load_input_data(os.path.join(folder, 'output.json'), delete_after_load)
-    solver_settings = load_input_data(os.path.join(folder, 'solver.json'), delete_after_load)
-    boundary_dict = load_input_data(os.path.join(folder, 'boundary_condition.json'), delete_after_load)
+    weather_dict = load_input_data(os.path.join(folder, 'weather.json'),
+                                   delete_after_load)
+    trees_dict = load_input_data(os.path.join(folder, 'tree.json'),
+                                 delete_after_load)
+    outputs = load_input_data(os.path.join(folder, 'outputs.json'),
+                              delete_after_load)
+    solver_settings = load_input_data(os.path.join(folder, 'solver.json'),
+                                      delete_after_load)
+    boundary_dict = load_input_data(os.path.join(folder,
+                                                 'boundary_condition.json'),
+                                    delete_after_load)
 
     logger.info('Loaded input files')
 
-    return ground_dict, mesh_path, weather_dict, trees_dict, outputs, solver_settings, boundary_dict
+    return ground, mesh_path, weather_dict, trees_dict, outputs, \
+           solver_settings, boundary_dict
 
 
-def load_input_data(path: str, delete: bool) -> typing.Union[None, dict]:
+def load_input_data(path: str, delete: bool) -> typing.Optional[dict]:
 
     # look for file
     if os.path.isfile(path):
