@@ -6,16 +6,17 @@ __license__ = "MIT"
 
 # Module imports
 import cmf
+import pytest
 
 # Livestock imports
 from livestock import hydrology
+
 
 # ---------------------------------------------------------------------------- #
 # Livestock Test
 
 
 def test_load_cmf_files(input_files):
-
     (ground, mesh_path, weather_dict, trees_dict, outputs,
      solver_settings, boundary_dict) = hydrology.load_cmf_files(input_files)
 
@@ -61,6 +62,29 @@ def test_create_retention_curve(cmf_data):
         assert r_curve.l == curve_dict['l']
 
 
+def test_build_cell(cmf_data, project_with_cells, retention_curve):
+    (ground_list, mesh_path, weather_dict, trees_dict, outputs,
+     solver_settings, boundary_dict) = cmf_data
+
+    for ground in ground_list:
+        for cell_index in ground['mesh']:
+            hydrology.build_cell(cell_index, project_with_cells,
+                                 ground, retention_curve)
+
+            cell = project_with_cells.cells[cell_index]
+
+            assert cell
+            if len(cell.layers) > 1:
+                assert len(cell.layers) == len(ground['mesh']['layers'])
+            assert cell.evaporation
+            assert cell.transpiration
+            assert cell.vegetation
+            assert pytest.approx(cell.saturated_depth == ground['ground_type'][
+                'saturated_depth'])
+
+    assert True
+
+
 def test_configure_cells():
     assert True
 
@@ -87,6 +111,3 @@ def test_save_project():
 
 def test_run_model():
     assert True
-
-
-

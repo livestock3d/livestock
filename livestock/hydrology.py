@@ -281,28 +281,37 @@ def build_cell(cell_id: int, cmf_project: cmf.project, cell_properties: dict,
     logger.debug(f'Building cell with ID: {cell_id}')
 
     # Add layers
-    for i in range(0, len(cell_properties['layers'])):
+    for i in range(len(cell_properties['layers'])):
         cell.add_layer(float(cell_properties['layers'][i]), r_curve)
 
     install_cell_connections(cell, cell_properties['et_method'])
 
-    set_vegetation_properties(cell, cell_properties['vegetation_properties'])
+    set_vegetation_properties(cell,
+                              cell_properties[
+                                  'ground_type']['surface_properties'])
 
-    if cell_properties['manning']:
-        cell.surfacewater.set_nManning(cell_properties['manning'])
-        logger.debug(f'Sat Manning roughness to: {cell_properties["manning"]}')
+    if cell_properties['ground_type']['manning']:
+        cell.surfacewater.set_nManning(cell_properties[
+                                           'ground_type']['manning'])
+        logger.debug(f'Sat Manning roughness to: '
+                     f'{cell_properties["ground_type"]["manning"]}')
 
-    if cell_properties['puddle_depth']:
-        cell.surfacewater.puddledepth = cell_properties['puddle_depth']
-        logger.debug(f'Sat puddle depth to: {cell_properties["puddle_depth"]}')
+    if cell_properties['ground_type']['puddle_depth']:
+        cell.surfacewater.puddledepth = cell_properties[
+            'ground_type']['puddle_depth']
+        logger.debug(f'Sat puddle depth to: '
+                     f'{cell_properties["ground_type"]["puddle_depth"]}')
 
-    if cell_properties['surface_water_volume']:
-        cell.surfacewater.volume = cell_properties['surface_water_volume']
-        logger.info(f'Sat surface water to {cell_properties["surface_water_volume"]} for cell with ID: {cell_id}')
+    if cell_properties['surface_water']:
+        cell.surfacewater.volume = cell_properties['surface_water']
+        logger.info(f'Sat surface water to '
+                    f'{cell_properties["surface_water"]} for cell with ID: '
+                    f'{cell_id}')
 
     # Set initial saturation
-    cell.saturated_depth = cell_properties['saturated_depth']
-    logger.debug(f'Sat saturated depth to {cell_properties["saturated_depth"]}')
+    cell.saturated_depth = cell_properties['ground_type']['saturated_depth']
+    logger.debug(f'Sat saturated depth to '
+                 f'{cell_properties["ground_type"]["saturated_depth"]}')
 
     return cmf_project
 

@@ -8,6 +8,7 @@ __license__ = "MIT"
 import pytest
 import os
 import shutil
+import cmf
 
 # Livestock imports
 from livestock import geometry
@@ -51,3 +52,22 @@ def input_files(tmpdir, data_folder, request):
 @pytest.fixture()
 def cmf_data(input_files):
     return hydrology.load_cmf_files(input_files)
+
+
+@pytest.fixture()
+def project_with_cells(cmf_data):
+    (ground_list, mesh_path, weather_dict, trees_dict, outputs,
+     solver_settings, boundary_dict) = cmf_data
+
+    project = cmf.project()
+
+    return hydrology.mesh_to_cells(project, mesh_path, False)
+
+
+@pytest.fixture()
+def retention_curve(cmf_data):
+    (ground_list, mesh_path, weather_dict, trees_dict, outputs,
+     solver_settings, boundary_dict) = cmf_data
+
+    curve_dict = ground_list[0]['ground_type']['retention_curve']
+    return hydrology.create_retention_curve(curve_dict)
