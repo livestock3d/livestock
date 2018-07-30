@@ -149,8 +149,8 @@ def load_cmf_files(folder: str, delete_after_load=False) -> tuple:
 
     logger.info('Loaded input files')
 
-    return ground, mesh_path, weather_dict, trees_dict, outputs, \
-           solver_settings, boundary_dict
+    return (ground, mesh_path, weather_dict, trees_dict, outputs,
+            solver_settings, boundary_dict)
 
 
 def load_input_data(path: str, delete: bool) -> typing.Optional[dict]:
@@ -172,24 +172,25 @@ def load_input_data(path: str, delete: bool) -> typing.Optional[dict]:
         return None
 
 
-def load_ground(folder: str, delete: bool) -> dict:
+def load_ground(folder: str, delete: bool) -> list:
 
         # look for file
         if os.path.isfile(folder + '/ground.json'):
             ground_path = folder + '/ground.json'
 
             with open(ground_path, 'r') as file:
-                ground_dict = json.load(file)
+                ground = json.load(file)
 
             # delete file
             if delete:
                 os.remove(ground_path)
 
-            return ground_dict
+            return ground
 
         else:
             logger.error(f'Cannot find ground.json in folder: {folder}')
-            raise FileNotFoundError(f'Cannot find ground.json in folder: {folder}')
+            raise FileNotFoundError(f'Cannot find ground.json in folder: '
+                                    f'{folder}')
 
 
 def load_mesh(folder: str) -> str:
@@ -207,13 +208,17 @@ def load_mesh(folder: str) -> str:
 
 def create_retention_curve(retention_curve: dict) -> cmf.VanGenuchtenMualem:
     """
-    Converts a dict of retention curve parameters into a CMF van Genuchten-Mualem retention curve.
+    Converts a dict of retention curve parameters into a CMF van
+    Genuchten-Mualem retention curve.
+
     :param retention_curve: dict
     :return: CMF retention curve
     """
 
-    curve = cmf.VanGenuchtenMualem(retention_curve['K_sat'], retention_curve['phi'],
-                                   retention_curve['alpha'], retention_curve['n'],
+    curve = cmf.VanGenuchtenMualem(retention_curve['k_sat'],
+                                   retention_curve['phi'],
+                                   retention_curve['alpha'],
+                                   retention_curve['n'],
                                    retention_curve['m'])
     curve.l = retention_curve['l']
 
@@ -302,7 +307,8 @@ def build_cell(cell_id: int, cmf_project: cmf.project, cell_properties: dict,
     return cmf_project
 
 
-def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict) -> cmf.project:
+def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict) \
+        -> cmf.project:
     """
     Configure and setup all needed information for the cells.
 

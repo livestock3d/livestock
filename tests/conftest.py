@@ -11,6 +11,7 @@ import shutil
 
 # Livestock imports
 from livestock import geometry
+from livestock import hydrology
 
 # ---------------------------------------------------------------------------- #
 # CMF Functions and Classes
@@ -45,3 +46,8 @@ def input_files(tmpdir, data_folder, request):
                         os.path.join(test_folder, file))
 
     return test_folder
+
+
+@pytest.fixture()
+def cmf_data(input_files):
+    return hydrology.load_cmf_files(input_files)

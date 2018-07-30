@@ -43,6 +43,24 @@ def test_mesh_to_cells(obj_file_paths):
     assert project.cells
 
 
+def test_create_retention_curve(cmf_data):
+    (ground_list, mesh_path, weather_dict, trees_dict, outputs,
+     solver_settings, boundary_dict) = cmf_data
+
+    for ground in ground_list:
+        curve_dict = ground['ground_type']['retention_curve']
+        r_curve = hydrology.create_retention_curve(curve_dict)
+
+        assert r_curve
+        assert isinstance(r_curve, cmf.VanGenuchtenMualem)
+        assert r_curve.Ksat == curve_dict['k_sat']
+        assert r_curve.alpha == curve_dict['alpha']
+        assert r_curve.Phi == curve_dict['phi']
+        assert r_curve.n == curve_dict['n']
+        assert r_curve.m == curve_dict['m']
+        assert r_curve.l == curve_dict['l']
+
+
 def test_configure_cells():
     assert True
 
