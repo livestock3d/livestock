@@ -62,6 +62,17 @@ def test_create_retention_curve(cmf_data):
         assert r_curve.l == curve_dict['l']
 
 
+@pytest.mark.skip('Something wrong with the setup')
+def test_install_cell_connections(cmf_data, project_with_cells):
+    (ground_list, mesh_path, weather_dict, trees_dict, outputs,
+     solver_settings, boundary_dict) = cmf_data
+
+    for ground in ground_list:
+        for cell_index in ground['mesh']:
+            cell = project_with_cells.cells[cell_index]
+            hydrology.install_cell_connections(cell, ground['et_method'])
+
+
 def test_build_cell(cmf_data, project_with_cells, retention_curve):
     (ground_list, mesh_path, weather_dict, trees_dict, outputs,
      solver_settings, boundary_dict) = cmf_data
@@ -85,8 +96,26 @@ def test_build_cell(cmf_data, project_with_cells, retention_curve):
     assert True
 
 
-def test_configure_cells():
-    assert True
+def test_install_flux_connections(cmf_data, project_with_cells):
+    (ground_list, mesh_path, weather_dict, trees_dict, outputs,
+     solver_settings, boundary_dict) = cmf_data
+
+    for ground in ground_list:
+        hydrology.install_flux_connections(project_with_cells, ground)
+
+    # TODO: Create better assessments
+    assert project_with_cells
+
+
+def test_configure_cells(cmf_data, project_with_cells):
+    (ground_list, mesh_path, weather_dict, trees_dict, outputs,
+     solver_settings, boundary_dict) = cmf_data
+
+    for ground in ground_list:
+        hydrology.configure_cells(project_with_cells, ground)
+
+    # TODO: Create better assessments
+    assert project_with_cells
 
 
 def test_add_tree_to_project():
@@ -101,8 +130,26 @@ def test_create_boundary_conditions():
     assert True
 
 
-def test_solve_project():
+def test_config_outputs():
     assert True
+
+
+def test_gather_results():
+    assert True
+
+
+def test_get_analysis_length():
+    assert True
+
+
+def test_get_time_step():
+    assert True
+
+
+def test_solve_project(solve_ready_project):
+    results = hydrology.solve_project(*solve_ready_project)
+
+    assert results
 
 
 def test_save_project():

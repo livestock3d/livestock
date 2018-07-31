@@ -227,21 +227,24 @@ def create_retention_curve(retention_curve: dict) -> cmf.VanGenuchtenMualem:
     return curve
 
 
-def install_cell_connections(cell: cmf.Cell, evapotranspiration_method: str) -> cmf.Cell:
+def install_cell_connections(cell: cmf.Cell, evapotranspiration_method: str) \
+        -> cmf.Cell:
 
     # Install connections
     cell.install_connection(cmf.Richards)
     cell.install_connection(cmf.SimpleInfiltration)
 
-
     if evapotranspiration_method == 'penman_monteith':
-        # Install Penman & Monteith method to calculate evapotranspiration_potential
+        # Install Penman & Monteith method to calculate evapotranspiration
+        # potential
         cell.install_connection(cmf.PenmanMonteithET)
 
         # Install surface water evaporation
-        cmf.PenmanEvaporation(cell.surfacewater, cell.evaporation, cell.meteorology)
+        cmf.PenmanEvaporation(cell.surfacewater, cell.evaporation,
+                              cell.meteorology)
 
-        logger.debug(f'Install Richards connection, simpleinfiltration, Penman-Monteith evapotranspiration and '
+        logger.debug(f'Install Richards connection, simple infiltration, '
+                     f'Penman-Monteith evapotranspiration and '
                      f'Penman evaporation for cell at: {cell.get_position()}')
 
     elif evapotranspiration_method == 'shuttleworth_wallace':
@@ -249,9 +252,11 @@ def install_cell_connections(cell: cmf.Cell, evapotranspiration_method: str) -> 
         cell.install_connection(cmf.ShuttleworthWallace)
 
         # Install surface water evaporation
-        cmf.PenmanEvaporation(cell.surfacewater, cell.evaporation, cell.meteorology)
+        cmf.PenmanEvaporation(cell.surfacewater, cell.evaporation,
+                              cell.meteorology)
 
-        logger.debug(f'Install Richards connection, simpleinfiltration, Shuttleworth-Wallace evapotranspiration and '
+        logger.debug(f'Install Richards connection, simple infiltration, '
+                     f'Shuttleworth-Wallace evapotranspiration and '
                      f'Penman evaporation for cell at: {cell.get_position()}')
 
     return cell
@@ -332,9 +337,10 @@ def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict) \
     # Helper functions
 
     # Convert retention curve parameters into CMF retention curve
-    r_curve = create_retention_curve(cell_properties_dict['retention_curve'])
+    r_curve = create_retention_curve(cell_properties_dict[
+                                         'ground_type']['retention_curve'])
 
-    for cell_index in cell_properties_dict['face_indices']:
+    for cell_index in cell_properties_dict['mesh']:
         build_cell(cell_index, cmf_project, cell_properties_dict, r_curve)
 
     # Connect fluxes
@@ -500,12 +506,15 @@ def get_time_step(time_step: list) -> datetime.timedelta:
         return datetime.timedelta(seconds=step_size)
 
 
-def solve_project(cmf_project: cmf.project, solver_settings: dict, outputs: dict) -> dict:
+def solve_project(cmf_project: cmf.project, solver_settings: dict,
+                  outputs: dict) -> dict:
     """Solves the model"""
 
     # Create solver, set time and set up results
-    solver = cmf.CVodeIntegrator(cmf_project, solver_settings['tolerance'])
-    solver.t = cmf.Time(solver_settings['start_time']['day'], solver_settings['start_time']['month'],
+    solver = cmf.CVodeIntegrator(cmf_project,
+                                 float(solver_settings['tolerance']))
+    solver.t = cmf.Time(solver_settings['start_time']['day'],
+                        solver_settings['start_time']['month'],
                         solver_settings['start_time']['year'])
 
     results = config_outputs(cmf_project, outputs)
@@ -518,7 +527,9 @@ def solve_project(cmf_project: cmf.project, solver_settings: dict, outputs: dict
     number_of_steps = analysis_length.total_seconds()/time_step.total_seconds()
 
     # Run solver and save results at each time step
-    widgets = [' [', progressbar.Timer(), '] ', progressbar.Bar(), ' [', progressbar.AdaptiveETA(), ' ]']
+    widgets = [' [', progressbar.Timer(), '] ',
+               progressbar.Bar(),
+               ' [', progressbar.AdaptiveETA(), ' ]']
     bar = progressbar.ProgressBar(max_value=number_of_steps, widgets=widgets)
     for index, time_ in enumerate(solver.run(solver.t,
                                   solver.t + analysis_length,
@@ -557,7 +568,8 @@ def run_model(folder: str):
 
     # Initialize project
     project = cmf.project()
-    ground_dict, mesh_path, weather_dict, trees_dict, outputs, solver_settings, boundary_dict = load_cmf_files(folder)
+    (ground_dict, mesh_path, weather_dict, trees_dict, outputs, solver_settings,
+     boundary_dict) = load_cmf_files(folder)
 
     # Add cells and properties to them
     project = mesh_to_cells(project, mesh_path)
