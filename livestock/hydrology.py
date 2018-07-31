@@ -400,43 +400,44 @@ def gather_results(cmf_project: cmf.project, results: dict, time: datetime.datet
         for out_key in results[cell_name].keys():
 
             # Collect cell related results
-            if out_key == 'evaporation':
-                evap = cmf_project.cells[cell_index].evaporation
+            if not out_key.startswith('layer'):
+                if out_key == 'evaporation':
+                    evap = cmf_project.cells[cell_index].evaporation
 
-                flux_at_time = 0
-                for flux, node in evap.fluxes(time):
-                    flux_at_time += flux
+                    flux_at_time = 0
+                    for flux, node in evap.fluxes(time):
+                        flux_at_time += flux
 
-                results[cell_name][out_key].append(flux_at_time)
+                    results[cell_name][out_key].append(flux_at_time)
 
-            if out_key == 'transpiration':
-                transp = cmf_project.cells[cell_index].transpiration
+                elif out_key == 'transpiration':
+                    transp = cmf_project.cells[cell_index].transpiration
 
-                flux_at_time = 0
-                for flux, node in transp.fluxes(time):
-                    flux_at_time += flux
+                    flux_at_time = 0
+                    for flux, node in transp.fluxes(time):
+                        flux_at_time += flux
 
-                results[cell_name][out_key].append(flux_at_time)
+                    results[cell_name][out_key].append(flux_at_time)
 
-            if out_key == 'surface_water_volume':
-                volume = cmf_project.cells[cell_index].surfacewater.volume
-                results[cell_name][out_key].append(volume)
+                elif out_key == 'surface_water_volume':
+                    volume = cmf_project.cells[cell_index].surfacewater.volume
+                    results[cell_name][out_key].append(volume)
 
-            if out_key == 'surface_water_flux':
-                water = cmf_project.cells[cell_index].get_surfacewater()
+                elif out_key == 'surface_water_flux':
+                    water = cmf_project.cells[cell_index].get_surfacewater()
 
-                flux_and_node = []
-                for flux, node in water.fluxes(time):
-                    flux_and_node.append((flux, node))
+                    flux_and_node = []
+                    for flux, node in water.fluxes(time):
+                        flux_and_node.append((flux, node))
 
-                results[cell_name][out_key].append(flux_and_node)
+                    results[cell_name][out_key].append(flux_and_node)
 
-            if out_key == 'heat_flux':
-                results[cell_name][out_key].append(cmf_project.cells[cell_index].heat_flux(time))
+                elif out_key == 'heat_flux':
+                    results[cell_name][out_key].append(cmf_project.cells[cell_index].heat_flux(time))
 
-            if out_key == 'aerodynamic_resistance':
-                results[cell_name][out_key].append(
-                    cmf_project.cells[cell_index].get_aerodynamic_resistance(time))
+                elif out_key == 'aerodynamic_resistance':
+                    results[cell_name][out_key].append(
+                        cmf_project.cells[cell_index].get_aerodynamic_resistance(time))
 
         for layer_index in range(0, len(cmf_project.cells[cell_index].layers)):
             layer_name = 'layer_' + str(layer_index)
@@ -449,11 +450,11 @@ def gather_results(cmf_project: cmf.project, results: dict, time: datetime.datet
                     results[cell_name][layer_name][out_key].append(
                         cmf_project.cells[cell_index].layers[layer_index].potential)
 
-                if out_key == 'theta':
+                elif out_key == 'theta':
                     results[cell_name][layer_name][out_key].append(
                         cmf_project.cells[cell_index].layers[layer_index].theta)
 
-                if out_key == 'volumetric_flux':
+                elif out_key == 'volumetric_flux':
                     layer = cmf_project.cells[cell_index].layers[layer_index].get_3d_flux(time)
 
                     """
@@ -464,11 +465,11 @@ def gather_results(cmf_project: cmf.project, results: dict, time: datetime.datet
 
                     results[cell_name][layer_name][out_key].append(layer)
 
-                if out_key == 'volume':
+                elif out_key == 'volume':
                     results[cell_name][layer_name][out_key].append(
                         cmf_project.cells[cell_index].layers[layer_index].volume)
 
-                if out_key == 'wetness':
+                elif out_key == 'wetness':
                     results[cell_name][layer_name][out_key].append(
                         cmf_project.cells[cell_index].layers[layer_index].wetness)
 
@@ -498,9 +499,11 @@ def get_time_step(time_step: list) -> datetime.timedelta:
     elif quantity == 'h':
         logger.debug(f'Solver time step set to: {step_size} {quantity}')
         return datetime.timedelta(hours=step_size)
+
     elif quantity == 'm':
         logger.debug(f'Solver time step set to: {step_size} {quantity}')
         return datetime.timedelta(minutes=step_size)
+
     elif quantity == 's':
         logger.debug(f'Solver time step set to: {step_size} {quantity}')
         return datetime.timedelta(seconds=step_size)
@@ -512,7 +515,7 @@ def solve_project(cmf_project: cmf.project, solver_settings: dict,
 
     # Create solver, set time and set up results
     solver = cmf.CVodeIntegrator(cmf_project,
-                                 float(solver_settings['tolerance']))
+                                 solver_settings['tolerance'])
     solver.t = cmf.Time(solver_settings['start_time']['day'],
                         solver_settings['start_time']['month'],
                         solver_settings['start_time']['year'])

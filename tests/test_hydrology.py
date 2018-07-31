@@ -146,7 +146,7 @@ def test_get_time_step():
     assert True
 
 
-def test_solve_project(solve_ready_project):
+def test_solve_project(solve_ready_project, mock_solver, mock_gather_results):
     results = hydrology.solve_project(*solve_ready_project)
 
     assert results
