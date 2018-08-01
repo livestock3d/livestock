@@ -103,6 +103,7 @@ def solve_ready_project(cmf_data):
 
 @pytest.fixture()
 def drain_mesh(data_folder):
-    obj_folder = os.path.join(data_folder, 'drainage_flow')
-    mesh_path = os.path.join(obj_folder, f'drain_mesh.obj')
-    return geometry.obj_to_polygons(mesh_path)
+
+    yield os.path.join(data_folder, 'drainage_flow')
+
+    os.remove(os.path.join(data_folder, 'results.json'))

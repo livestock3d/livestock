@@ -6,22 +6,26 @@ __license__ = "MIT"
 
 
 # Module imports
-import bpy
-import bmesh
-import json
-import os
-import typing
+try:
+    import bpy
+    import bmesh
+    import json
+    import os
+    import typing
+except ImportError:
+    pass
 
 # Livestock imports
-from livestock import geometry
 from livestock import blender
 
 # ---------------------------------------------------------------------------- #
 # Flow Functions and Classes
 
 
-def get_curve_points(start_index: int, point_list) -> typing.List[tuple]:
-    curve_points = []
+def get_curve_points(start_point, start_index: int, point_list) \
+        -> typing.List[tuple]:
+
+    curve_points = [start_point, ]
     next_index = start_index
 
     while True:
@@ -38,14 +42,15 @@ def flow_from_centers(folder: str) -> None:
     blender.clean()
 
     mesh_file = os.path.join(folder, 'drain_mesh.obj')
-    result_file = os.path.join(folder, 'result.json')
-    bpy.ops.import_scene.obj(filepath=mesh_file, axis_forward='X', axis_up='Z', )
+    result_file = os.path.join(folder, 'results.json')
+    bpy.ops.import_scene.obj(filepath=mesh_file, axis_forward='X', axis_up='Z')
     imported_mesh = bpy.context.selected_objects[-1]
 
     # Get a BMesh representation
     me = imported_mesh.data
     bm = bmesh.new()
     bm.from_mesh(me)
+    bm.faces.ensure_lookup_table()
 
     lowest_neighbour = []
     for face in bm.faces:
@@ -64,7 +69,9 @@ def flow_from_centers(folder: str) -> None:
 
     curves = []
     for face_index in range(len(bm.faces)):
-        curves.append(get_curve_points(face_index, lowest_neighbour))
+        start_point = tuple(bm.faces[face_index].calc_center_median())
+        curves.append(get_curve_points(start_point, face_index,
+                                       lowest_neighbour))
 
     with open(result_file, 'w') as outfile:
         json.dump(curves, outfile)
