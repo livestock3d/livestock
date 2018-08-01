@@ -9,11 +9,12 @@ __license__ = "MIT"
 try:
     import bpy
     import bmesh
-    import json
-    import os
-    import typing
 except ModuleNotFoundError:
     pass
+
+import json
+import os
+import typing
 
 # Livestock imports
 from livestock import blender
