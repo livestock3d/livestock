@@ -4,9 +4,11 @@ __license__ = "MIT"
 # ---------------------------------------------------------------------------- #
 # Imports
 
-
 # Module imports
-import bpy
+try:
+    import bpy
+except ModuleNotFoundError:
+    pass
 
 # Livestock imports
 
