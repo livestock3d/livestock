@@ -12,7 +12,7 @@ try:
     import json
     import os
     import typing
-except ImportError:
+except ModuleNotFoundError:
     pass
 
 # Livestock imports
