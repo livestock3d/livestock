@@ -327,11 +327,8 @@ def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict) \
     Configure and setup all needed information for the cells.
 
     :param cmf_project: CMF project
-    :type cmf_project: cmf.project
     :param cell_properties_dict: Dict with all the needed properties
-    :type cell_properties_dict: dict
-    :return: True
-    :rtype: bool
+    :return: cmf project
     """
 
     # Helper functions
@@ -356,9 +353,8 @@ def config_outputs(cmf_project: cmf.project, output_configuration: dict) -> dict
     Function to set up result gathering dictionary.
 
     :param cmf_project: CMF project to collect from
-    :type cmf_project: cmf.project
+    :param output_configuration: Dict to configure the results from
     :return: Empty result dictionary
-    :rtype: dict
     """
 
     results = {}
@@ -379,6 +375,8 @@ def config_outputs(cmf_project: cmf.project, output_configuration: dict) -> dict
             for layer_output in output_configuration['layer']:
                 results[cell_name][layer_name][layer_output] = []
 
+    logger.debug(f'Configured outputs for CMF project. Outputs was: {results}')
+
     return results
 
 
@@ -387,12 +385,12 @@ def gather_results(cmf_project: cmf.project, results: dict, time: datetime.datet
     Collects the produced results.
 
     :param cmf_project: CMF project to collect from
-    :type cmf_project: cmf.project
+    :param results: Dict to gather the results in
     :param time: Point in solver time
-    :type time: datetime.datetime
     :return:
-    :rtype:
     """
+
+    logger.debug(f'Gathering results for time: {time}')
 
     for cell_index in range(0, len(cmf_project.cells)):
         cell_name = 'cell_' + str(cell_index)
@@ -513,12 +511,16 @@ def solve_project(cmf_project: cmf.project, solver_settings: dict,
                   outputs: dict) -> dict:
     """Solves the model"""
 
+    logger.info('Initializing solving of CMF project')
+
     # Create solver, set time and set up results
     solver = cmf.CVodeIntegrator(cmf_project,
                                  solver_settings['tolerance'])
     solver.t = cmf.Time(solver_settings['start_time']['day'],
                         solver_settings['start_time']['month'],
                         solver_settings['start_time']['year'])
+
+    logger.debug(f'Solver start time: {solver.t}')
 
     results = config_outputs(cmf_project, outputs)
 
@@ -541,6 +543,8 @@ def solve_project(cmf_project: cmf.project, solver_settings: dict,
         gather_results(cmf_project, results, time_)
         bar.update(index)
 
+    logger.info('Solved CMF project!')
+
     return results
 
 
@@ -548,6 +552,8 @@ def save_results(results: dict, folder: str):
     """Saves the computed results to a json file"""
 
     path = os.path.join(folder, 'results.json')
+
+    logger.debug(f'Saving results to: {path}')
 
     with open(path, 'w') as file:
         json.dump(results, file)

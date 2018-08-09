@@ -146,7 +146,6 @@ def test_get_time_step():
     assert True
 
 
-@pytest.mark.skip('Not yet finished')
 def test_solve_project(solve_ready_project, mock_solver, mock_gather_results):
     results = hydrology.solve_project(*solve_ready_project)
 

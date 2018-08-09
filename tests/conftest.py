@@ -107,3 +107,30 @@ def drain_mesh(data_folder):
     yield os.path.join(data_folder, 'drainage_flow')
 
     os.remove(os.path.join(data_folder, 'results.json'))
+
+
+@pytest.fixture()
+def mock_solver(monkeypatch):
+
+    class MockClass():
+        def __init__(self, project, tolerance):
+            self.project = project
+            self.tol = tolerance
+            self.t = None
+
+        def run(self, start_time, end_time, time_step):
+            current_time = start_time
+            while current_time < end_time:
+                yield current_time
+                current_time += time_step
+
+    monkeypatch.setattr(cmf, 'CVodeIntegrator', MockClass)
+
+
+@pytest.fixture()
+def mock_gather_results(monkeypatch):
+
+    def mock_return(cmf_project, results, time):
+        pass
+
+    monkeypatch.setattr(hydrology, 'gather_results', mock_return)

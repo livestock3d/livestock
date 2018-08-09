@@ -24,7 +24,8 @@ def livestock_logger():
     # StreamHandler
     stream = logging.StreamHandler()
     stream.setLevel(logging.INFO)
-    stream.setFormatter(formatter)
+    stream_formatter = logging.Formatter('%(message)s')
+    stream.setFormatter(stream_formatter)
 
     # FileHandlers
     file_info = logging.FileHandler(f'{__name__}_info.log')
