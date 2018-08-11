@@ -28,7 +28,8 @@ logger = livestock_logger()
 # CMF Functions and Classes
 
 
-def mesh_to_cells(cmf_project: cmf.project, mesh_path: str, delete_after_load=True) -> cmf.project:
+def mesh_to_cells(cmf_project: cmf.project, mesh_path: str,
+                  delete_after_load=False) -> cmf.project:
     """
     Takes a mesh and converts it into CMF cells
 
@@ -577,14 +578,14 @@ def run_model(folder: str):
 
     # Initialize project
     project = cmf.project()
-    (ground_dict, mesh_path, weather_dict, trees_dict, outputs, solver_settings,
+    (ground_list, mesh_path, weather_dict, trees_dict, outputs, solver_settings,
      boundary_dict) = load_cmf_files(folder)
 
     # Add cells and properties to them
     project = mesh_to_cells(project, mesh_path)
 
-    for key in ground_dict.keys():
-        configure_cells(project, ground_dict[key])
+    for ground in ground_list:
+        configure_cells(project, ground)
 
     if trees_dict:
         for key in trees_dict.keys():
