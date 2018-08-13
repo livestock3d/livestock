@@ -7,6 +7,7 @@ __license__ = "MIT"
 # Module imports
 import cmf
 import pytest
+import os
 
 # Livestock imports
 from livestock import hydrology
@@ -156,5 +157,6 @@ def test_save_project():
     assert True
 
 
-def test_run_model():
-    assert True
+def test_run_off(data_folder):
+    folder = os.path.join(data_folder, 'run_off')
+    hydrology.run_model(folder)

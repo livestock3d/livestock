@@ -40,6 +40,8 @@ def get_curve_points(start_point, start_index: int, point_list) \
 
 
 def flow_from_centers(folder: str) -> None:
+    """Blender depend"""
+
     blender.clean()
 
     mesh_file = os.path.join(folder, 'drain_mesh.obj')
