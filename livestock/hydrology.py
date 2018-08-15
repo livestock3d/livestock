@@ -197,14 +197,14 @@ def load_ground(folder: str, delete: bool) -> list:
 def load_mesh(folder: str) -> str:
 
     # look for file
-    if os.path.isfile(folder + '/mesh.obj'):
-        mesh_path = folder + '/mesh.obj'
+    mesh_path = os.path.join(folder, 'mesh.obj')
+    if os.path.isfile(mesh_path):
+        return mesh_path
 
     else:
-        logger.error(f'Cannot find mesh.json in folder: {folder}')
-        raise FileNotFoundError(f'Cannot find mesh.json in folder: {folder}')
-
-    return mesh_path
+        error = f'Cannot find mesh.obj in folder: {folder}'
+        logger.error(error)
+        raise FileNotFoundError(error)
 
 
 def create_retention_curve(retention_curve: dict) -> cmf.VanGenuchtenMualem:
@@ -579,7 +579,7 @@ def run_model(folder: str):
     # Initialize project
     project = cmf.project()
     (ground_list, mesh_path, weather_dict, trees_dict, outputs, solver_settings,
-     boundary_dict) = load_cmf_files(folder)
+     boundary_dict) = load_cmf_files(folder, False)
 
     # Add cells and properties to them
     project = mesh_to_cells(project, mesh_path)
