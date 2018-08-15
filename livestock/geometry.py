@@ -1,8 +1,7 @@
 __author__ = "Christian Kongsgaard"
 __license__ = "MIT"
-__version__ = "0.0.1"
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 # Imports
 
 # Module imports
@@ -16,7 +15,7 @@ import typing
 # Livestock imports
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 # Livestock Geometry Functions
 
 
@@ -142,7 +141,8 @@ def angle_between_vectors(v1, v2, force_angle=None):
             angle = np.pi - angle
             return angle, 'obtuse'
     else:
-        print('force_angle has to be defined as None, acute or obtuse. force_angle was:', str(force_angle))
+        print('force_angle has to be defined as None, acute or obtuse. '
+              'force_angle was:', str(force_angle))
         return None, None
 
 
@@ -173,9 +173,7 @@ def obj_to_lists(obj_file: str)-> tuple:
     Converts an .obj file into lists.
 
     :param obj_file: .obj file path
-    :type obj_file: str
     :return: tuple with vertices, normals, faces
-    :rtype: tuple
     """
 
     # Initialization
@@ -190,11 +188,15 @@ def obj_to_lists(obj_file: str)-> tuple:
     for line in lines:
         if line.startswith('v '):
             data = line.split(' ')
-            vertices.append((float(data[1]), float(data[2]), float(data[3].strip())))
+            vertices.append((float(data[1]),
+                             float(data[2]),
+                             float(data[3].strip())))
 
         elif line.startswith('vn'):
             data = line.split(' ')
-            normals.append((float(data[1]), float(data[2]), float(data[3].strip())))
+            normals.append((float(data[1]),
+                            float(data[2]),
+                            float(data[3].strip())))
 
         elif line.startswith('f'):
             data = line.split(' ')
@@ -256,27 +258,15 @@ def obj_to_polygons(obj_file: str) -> typing.List[shapely.geometry.Polygon]:
     return polygons
 
 
-def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) -> shapefile._Shape:
+def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) \
+        -> shapefile._Shape:
     """
-    | This function converts a shapely geometry into a geojson and then into a pyshp object.
-    | Copied from Karim Bahgat's answer at:
-    | https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles
-    |
+    This function converts a shapely geometry into a geojson and then into a
+    pyshp object. Copied from Karim Bahgat's answer at:
+    https://gis.stackexchange.com/questions/52705/how-to-write-shapely-geometries-to-shapefiles
 
     :param shapely_geometry: Shapely geometry to convert.
-    :type shapely_geometry: shapely.geometry
     :return: pyshp record object
-    :rtype: shapefile._Shape
-    """
-
-    # TODO - Remove if needed
-    """ 
-    # first convert shapely to geojson
-    try:
-        shapely_to_geojson = shapely.geometry.mapping
-    except:
-        import shapely.geometry
-        shapely_to_geojson = shapely.geometry.mapping
     """
 
     geo_json = shapely.geometry.mapping(shapely_geometry)
@@ -289,16 +279,16 @@ def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) -> shapefile._S
         pyshp_type = 0
     elif geo_json["type"] == "Point":
         pyshp_type = 1
-    elif geo_json["type"] == "LineString":
-        pyshp_type = 3
-    elif geo_json["type"] == "Polygon":
-        pyshp_type = 15
-    elif geo_json["type"] == "MultiPoint":
-        pyshp_type = 8
-    elif geo_json["type"] == "MultiLineString":
+    elif geo_json["type"] in ["LineString", "MultiLineString"]:
         pyshp_type = 3
     elif geo_json["type"] == "MultiPolygon":
         pyshp_type = 5
+    elif geo_json["type"] == "MultiPoint":
+        pyshp_type = 8
+    elif geo_json["type"] == "Polygon":
+        pyshp_type = 15
+    else:
+        pyshp_type = 0
 
     record.shapeType = pyshp_type
 
@@ -330,16 +320,13 @@ def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) -> shapefile._S
     return record
 
 
-def obj_to_shp(obj_file: str, shp_file: str) -> bool:
+def obj_to_shp(obj_file: str, shp_file: str) -> None:
     """
     Convert an .obj file into a shape file.
 
     :param obj_file: Path to .obj file
-    :type obj_file: str
     :param shp_file: File path for shapefile
-    :type shp_file: str
-    :return: True
-    :rtype: bool
+    :return: None
     """
 
     polygons = obj_to_polygons(obj_file)
@@ -355,4 +342,4 @@ def obj_to_shp(obj_file: str, shp_file: str) -> bool:
 
     shape_writer.save(shp_file)
 
-    return True
+    return None
