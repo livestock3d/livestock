@@ -7,6 +7,7 @@ __license__ = "MIT"
 # Module imports
 import logging
 import os
+import shutil
 
 # Livestock imports
 
@@ -18,6 +19,7 @@ def log_path():
     livestock_path = r'C:\livestock'
 
     log_folder = os.path.join(livestock_path, 'logs')
+
     if not os.path.exists(log_folder):
         os.mkdir(log_folder)
 
@@ -25,6 +27,9 @@ def log_path():
 
 
 def livestock_logger():
+
+    if os.listdir(log_path()):
+        shutil.rmtree(log_path())
 
     log = logging.getLogger(__name__)
     log.setLevel(logging.DEBUG)
