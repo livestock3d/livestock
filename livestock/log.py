@@ -6,7 +6,7 @@ __license__ = "MIT"
 
 # Module imports
 import logging
-
+import os
 
 # Livestock imports
 
@@ -14,13 +14,24 @@ import logging
 # Livestock Loggers
 
 
+def log_path():
+    livestock_path = r'C:\livestock'
+
+    log_folder = os.path.join(livestock_path, 'logs')
+    if not os.path.exists(log_folder):
+        os.mkdir(log_folder)
+
+    return log_folder
+
+
 def livestock_logger():
+
     log = logging.getLogger(__name__)
     log.setLevel(logging.DEBUG)
 
     # Formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - '
-                                  '%(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(funcName)s'
+                                  ' - %(message)s')
 
     # StreamHandler
     stream = logging.StreamHandler()
@@ -29,16 +40,18 @@ def livestock_logger():
     stream.setFormatter(stream_formatter)
 
     # FileHandlers
-    #file_info = logging.FileHandler(f'{__name__}_info.log')
-    #file_info.setLevel(logging.INFO)
-    #file_info.setFormatter(formatter)
+    file_info = logging.FileHandler(os.path.join(log_path(),
+                                                 'livestock_info.log'))
+    file_info.setLevel(logging.INFO)
+    file_info.setFormatter(formatter)
 
-    #file_debug = logging.FileHandler(f'{__name__}_debug.log')
-    #file_debug.setLevel(logging.DEBUG)
-    #file_debug.setFormatter(formatter)
+    file_debug = logging.FileHandler(os.path.join(log_path(),
+                                                  'livestock_debug.log'))
+    file_debug.setLevel(logging.DEBUG)
+    file_debug.setFormatter(formatter)
 
     log.addHandler(stream)
-    #log.addHandler(file_debug)
-    #log.addHandler(file_info)
+    log.addHandler(file_debug)
+    log.addHandler(file_info)
 
     return log
