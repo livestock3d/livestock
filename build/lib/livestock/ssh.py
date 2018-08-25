@@ -1,22 +1,22 @@
 __author__ = "Christian Kongsgaard"
 __license__ = "MIT"
-__version__ = "0.0.1"
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 # Imports
 
 # Module imports
 import os
 import paramiko
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 # Livestock SSH Functions
 
 
-def check_for_remote_folder(sftp_connect: paramiko.SSHClient.open_sftp, folder_to_check: str, check_for: str)\
-        -> bool:
+def check_for_remote_folder(sftp_connect: paramiko.SSHClient.open_sftp,
+                            folder_to_check: str, check_for: str) -> bool:
     """
-    Checks if remote folder exists in the desired location. If do exists the function returns True.
+    Checks if remote folder exists in the desired location.
+    If do exists the function returns True.
     Otherwise is creates the folder and then returns True.
 
     :param sftp_connect: SFTP connection
@@ -49,9 +49,12 @@ def check_for_remote_folder(sftp_connect: paramiko.SSHClient.open_sftp, folder_t
 
 def ssh_connection():
     """
-    This function opens up a SSH connection to a remote machine (Ubuntu-machine) based on inputs from the in_data.txt
-    file. Once it is logged in then function activates the anaconda environment livestock_env, sends the commands,
-    awaits their completion (by looking for a out.txt file, which is only written upon completion of the commands)
+    This function opens up a SSH connection to a remote machine (Ubuntu-machine)
+     based on inputs from the in_data.txt
+    file. Once it is logged in then function activates the anaconda environment
+    livestock_env, sends the commands,
+    awaits their completion (by looking for a out.txt file, which is only
+    written upon completion of the commands)
     and returns the wanted files back to the local machine.
     """
 

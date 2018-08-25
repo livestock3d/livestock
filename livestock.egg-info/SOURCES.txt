@@ -12,7 +12,6 @@ livestock/ssh.py
 livestock.egg-info/PKG-INFO
 livestock.egg-info/SOURCES.txt
 livestock.egg-info/dependency_links.txt
-livestock.egg-info/entry_points.txt
 livestock.egg-info/requires.txt
 livestock.egg-info/top_level.txt
 tests/__init__.py

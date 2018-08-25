@@ -7,3 +7,4 @@ cmf==1.2
 xmltodict
 dbfread
 progressbar2
+pytest

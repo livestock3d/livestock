@@ -1,6 +1,6 @@
 __author__ = "Christian Kongsgaard"
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 # Imports
 
 # Module imports
@@ -11,7 +11,7 @@ from scipy.optimize import brentq
 # Livestock imports
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 # Livestock Air Functions
 
 def new_temperature_and_relative_humidity(folder: str) -> bool:
@@ -113,8 +113,7 @@ def max_possible_vapour_flux(vapour_mass_flux: float, volume: float,
     :type temperature_in_kelvin: float
     :param vapour_pressure: Current vapour pressure in Pa
     :type vapour_pressure: float
-    :return: Difference between the saturated vapour pressure after adding the vapour and latent heat flux to
-    the air volume and the actual vapour pressure of the air volume.
+    :return: Difference between the saturated vapour pressure after adding the vapour and latent heat flux to the air volume and the actual vapour pressure of the air volume.
     :rtype: float
     """
 
@@ -132,8 +131,7 @@ def compute_temperature_relative_humidity(temperature_in_k: np.array, relative_h
                                           vapour_mass_flux: np.array, volume: np.array) -> tuple:
     """
     Computes the coupled relative humidity and temperature of an air volume given a vapour flux. The vapour pressure is
-    capped off so it can not exceed the saturated vapour pressure. This potential means that not the whole amount
-     of vapour flux will be used.
+    capped off so it can not exceed the saturated vapour pressure. This potentially means that not the whole amount of vapour flux will be used.
 
     :param temperature_in_k: Current temperature of the air volume in K
     :type temperature_in_k: numpy.array
@@ -280,7 +278,7 @@ def convert_relative_humidity_to_unitless(rh: np.array) -> np.array:
 
     :param rh: Relative humidity in %
     :type rh: numpy.array
-    :return: Relative humidity as unitless
+    :return: Relative humidity as unit less
     :rtype: numpy.array
     """
 
@@ -316,7 +314,7 @@ def new_mean_relative_humidity(volume: np.array, temperature_internal: np.array,
     :type vapour_pressure_external: numpy.array
     :param vapour_production: Vapour production in kg/h
     :type vapour_production: numpy.array
-    :return: Relative humidity - unitless
+    :return: Relative humidity - unit less
     :rtype: numpy.array
     """
 
@@ -384,9 +382,9 @@ def new_mean_temperature(volume: np.array, temperature: np.array, heat: np.array
 
 def celsius_to_kelvin(celsius: float) -> float:
     """
-    Converts a temperature in Celsius to Kelvin.
+    Converts a temperature in Celsius to Kelvin. `Source`__
 
-    Source: https://en.wikipedia.org/wiki/Celsius
+    __ https://en.wikipedia.org/wiki/Celsius
 
     :param celsius: Temperature in Celsius
     :type celsius: float
@@ -401,9 +399,9 @@ def celsius_to_kelvin(celsius: float) -> float:
 
 def kelvin_to_celsius(kelvin: float) -> float:
     """
-    Converts a temperature in Kelvin to Celsius.
+    Converts a temperature in Kelvin to Celsius. `Source`__
 
-    Source: https://en.wikipedia.org/wiki/Celsius
+    __ https://en.wikipedia.org/wiki/Celsius
 
     :param kelvin: Temperature in Kelvin
     :type kelvin: float
@@ -490,10 +488,10 @@ def saturated_vapour_pressure(temperature: float) -> float:
 
 def wind_speed_to_hour_flux(wind_speed: float) -> float:
     """
-    Converts wind speed into a hourly flux.
-    m/s to m\ :sup:`3`/h
-    m/s to m\ :sup:`3`/s = 1:sup:`2`
-    m\ :sup:`3`/s to m\ :sup:`3`/h = 3600s/h
+    | Converts wind speed into a hourly flux.
+    | m/s to m\ :sup:`3` /h =>
+    | m/s to m\ :sup:`3` /s = 1\ :sup:`2`
+    | m\ :sup:`3`/s to m\ :sup:`3`/h = 3600s/h
 
     :param wind_speed: Wind speed in m/s
     :type wind_speed: float
@@ -506,9 +504,9 @@ def wind_speed_to_hour_flux(wind_speed: float) -> float:
 
 def diameter_from_area(area: np.array) -> np.array:
     """
-    Computes the diameter from a given area of a circle.
-    A = :math:`{\\pi}` * (d/2)\ :sup:`2` =>
-    d = :math:`{\\sqrt{4*A/{\\pi}}}`
+    | Computes the diameter from a given area of a circle.
+    | A = :math:`{\\pi}` * (d/2)\ :sup:`2` =>
+    | d = :math:`{\\sqrt{4*A/{\\pi}}}`
 
     :param area: Area of a circle in m
     :type area: numpy.array

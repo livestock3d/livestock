@@ -1,3 +1,4 @@
 [
-  "test_hydrology.py::test_solve_project[run_off]"
+  "test_hydrology.py::test_load_cmf_files[run_off_0]",
+  "test_hydrology.py::test_load_cmf_files[run_off_1]"
 ]

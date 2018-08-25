@@ -1,8 +1,7 @@
 __author__ = "Christian Kongsgaard"
 __license__ = "MIT"
-__version__ = "0.0.1"
 
-# -------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 # Imports
 
 # Module imports
@@ -15,18 +14,627 @@ import xml.etree.ElementTree as ET
 import os
 import xmltodict
 import ast
+import json
+import typing
+import progressbar
 
 # Livestock imports
-try:
-    from . import geometry as lg
-except ImportError:
-    import geometry as lg
+from livestock import geometry as lg
+from livestock.log import livestock_logger
 
-# -------------------------------------------------------------------------------------------------------------------- #
+logger = livestock_logger()
+
+# ---------------------------------------------------------------------------- #
 # CMF Functions and Classes
 
 
+def mesh_to_cells(cmf_project: cmf.project, mesh_paths: typing.List[str],
+                  delete_after_load=False) -> typing.Tuple[cmf.project, dict]:
+    """
+    Takes a mesh and converts it into CMF cells
+
+    :param mesh_paths: Path to mesh .obj file
+    :param cmf_project: CMF project object.
+    :param delete_after_load: If True, it deletes the input files after they have been loaded.
+    :return: True
+    """
+
+    cell_dict = dict()
+    cell_counter = 0
+    for mesh_file in mesh_paths:
+        mesh_name = os.path.split(mesh_file)[1][:-4]
+        cell_dict[mesh_name] = list()
+        # Convert obj to shapefile
+        shape_path = os.path.split(mesh_file)[0] + '/mesh.shp'
+        lg.obj_to_shp(mesh_file, shape_path)
+        polygons = Shapefile(shape_path)
+        logger.debug('Converted .obj to .shp')
+
+        for polygon in polygons:
+            cmf.geometry.create_cell(cmf_project, polygon.shape,
+                                     polygon.height, polygon.id)
+            cell_dict[mesh_name].append(cell_counter)
+            cell_counter += 1
+
+        # Build topology
+        cmf.geometry.mesh_project(cmf_project, verbose=False)
+        logger.info('Build cells in project')
+
+        if delete_after_load:
+            os.remove(mesh_file)
+            os.remove(shape_path)
+            os.remove(os.path.split(mesh_file)[0] + '/mesh.dbf')
+            os.remove(os.path.split(mesh_file)[0] + '/mesh.shx')
+            logger.debug('Removed mesh files')
+
+    return cmf_project, cell_dict
+
+
+def set_vegetation_properties(cell_: cmf.Cell, property_dict: dict):
+    """
+    Sets the vegetation properties for a cell.
+
+    :param cell_: Cell to set properties for.
+    :type cell_: cmf.Cell
+    :param property_dict: Dict containing the needed properties.
+    :type property_dict: dict
+    :return: True
+    :rtype: bool
+    """
+
+    cell_.vegetation.Height = float(property_dict['height'])
+    cell_.vegetation.LAI = float(property_dict['lai'])
+    cell_.vegetation.albedo = float(property_dict['albedo'])
+    cell_.vegetation.CanopyClosure = float(property_dict['canopy_closure'])
+    cell_.vegetation.CanopyParExtinction = float(property_dict['canopy_par'])
+    cell_.vegetation.CanopyCapacityPerLAI = float(property_dict['canopy_capacity'])
+    cell_.vegetation.StomatalResistance = float(property_dict['stomatal_res'])
+    cell_.vegetation.RootDepth = float(property_dict['root_depth'])
+    cell_.vegetation.fraction_at_rootdepth = float(property_dict['root_fraction'])
+    cell_.vegetation.LeafWidth = float(property_dict['leaf_width'])
+
+    logger.debug(f'Sat vegetation properties for cell at: {cell_.get_position()}')
+
+    return cell_
+
+
+def add_tree_to_project(cmf_project, cell_index, property_dict):
+    """
+    Adds a tree to the model and sets the need properties for it.
+
+    :param cmf_project: CMF project
+    :type cmf_project: cmf.project
+    :param cell_index: Index of the cell where the tree should be added.
+    :type cell_index: int
+    :param property_dict: Dict with tree properties.
+    :type property_dict: dict
+    :return: True
+    :rtype: bool
+    """
+
+    cell = cmf_project.cells[int(cell_index)]
+    set_vegetation_properties(cell, property_dict)
+    name = 'canopy_'+str(cell_index)
+    cell.add_storage(name, 'C')
+
+    cmf.Rainfall(cell.canopy, cell, False, True)
+    cmf.Rainfall(cell.surfacewater, cell, True, False)
+    cmf.RutterInterception(cell.canopy, cell.surfacewater, cell)
+    cmf.CanopyStorageEvaporation(cell.canopy, cell.evaporation, cell)
+
+    logger.debug(f'Added a tree to cell at: {cell_.get_position()}')
+
+    return cmf_project
+
+
+def load_cmf_files(folder: str, delete_after_load=False) -> tuple:
+    """
+    Loads the needed files for the CMF project to run.
+
+    :param folder: Folder where the input files are located
+    :param delete_after_load: Delete after the files are loaded?
+    :return: True
+    """
+
+    # Load files and assign data to variables
+    ground = load_ground(folder, delete_after_load)
+    mesh_paths = load_meshes(folder)
+
+    weather_dict = load_input_data(os.path.join(folder, 'weather.json'),
+                                   delete_after_load)
+    trees_dict = load_input_data(os.path.join(folder, 'tree.json'),
+                                 delete_after_load)
+    outputs = load_input_data(os.path.join(folder, 'outputs.json'),
+                              delete_after_load)
+    solver_settings = load_input_data(os.path.join(folder, 'solver.json'),
+                                      delete_after_load)
+    boundary_dict = load_input_data(os.path.join(folder,
+                                                 'boundary_condition.json'),
+                                    delete_after_load)
+
+    logger.info('Loaded input files')
+
+    return (ground, mesh_paths, weather_dict, trees_dict, outputs,
+            solver_settings, boundary_dict)
+
+
+def load_input_data(path: str, delete: bool) -> typing.Optional[dict]:
+
+    # look for file
+    if os.path.isfile(path):
+
+        with open(path, 'r') as file:
+            input_dict = json.load(file)
+
+        # delete file
+        if delete:
+            os.remove(path)
+
+        return input_dict
+
+    else:
+        logger.info(f'{os.path.split(path)[1]} not found')
+        return None
+
+
+def load_ground(folder: str, delete: bool) -> list:
+
+        # look for file
+        if os.path.isfile(folder + '/ground.json'):
+            ground_path = folder + '/ground.json'
+
+            with open(ground_path, 'r') as file:
+                ground = json.load(file)
+
+            # delete file
+            if delete:
+                os.remove(ground_path)
+
+            return ground
+
+        else:
+            logger.error(f'Cannot find ground.json in folder: {folder}')
+            raise FileNotFoundError(f'Cannot find ground.json in folder: '
+                                    f'{folder}')
+
+
+def load_meshes(folder: str) -> typing.List[str]:
+
+    # look for file
+    meshes = []
+    for file in os.listdir(folder):
+        if file.endswith('.obj'):
+            meshes.append(os.path.join(folder, file))
+
+    if meshes:
+        return meshes
+    else:
+        error = f'Cannot find any .obj files in folder: {folder}'
+        logger.error(error)
+        raise FileNotFoundError(error)
+
+
+def create_retention_curve(retention_curve: dict) -> cmf.VanGenuchtenMualem:
+    """
+    Converts a dict of retention curve parameters into a CMF van
+    Genuchten-Mualem retention curve.
+
+    :param retention_curve: dict
+    :return: CMF retention curve
+    """
+
+    curve = cmf.VanGenuchtenMualem(retention_curve['k_sat'],
+                                   retention_curve['phi'],
+                                   retention_curve['alpha'],
+                                   retention_curve['n'],
+                                   retention_curve['m'])
+    curve.l = retention_curve['l']
+
+    logger.debug(f'Created retention curve.')
+
+    return curve
+
+
+def install_cell_connections(cell: cmf.Cell, evapotranspiration_method: str) \
+        -> cmf.Cell:
+
+    # Install connections
+    cell.install_connection(cmf.Richards)
+    cell.install_connection(cmf.SimpleInfiltration)
+
+    if evapotranspiration_method == 'penman_monteith':
+        # Install Penman & Monteith method to calculate evapotranspiration
+        # potential
+        cell.install_connection(cmf.PenmanMonteithET)
+
+        # Install surface water evaporation
+        cmf.PenmanEvaporation(cell.surfacewater, cell.evaporation,
+                              cell.meteorology)
+
+        logger.debug(f'Install Richards connection, simple infiltration, '
+                     f'Penman-Monteith evapotranspiration and '
+                     f'Penman evaporation for cell at: {cell.get_position()}')
+
+    elif evapotranspiration_method == 'shuttleworth_wallace':
+        # Install Shuttleworth-Wallace method to calculate evapotranspiration
+        cell.install_connection(cmf.ShuttleworthWallace)
+
+        # Install surface water evaporation
+        cmf.PenmanEvaporation(cell.surfacewater, cell.evaporation,
+                              cell.meteorology)
+
+        logger.debug(f'Install Richards connection, simple infiltration, '
+                     f'Shuttleworth-Wallace evapotranspiration and '
+                     f'Penman evaporation for cell at: {cell.get_position()}')
+
+    return cell
+
+
+def install_flux_connections(cmf_project: cmf.project, cell_properties: dict) -> cmf.project:
+
+    cmf.connect_cells_with_flux(cmf_project, cmf.DarcyKinematic)
+    logger.info('Installed Darcy kinematic for all cells in project.')
+
+    if cell_properties['runoff_method'] == 'kinematic':
+        cmf.connect_cells_with_flux(cmf_project, cmf.KinematicSurfaceRunoff)
+        logger.info('Installed kinematic surface run-off')
+
+    elif cell_properties['runoff_method'] == 'diffusive':
+        cmf.DiffusiveSurfaceRunoff.set_linear_slope(1e-8)
+        cmf.connect_cells_with_flux(cmf_project, cmf.DiffusiveSurfaceRunoff)
+        logger.info('Installed diffusive surface run-off. Slope set to 1e-8.')
+
+    return cmf_project
+
+
+def build_cell(cell_id: int, cmf_project: cmf.project, cell_properties: dict,
+               r_curve: cmf.VanGenuchtenMualem) -> cmf.project:
+
+    cell = cmf_project.cells[cell_id]
+    logger.debug(f'Building cell with ID: {cell_id}')
+
+    # Add layers
+    for i in range(len(cell_properties['layers'])):
+        cell.add_layer(float(cell_properties['layers'][i]), r_curve)
+
+    install_cell_connections(cell, cell_properties['et_method'])
+
+    set_vegetation_properties(cell,
+                              cell_properties[
+                                  'ground_type']['surface_properties'])
+
+    if cell_properties['ground_type']['manning']:
+        cell.surfacewater.set_nManning(cell_properties[
+                                           'ground_type']['manning'])
+        logger.debug(f'Sat Manning roughness to: '
+                     f'{cell_properties["ground_type"]["manning"]}')
+
+    if cell_properties['ground_type']['puddle_depth']:
+        cell.surfacewater.puddledepth = cell_properties[
+            'ground_type']['puddle_depth']
+        logger.debug(f'Sat puddle depth to: '
+                     f'{cell_properties["ground_type"]["puddle_depth"]}')
+
+    if cell_properties['surface_water']:
+        cell.surfacewater.volume = cell_properties['surface_water']
+        logger.info(f'Sat surface water to '
+                    f'{cell_properties["surface_water"]} for cell with ID: '
+                    f'{cell_id}')
+
+    # Set initial saturation
+    cell.saturated_depth = cell_properties['ground_type']['saturated_depth']
+    logger.debug(f'Sat saturated depth to '
+                 f'{cell_properties["ground_type"]["saturated_depth"]}')
+
+    return cmf_project
+
+
+def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict,
+                    mesh_info: dict) -> cmf.project:
+    """
+    Configure and setup all needed information for the cells.
+
+    :param cmf_project: CMF project
+    :param cell_properties_dict: Dict with all the needed properties
+    :return: cmf project
+    """
+
+    # Helper functions
+
+    # Convert retention curve parameters into CMF retention curve
+    r_curve = create_retention_curve(cell_properties_dict[
+                                         'ground_type']['retention_curve'])
+
+    for cell_index in mesh_info:
+        build_cell(cell_index, cmf_project, cell_properties_dict, r_curve)
+
+    # Connect fluxes
+    install_flux_connections(cmf_project, cell_properties_dict)
+
+    logger.info('Configured all cells in project.')
+
+    return cmf_project
+
+
+def config_outputs(cmf_project: cmf.project, output_configuration: dict) -> dict:
+    """
+    Function to set up result gathering dictionary.
+
+    :param cmf_project: CMF project to collect from
+    :param output_configuration: Dict to configure the results from
+    :return: Empty result dictionary
+    """
+
+    results = {}
+
+    for cell_index in range(0, len(cmf_project.cells)):
+        cell_name = 'cell_' + str(cell_index)
+        results[cell_name] = {}
+
+        # Set all cell related outputs
+        for cell_output in output_configuration['cell']:
+            results[cell_name][str(cell_output)] = []
+
+        for layer_index in range(0, len(cmf_project.cells[cell_index].layers)):
+            layer_name = 'layer_' + str(layer_index)
+            results[cell_name][layer_name] = {}
+
+            # Set all layer related outputs
+            for layer_output in output_configuration['layer']:
+                results[cell_name][layer_name][layer_output] = []
+
+    logger.debug(f'Configured outputs for CMF project. Outputs was: {results}')
+
+    return results
+
+
+def gather_results(cmf_project: cmf.project, results: dict, time: datetime.datetime):
+    """
+    Collects the produced results.
+
+    :param cmf_project: CMF project to collect from
+    :param results: Dict to gather the results in
+    :param time: Point in solver time
+    :return:
+    """
+
+    logger.debug(f'Gathering results for time: {time}')
+
+    for cell_index in range(0, len(cmf_project.cells)):
+        cell_name = 'cell_' + str(cell_index)
+
+        for out_key in results[cell_name].keys():
+
+            # Collect cell related results
+            if not out_key.startswith('layer'):
+                if out_key == 'evaporation':
+                    evap = cmf_project.cells[cell_index].evaporation
+
+                    flux_at_time = 0
+                    for flux, node in evap.fluxes(time):
+                        flux_at_time += flux
+
+                    results[cell_name][out_key].append(flux_at_time)
+
+                elif out_key == 'transpiration':
+                    transp = cmf_project.cells[cell_index].transpiration
+
+                    flux_at_time = 0
+                    for flux, node in transp.fluxes(time):
+                        flux_at_time += flux
+
+                    results[cell_name][out_key].append(flux_at_time)
+
+                elif out_key == 'surface_water_volume':
+                    volume = cmf_project.cells[cell_index].surfacewater.volume
+                    results[cell_name][out_key].append(volume)
+
+                elif out_key == 'surface_water_flux':
+                    water = cmf_project.cells[cell_index].get_surfacewater()
+
+                    flux_and_node = []
+                    for flux, node in water.fluxes(time):
+                        flux_and_node.append((flux, node))
+
+                    results[cell_name][out_key].append(flux_and_node)
+
+                elif out_key == 'heat_flux':
+                    results[cell_name][out_key].append(cmf_project.cells[cell_index].heat_flux(time))
+
+                elif out_key == 'aerodynamic_resistance':
+                    results[cell_name][out_key].append(
+                        cmf_project.cells[cell_index].get_aerodynamic_resistance(time))
+
+        for layer_index in range(0, len(cmf_project.cells[cell_index].layers)):
+            layer_name = 'layer_' + str(layer_index)
+
+            for out_key in results[cell_name][layer_name].keys():
+
+                # Collect layer related results
+
+                if out_key == 'potential':
+                    results[cell_name][layer_name][out_key].append(
+                        cmf_project.cells[cell_index].layers[layer_index].potential)
+
+                elif out_key == 'theta':
+                    results[cell_name][layer_name][out_key].append(
+                        cmf_project.cells[cell_index].layers[layer_index].theta)
+
+                elif out_key == 'volumetric_flux':
+                    layer = cmf_project.cells[cell_index].layers[layer_index].get_3d_flux(time)
+
+                    """
+                    flux_and_node = []
+                    for flux, node in layer.fluxes(time):
+                        flux_and_node.append((flux, node))
+                    """
+
+                    results[cell_name][layer_name][out_key].append(layer)
+
+                elif out_key == 'volume':
+                    results[cell_name][layer_name][out_key].append(
+                        cmf_project.cells[cell_index].layers[layer_index].volume)
+
+                elif out_key == 'wetness':
+                    results[cell_name][layer_name][out_key].append(
+                        cmf_project.cells[cell_index].layers[layer_index].wetness)
+
+
+def get_analysis_length(analysis_length: list) -> datetime.timedelta:
+
+    length, quantity = analysis_length
+
+    if quantity == 'y':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(days=length * 365)
+
+    elif quantity == 'd':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(days=length)
+
+    elif quantity == 'h':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(hours=length)
+
+    elif quantity == 'm':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(minutes=length)
+
+    elif quantity == 's':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(seconds=length)
+
+
+def get_time_step(time_step: list) -> datetime.timedelta:
+    step_size, quantity = time_step
+
+    if quantity == 'y':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(days=step_size * 365)
+
+    elif quantity == 'd':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(days=step_size)
+
+    elif quantity == 'h':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(hours=step_size)
+
+    elif quantity == 'm':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(minutes=step_size)
+
+    elif quantity == 's':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(seconds=step_size)
+
+
+def solve_project(cmf_project: cmf.project, solver_settings: dict,
+                  outputs: dict) -> dict:
+    """Solves the model"""
+
+    logger.info('Initializing solving of CMF project')
+
+    # Create solver, set time and set up results
+    solver = cmf.CVodeIntegrator(cmf_project,
+                                 solver_settings['tolerance'])
+    solver.t = cmf.Time(solver_settings['start_time']['day'],
+                        solver_settings['start_time']['month'],
+                        solver_settings['start_time']['year'])
+
+    logger.debug(f'Solver start time: {solver.t}')
+
+    results = config_outputs(cmf_project, outputs)
+
+    # Save initial conditions to results
+    gather_results(cmf_project, results, solver.t)
+
+    analysis_length = get_analysis_length(solver_settings['analysis_length'])
+    time_step = get_time_step(solver_settings['time_step'])
+    number_of_steps = analysis_length.total_seconds()/time_step.total_seconds()
+
+    # Run solver and save results at each time step
+    widgets = [' [', progressbar.Timer(), '] ',
+               progressbar.Bar(),
+               ' [', progressbar.AdaptiveETA(), ' ]']
+    bar = progressbar.ProgressBar(max_value=number_of_steps, widgets=widgets)
+    for index, time_ in enumerate(solver.run(solver.t,
+                                  solver.t + analysis_length,
+                                  time_step)):
+
+        gather_results(cmf_project, results, time_)
+        bar.update(index)
+
+    logger.info('Solved CMF project!')
+
+    return results
+
+
+def save_results(results: dict, folder: str):
+    """Saves the computed results to a json file"""
+
+    path = os.path.join(folder, 'results.json')
+
+    logger.debug(f'Saving results to: {path}')
+
+    with open(path, 'w') as file:
+        json.dump(results, file)
+
+
+def create_weather(cmf_project):
+    raise NotImplementedError
+
+
+def create_boundary_conditions(cmf_project):
+    raise NotImplementedError
+
+
+def run_model(folder: str) -> cmf.project:
+    """
+    Runs the model with everything.
+
+    :return: Simulated CMF project
+    """
+
+    # Initialize project
+    project = cmf.project()
+
+    (ground_list, mesh_paths, weather_dict, trees_dict, outputs, solver_settings,
+     boundary_dict) = load_cmf_files(folder, False)
+
+    # Add cells and properties to them
+    project, mesh_info = mesh_to_cells(project, mesh_paths)
+
+    for ground in ground_list:
+        configure_cells(project, ground, mesh_info[ground['mesh']])
+
+    if trees_dict:
+        for key in trees_dict.keys():
+            add_tree_to_project(project,
+                                trees_dict[key]['face_index'],
+                                trees_dict[key]['property'])
+
+    # Create the weather
+    if weather_dict:
+        create_weather(project)
+
+    # Create boundary conditions
+    if boundary_dict:
+        create_boundary_conditions(project)
+
+    # Run solver
+    results = solve_project(project, solver_settings, outputs)
+
+    # Save the results
+    save_results(results, folder)
+
+    return project
+
+
 class CMFModel:
+    """
+    Class containing a CMF model
+    """
 
     def __init__(self, folder):
         self.folder = folder
@@ -41,6 +649,14 @@ class CMFModel:
         self.results = {}
 
     def load_cmf_files(self, delete_after_load=False):
+        """
+        Loads the needed files for the CMF project to run.
+
+        :param delete_after_load: Delete after the files are loaded?
+        :type delete_after_load: bool
+        :return: True
+        :rtype: bool
+        """
 
         def load_weather(folder, delete):
 
@@ -238,10 +854,15 @@ class CMFModel:
     def mesh_to_cells(self, cmf_project, mesh_path, delete_after_load=True):
         """
         Takes a mesh and converts it into CMF cells
+
         :param mesh_path: Path to mesh .obj file
+        :type mesh_path: str
         :param cmf_project: CMF project object.
+        :type cmf_project: cmf.project
         :param delete_after_load: If True, it deletes the input files after they have been loaded.
+        :type delete_after_load: bool
         :return: True
+        :rtype: bool
         """
 
         # Convert obj to shapefile
@@ -263,7 +884,18 @@ class CMFModel:
         return True
 
     def add_tree(self, cmf_project, cell_index, property_dict):
-        """Adds a tree to the model"""
+        """
+        Adds a tree to the model and sets the need properties for it.
+
+        :param cmf_project: CMF project
+        :type cmf_project: cmf.project
+        :param cell_index: Index of the cell where the tree should be added.
+        :type cell_index: int
+        :param property_dict: Dict with tree properties.
+        :type property_dict: dict
+        :return: True
+        :rtype: bool
+        """
 
         cell = cmf_project.cells[int(cell_index)]
         self.set_vegetation_properties(cell, property_dict)
@@ -278,6 +910,17 @@ class CMFModel:
         return True
 
     def set_vegetation_properties(self, cell_: cmf.Cell, property_dict: dict):
+        """
+        Sets the vegetation properties for a cell.
+
+        :param cell_: Cell to set properties for.
+        :type cell_: cmf.Cell
+        :param property_dict: Dict containing the needed properties.
+        :type property_dict: dict
+        :return: True
+        :rtype: bool
+        """
+
         cell_.vegetation.Height = float(property_dict['height'])
         cell_.vegetation.LAI = float(property_dict['lai'])
         cell_.vegetation.albedo = float(property_dict['albedo'])
@@ -292,7 +935,16 @@ class CMFModel:
         return True
 
     def configure_cells(self, cmf_project: cmf.project, cell_properties_dict: dict):
-        """Configure the cells"""
+        """
+        Configure and setup all needed information for the cells.
+
+        :param cmf_project: CMF project
+        :type cmf_project: cmf.project
+        :param cell_properties_dict: Dict with all the needed properties
+        :type cell_properties_dict: dict
+        :return: True
+        :rtype: bool
+        """
 
         # Helper functions
         def install_connections(cell_, evapotranspiration_method):
@@ -373,47 +1025,13 @@ class CMFModel:
 
         return True
 
-    def create_stream(self, shape, shape_param, outlet):
-        """Create a stream"""
-        # ShapeParam(Tri) = [length, bankSlope, x, y, z, intialWaterDepth]
-        # ShapeParam(Rec) = [length, width, x, y, z, intialWaterDepth]
-        reaches = []
-
-        # Create stream
-        if shape == 0:
-            for i in range(len(shape_param)):
-                reach_shape = cmf.TriangularReach(shape_param[i][0],shape_param[i][1])
-                reaches.append([self.project.NewReach(shape_param[i][2], shape_param[i][3], shape_param[i][4], reach_shape, False)])
-                reaches[-1].depth(shape_param[5])
-
-                # Connect reaches
-                if not reaches:
-                    pass
-                elif len(reaches) == len(shape_param):
-                    channel_out = self.project.NewOutlet(outlet[0], outlet[1], outlet[2])
-                    reaches[-1].set_downstream(channel_out)
-                else:
-                    reaches[-2].set_downstream(reaches[-1])
-
-        elif shape == 1:
-            for i in range(len(shape_param)):
-                reach_shape = cmf.RectangularReach(shape_param[i][0],shape_param[i][1])
-                reaches.append([self.project.NewReach(shape_param[i][2], shape_param[i][3], shape_param[i][4], reach_shape, False)])
-                reaches[-1].depth(shape_param[5])
-
-                # Connect reaches
-                if not reaches:
-                    pass
-                elif len(reaches) == len(shape_param):
-                    channel_out = self.project.NewOutlet(outlet[0], outlet[1], outlet[2])
-                    reaches[-1].set_downstream(channel_out)
-                else:
-                    reaches[-2].set_downstream(reaches[-1])
-        else:
-            return None
-
     def create_weather(self, cmf_project):
-        """Creates weather for the project"""
+        """
+        Creates weather for the project
+
+        :param cmf_project: CMF project
+        :type cmf_project: cmf.project
+        """
 
         # Helper functions
         def create_time_series(analysis_length, time_step=1.0):
@@ -510,6 +1128,12 @@ class CMFModel:
             connect_weather_to_cells(cell, cell_rain, cell_meteo)
 
     def create_boundary_conditions(self, cmf_project):
+        """
+        Set a boundary condition for the CMF project.
+
+        :param cmf_project: CMF project to give a boundary conditions
+        :type cmf_project: cmf.project
+        """
 
         # Helper functions
         def set_inlet(boundary_condition_, cmf_project_):
@@ -570,7 +1194,6 @@ class CMFModel:
                                       float(boundary_condition_['outlet_type']['connection_parameter']))
 
         def set_boundary_condition(boundary_condition_, bc_index, cmf_project_):
-            print('set_boundary_condition', boundary_condition_)
             if boundary_condition_['type'] == 'inlet':
                 set_inlet(boundary_condition_, cmf_project_)
             elif boundary_condition_['type'] == 'outlet':
@@ -584,7 +1207,14 @@ class CMFModel:
             set_boundary_condition(self.boundary_dict[boundary_condition], index, cmf_project)
 
     def config_outputs(self, cmf_project):
-        """Function to set up result gathering dictionary"""
+        """
+        Function to set up result gathering dictionary.
+
+        :param cmf_project: CMF project to collect from
+        :type cmf_project: cmf.project
+        :return: Empty result dictionary
+        :rtype: dict
+        """
 
         out_dict = {}
 
@@ -607,6 +1237,16 @@ class CMFModel:
         self.results = out_dict
 
     def gather_results(self, cmf_project, time):
+        """
+        Collects the produced results.
+
+        :param cmf_project: CMF project to collect from
+        :type cmf_project: cmf.project
+        :param time: Point in solver time
+        :type time: datetime.datetime
+        :return:
+        :rtype:
+        """
 
         for cell_index in range(0, len(cmf_project.cells)):
             cell_name = 'cell_' + str(cell_index)
@@ -698,11 +1338,25 @@ class CMFModel:
                     #    raise ValueError('Unknown result to collect. Result to collect was: ' + str(out_key))
 
     def print_solver_time(self, solver_time, start_time, last_time, step):
+        """
+        Prints information at each solver time.
+
+        :param solver_time: The time the solver solves for.
+        :type solver_time: datetime.datetime
+        :param start_time: Time at the start of the simulation
+        :type start_time: datetime.datetime
+        :param last_time: Last time step
+        :type last_time: datetime.datetime
+        :param step: Current simulation step
+        :type step: int
+        :return: Current time
+        :rtype: datetime.datetime
+        """
 
         if self.solver_settings['verbosity']:
             now = datetime.datetime.now()
             elapsed_time = now - start_time
-            time_per_step = elapsed_time.total_seconds()/(step+1)
+            time_per_step = elapsed_time.total_seconds()/(step + 1)
             time_left = datetime.timedelta(seconds=(time_per_step * (self.solver_settings['analysis_length'] - step)))
             current_time = (now - last_time)
 
@@ -788,7 +1442,12 @@ class CMFModel:
             return True
 
     def run_model(self):
-        """Runs the model with everything"""
+        """
+        Runs the model with everything.
+
+        :return: Simulated CMF project
+        :rtype: cmf.project
+        """
 
         # Initialize project
         project = cmf.project()
@@ -822,7 +1481,16 @@ class CMFModel:
         return project
 
 
-def cmf_results(path):
+def cmf_results(path: str) -> bool:
+    """
+    Process a CMF result file.
+
+    :param path: Folder containing the result file.
+    :type path: str
+    :return: True
+    :rtype: bool
+    """
+
     files = os.listdir(path)
     result_path = None
     lookup_path = None
@@ -847,8 +1515,18 @@ def cmf_results(path):
     return True
 
 
-def cell_results(looking_for, result_file, folder):
-    """Processes cell results"""
+def cell_results(looking_for: str, result_file: str, folder: str) -> bool:
+    """Processes cell results after a desired parameter.
+
+    :param looking_for: Parameter to look for.
+    :type looking_for: str
+    :param result_file: Path of the result file.
+    :type result_file: str
+    :param folder: Path of the folder
+    :type folder: str
+    :return: True
+    :rtype: bool
+    """
 
     # Initialize
     result_tree = ET.tostring(ET.parse(result_file).getroot())
@@ -886,8 +1564,19 @@ def cell_results(looking_for, result_file, folder):
     return True
 
 
-def layer_results(looking_for, result_file, folder):
-    """Processes layer results"""
+def layer_results(looking_for: str, result_file: str, folder: str) -> bool:
+    """
+    Processes layer results after a desired parameter.
+
+    :param looking_for: Parameter to look for.
+    :type looking_for: str
+    :param result_file: Path of the result file.
+    :type result_file: str
+    :param folder: Path of the folder
+    :type folder: str
+    :return: True
+    :rtype: bool
+    """
 
     # Initialize
     result_tree = ET.tostring(ET.parse(result_file).getroot())
@@ -922,7 +1611,16 @@ def layer_results(looking_for, result_file, folder):
     return True
 
 
-def convert_cmf_points(points):
+def convert_cmf_points(points: str) -> list:
+    """
+    Convert a string of CMF points into a list of tuples with their coordinates.
+
+    :param points: CMF points
+    :type points: str
+    :return: List of tuples contain point coordniates
+    :rtype: list
+    """
+
     # convert to list
     point_list = points[1:-1]
     point_tuples = []
@@ -937,7 +1635,15 @@ def convert_cmf_points(points):
     return point_tuples
 
 
-def surface_flux_results(path):
+def surface_flux_results(path: str) -> bool:
+    """
+    Generates the surface flux from a CMF result file.
+
+    :param path: Folder where the result file is located.
+    :type path: str
+    :return: True
+    :rtype: bool
+    """
 
     # Helper functions
     def read_files(path_):
