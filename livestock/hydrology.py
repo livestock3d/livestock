@@ -484,12 +484,22 @@ def get_analysis_length(analysis_length: list) -> datetime.timedelta:
 
     length, quantity = analysis_length
 
-    if quantity == 'h':
+    if quantity == 'y':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(days=length * 365)
+
+    elif quantity == 'd':
+        logger.debug(f'Analysis length set to: {length} {quantity}')
+        return datetime.timedelta(days=length)
+
+    elif quantity == 'h':
         logger.debug(f'Analysis length set to: {length} {quantity}')
         return datetime.timedelta(hours=length)
+
     elif quantity == 'm':
         logger.debug(f'Analysis length set to: {length} {quantity}')
         return datetime.timedelta(minutes=length)
+
     elif quantity == 's':
         logger.debug(f'Analysis length set to: {length} {quantity}')
         return datetime.timedelta(seconds=length)
@@ -501,6 +511,10 @@ def get_time_step(time_step: list) -> datetime.timedelta:
     if quantity == 'y':
         logger.debug(f'Solver time step set to: {step_size} {quantity}')
         return datetime.timedelta(days=step_size * 365)
+
+    elif quantity == 'd':
+        logger.debug(f'Solver time step set to: {step_size} {quantity}')
+        return datetime.timedelta(days=step_size)
 
     elif quantity == 'h':
         logger.debug(f'Solver time step set to: {step_size} {quantity}')
