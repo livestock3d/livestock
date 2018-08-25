@@ -30,8 +30,8 @@ def test_load_cmf_files(input_files):
     assert isinstance(mesh_paths, list)
     for mesh in mesh_paths:
         assert isinstance(mesh, str)
-        assert mesh.startswith('mesh')
-        assert mesh.endswith('.obj')
+        assert os.path.split(mesh)[1].startswith('mesh')
+        assert os.path.split(mesh)[1].endswith('.obj')
 
     assert outputs
     assert isinstance(outputs, dict)

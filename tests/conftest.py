@@ -37,7 +37,7 @@ def shapely_polygons(obj_file_paths):
     return geometry.obj_to_polygons(obj_file_paths)
 
 
-@pytest.fixture(params=['run_off'])
+@pytest.fixture(params=['run_off_0', 'run_off_1'])
 def input_files(tmpdir, data_folder, request):
     test_folder = tmpdir.mkdir('test')
     data_path = os.path.join(data_folder, request.param)
@@ -113,7 +113,7 @@ def drain_mesh(data_folder):
 @pytest.fixture()
 def mock_solver(monkeypatch):
 
-    class MockClass():
+    class MockClass:
         def __init__(self, project, tolerance):
             self.project = project
             self.tol = tolerance
