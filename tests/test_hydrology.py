@@ -18,7 +18,7 @@ from livestock import hydrology
 
 
 def test_load_cmf_files(input_files):
-    (ground, mesh_path, weather_dict, trees_dict, outputs,
+    (ground, mesh_paths, weather_dict, trees_dict, outputs,
      solver_settings, boundary_dict) = hydrology.load_cmf_files(input_files)
 
     assert ground
@@ -26,8 +26,12 @@ def test_load_cmf_files(input_files):
     for ground_ in ground:
         assert isinstance(ground_, dict)
 
-    assert mesh_path
-    assert isinstance(str(mesh_path), str)
+    assert mesh_paths
+    assert isinstance(mesh_paths, list)
+    for mesh in mesh_paths:
+        assert isinstance(mesh, str)
+        assert mesh.startswith('mesh')
+        assert mesh.endswith('.obj')
 
     assert outputs
     assert isinstance(outputs, dict)
@@ -39,7 +43,7 @@ def test_load_cmf_files(input_files):
 def test_mesh_to_cells(obj_file_paths):
     project = cmf.project()
 
-    hydrology.mesh_to_cells(project, obj_file_paths, False)
+    hydrology.mesh_to_cells(project, [obj_file_paths, ], False)
 
     assert project
     assert project.cells
@@ -75,15 +79,16 @@ def test_install_cell_connections(cmf_data, project_with_cells):
 
 
 def test_build_cell(cmf_data, project_with_cells, retention_curve):
-    (ground_list, mesh_path, weather_dict, trees_dict, outputs,
+    (ground_list, mesh_paths, weather_dict, trees_dict, outputs,
      solver_settings, boundary_dict) = cmf_data
 
+    project, mesh_info = project_with_cells
     for ground in ground_list:
-        for cell_index in ground['mesh']:
-            hydrology.build_cell(cell_index, project_with_cells,
+        for cell_index in mesh_info[ground['mesh']]:
+            hydrology.build_cell(cell_index, project,
                                  ground, retention_curve)
 
-            cell = project_with_cells.cells[cell_index]
+            cell = project.cells[cell_index]
 
             assert cell
             if len(cell.layers) > 1:
@@ -100,20 +105,22 @@ def test_build_cell(cmf_data, project_with_cells, retention_curve):
 def test_install_flux_connections(cmf_data, project_with_cells):
     (ground_list, mesh_path, weather_dict, trees_dict, outputs,
      solver_settings, boundary_dict) = cmf_data
+    project, mesh_info = project_with_cells
 
     for ground in ground_list:
-        hydrology.install_flux_connections(project_with_cells, ground)
+        hydrology.install_flux_connections(project, ground)
 
     # TODO: Create better assessments
-    assert project_with_cells
+    assert project
 
 
 def test_configure_cells(cmf_data, project_with_cells):
     (ground_list, mesh_path, weather_dict, trees_dict, outputs,
      solver_settings, boundary_dict) = cmf_data
+    project, mesh_info = project_with_cells
 
     for ground in ground_list:
-        hydrology.configure_cells(project_with_cells, ground)
+        hydrology.configure_cells(project, ground,  mesh_info[ground['mesh']])
 
     # TODO: Create better assessments
     assert project_with_cells
@@ -157,6 +164,7 @@ def test_save_project():
     assert True
 
 
+@pytest.mark.skip('Not ready yet')
 def test_run_off(data_folder):
     folder = os.path.join(data_folder, 'run_off')
     hydrology.run_model(folder)

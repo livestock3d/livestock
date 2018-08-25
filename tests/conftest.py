@@ -13,6 +13,7 @@ import cmf
 # Livestock imports
 from livestock import geometry
 from livestock import hydrology
+from livestock import log
 
 
 # ---------------------------------------------------------------------------- #
@@ -56,12 +57,12 @@ def cmf_data(input_files):
 
 @pytest.fixture()
 def project_with_cells(cmf_data):
-    (ground_list, mesh_path, weather_dict, trees_dict, outputs,
+    (ground_list, mesh_paths, weather_dict, trees_dict, outputs,
      solver_settings, boundary_dict) = cmf_data
 
     project = cmf.project()
 
-    return hydrology.mesh_to_cells(project, mesh_path, False)
+    return hydrology.mesh_to_cells(project, mesh_paths, False)
 
 
 @pytest.fixture()
@@ -79,10 +80,10 @@ def solve_ready_project(cmf_data):
      solver_settings, boundary_dict) = cmf_data
 
     project = cmf.project()
-    hydrology.mesh_to_cells(project, mesh_path, False)
+    project, mesh_info = hydrology.mesh_to_cells(project, mesh_path, False)
 
     for ground in ground_list:
-        hydrology.configure_cells(project, ground)
+        hydrology.configure_cells(project, ground, mesh_info[ground['mesh']])
 
     if trees_dict:
         for key in trees_dict.keys():
@@ -134,3 +135,27 @@ def mock_gather_results(monkeypatch):
         pass
 
     monkeypatch.setattr(hydrology, 'gather_results', mock_return)
+
+
+@pytest.fixture(autouse=True)
+def disable_logger(monkeypatch):
+
+    def mock_return():
+
+        class MockLog:
+
+            def debug(self):
+                return None
+
+            def info(self):
+                return None
+
+            def warning(self):
+                return None
+
+            def error(self):
+                return None
+
+        return MockLog()
+
+    monkeypatch.setattr(log, 'livestock_logger', mock_return)

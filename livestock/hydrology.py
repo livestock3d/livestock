@@ -28,42 +28,46 @@ logger = livestock_logger()
 # CMF Functions and Classes
 
 
-def mesh_to_cells(cmf_project: cmf.project, mesh_path: str,
-                  delete_after_load=False) -> cmf.project:
+def mesh_to_cells(cmf_project: cmf.project, mesh_paths: typing.List[str],
+                  delete_after_load=False) -> typing.Tuple[cmf.project, dict]:
     """
     Takes a mesh and converts it into CMF cells
 
-    :param mesh_path: Path to mesh .obj file
-    :type mesh_path: str
+    :param mesh_paths: Path to mesh .obj file
     :param cmf_project: CMF project object.
-    :type cmf_project: cmf.project
     :param delete_after_load: If True, it deletes the input files after they have been loaded.
-    :type delete_after_load: bool
     :return: True
-    :rtype: bool
     """
 
-    # Convert obj to shapefile
-    shape_path = os.path.split(mesh_path)[0] + '/mesh.shp'
-    lg.obj_to_shp(mesh_path, shape_path)
-    polygons = Shapefile(shape_path)
-    logger.debug('Converted .obj to .shp')
+    cell_dict = dict()
+    cell_counter = 0
+    for mesh_file in mesh_paths:
+        mesh_name = os.path.split(mesh_file)[1][:-4]
+        cell_dict[mesh_name] = list()
+        # Convert obj to shapefile
+        shape_path = os.path.split(mesh_file)[0] + '/mesh.shp'
+        lg.obj_to_shp(mesh_file, shape_path)
+        polygons = Shapefile(shape_path)
+        logger.debug('Converted .obj to .shp')
 
-    for polygon in polygons:
-        cmf.geometry.create_cell(cmf_project, polygon.shape, polygon.height, polygon.id)
+        for polygon in polygons:
+            cmf.geometry.create_cell(cmf_project, polygon.shape,
+                                     polygon.height, polygon.id)
+            cell_dict[mesh_name].append(cell_counter)
+            cell_counter += 1
 
-    # Build topology
-    cmf.geometry.mesh_project(cmf_project, verbose=False)
-    logger.info('Build cells in project')
+        # Build topology
+        cmf.geometry.mesh_project(cmf_project, verbose=False)
+        logger.info('Build cells in project')
 
-    if delete_after_load:
-        os.remove(mesh_path)
-        os.remove(shape_path)
-        os.remove(os.path.split(mesh_path)[0] + '/mesh.dbf')
-        os.remove(os.path.split(mesh_path)[0] + '/mesh.shx')
-        logger.info('Removed mesh files')
+        if delete_after_load:
+            os.remove(mesh_file)
+            os.remove(shape_path)
+            os.remove(os.path.split(mesh_file)[0] + '/mesh.dbf')
+            os.remove(os.path.split(mesh_file)[0] + '/mesh.shx')
+            logger.debug('Removed mesh files')
 
-    return cmf_project
+    return cmf_project, cell_dict
 
 
 def set_vegetation_properties(cell_: cmf.Cell, property_dict: dict):
@@ -134,7 +138,7 @@ def load_cmf_files(folder: str, delete_after_load=False) -> tuple:
 
     # Load files and assign data to variables
     ground = load_ground(folder, delete_after_load)
-    mesh_path = load_mesh(folder)
+    mesh_paths = load_meshes(folder)
 
     weather_dict = load_input_data(os.path.join(folder, 'weather.json'),
                                    delete_after_load)
@@ -150,7 +154,7 @@ def load_cmf_files(folder: str, delete_after_load=False) -> tuple:
 
     logger.info('Loaded input files')
 
-    return (ground, mesh_path, weather_dict, trees_dict, outputs,
+    return (ground, mesh_paths, weather_dict, trees_dict, outputs,
             solver_settings, boundary_dict)
 
 
@@ -194,15 +198,18 @@ def load_ground(folder: str, delete: bool) -> list:
                                     f'{folder}')
 
 
-def load_mesh(folder: str) -> str:
+def load_meshes(folder: str) -> typing.List[str]:
 
     # look for file
-    mesh_path = os.path.join(folder, 'mesh.obj')
-    if os.path.isfile(mesh_path):
-        return mesh_path
+    meshes = []
+    for file in os.listdir(folder):
+        if file.endswith('.obj'):
+            meshes.append(os.path.join(folder, file))
 
+    if meshes:
+        return meshes
     else:
-        error = f'Cannot find mesh.obj in folder: {folder}'
+        error = f'Cannot find any .obj files in folder: {folder}'
         logger.error(error)
         raise FileNotFoundError(error)
 
@@ -322,8 +329,8 @@ def build_cell(cell_id: int, cmf_project: cmf.project, cell_properties: dict,
     return cmf_project
 
 
-def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict) \
-        -> cmf.project:
+def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict,
+                    mesh_info: dict) -> cmf.project:
     """
     Configure and setup all needed information for the cells.
 
@@ -338,7 +345,7 @@ def configure_cells(cmf_project: cmf.project, cell_properties_dict: dict) \
     r_curve = create_retention_curve(cell_properties_dict[
                                          'ground_type']['retention_curve'])
 
-    for cell_index in cell_properties_dict['mesh']:
+    for cell_index in mesh_info:
         build_cell(cell_index, cmf_project, cell_properties_dict, r_curve)
 
     # Connect fluxes
@@ -561,31 +568,31 @@ def save_results(results: dict, folder: str):
 
 
 def create_weather(cmf_project):
-    pass
+    raise NotImplementedError
 
 
 def create_boundary_conditions(cmf_project):
-    pass
+    raise NotImplementedError
 
 
-def run_model(folder: str):
+def run_model(folder: str) -> cmf.project:
     """
     Runs the model with everything.
 
     :return: Simulated CMF project
-    :rtype: cmf.project
     """
 
     # Initialize project
     project = cmf.project()
-    (ground_list, mesh_path, weather_dict, trees_dict, outputs, solver_settings,
+
+    (ground_list, mesh_paths, weather_dict, trees_dict, outputs, solver_settings,
      boundary_dict) = load_cmf_files(folder, False)
 
     # Add cells and properties to them
-    project = mesh_to_cells(project, mesh_path)
+    project, mesh_info = mesh_to_cells(project, mesh_paths)
 
     for ground in ground_list:
-        configure_cells(project, ground)
+        configure_cells(project, ground, mesh_info[ground['mesh']])
 
     if trees_dict:
         for key in trees_dict.keys():
