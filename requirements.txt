@@ -11,3 +11,4 @@ pytest
 pytest-cov
 coveralls
 flake8
+mypy

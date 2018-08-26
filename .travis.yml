@@ -12,3 +12,5 @@ script:
 after_success:
   - coverage report
   - coveralls
+  - mypy livestock
+  - flake8 livestock
