@@ -8,6 +8,7 @@ __license__ = "MIT"
 import logging
 import os
 import shutil
+import platform
 
 # Livestock imports
 
@@ -16,7 +17,10 @@ import shutil
 
 
 def log_path():
-    livestock_path = r'C:\livestock'
+    if not platform.system() == 'Linux':
+        livestock_path = r'C:\livestock'
+    else:
+        livestock_path = os.path.dirname(__file__)
 
     log_folder = os.path.join(livestock_path, 'logs')
 
