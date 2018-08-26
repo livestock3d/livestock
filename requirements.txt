@@ -8,3 +8,5 @@ xmltodict
 dbfread
 progressbar2
 pytest
+pytest-cov
+coveralls
