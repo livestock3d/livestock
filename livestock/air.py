@@ -1,6 +1,6 @@
 __author__ = "Christian Kongsgaard"
 
-# ---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------- #
 # Imports
 
 # Module imports
@@ -8,10 +8,11 @@ import numpy as np
 import multiprocessing
 from scipy.optimize import brentq
 
+
 # Livestock imports
 
 
-# ---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------- #
 # Livestock Air Functions
 
 def new_temperature_and_relative_humidity(folder: str) -> bool:
@@ -41,8 +42,8 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
         vapour_flux_ = np.loadtxt(folder_ + '/vapour_flux.txt', delimiter=',')
         cpu_ = np.loadtxt(folder + '/cpu.txt', delimiter=',')
 
-        return air_temperature_, air_relative_humidity_, wind_speed_, area_, height_top_, height_stratification_, \
-            vapour_flux_, int(cpu_)
+        return (air_temperature_, air_relative_humidity_, wind_speed_, area_, height_top_, height_stratification_,
+                vapour_flux_, int(cpu_))
 
     def reconstruct_results(folder_, processed_rows_):
         """
@@ -80,7 +81,7 @@ def new_temperature_and_relative_humidity(folder: str) -> bool:
         get_files(folder)
 
     rows_ = [i
-             for i in range(0, len(vapour_flux)-1)]
+             for i in range(0, len(vapour_flux) - 1)]
 
     input_packages = [(index,
                        temperature[index],
@@ -113,7 +114,8 @@ def max_possible_vapour_flux(vapour_mass_flux: float, volume: float,
     :type temperature_in_kelvin: float
     :param vapour_pressure: Current vapour pressure in Pa
     :type vapour_pressure: float
-    :return: Difference between the saturated vapour pressure after adding the vapour and latent heat flux to the air volume and the actual vapour pressure of the air volume.
+    :return: Difference between the saturated vapour pressure after adding the vapour and latent heat flux to the air
+    volume and the actual vapour pressure of the air volume.
     :rtype: float
     """
 
@@ -131,7 +133,8 @@ def compute_temperature_relative_humidity(temperature_in_k: np.array, relative_h
                                           vapour_mass_flux: np.array, volume: np.array) -> tuple:
     """
     Computes the coupled relative humidity and temperature of an air volume given a vapour flux. The vapour pressure is
-    capped off so it can not exceed the saturated vapour pressure. This potentially means that not the whole amount of vapour flux will be used.
+    capped off so it can not exceed the saturated vapour pressure. This potentially means that not the whole amount of
+    vapour flux will be used.
 
     :param temperature_in_k: Current temperature of the air volume in K
     :type temperature_in_k: numpy.array
@@ -200,8 +203,8 @@ def run_row(input_package: list) -> tuple:
     """
 
     # unpack
-    row_index, temperature_time, relative_humidity_time, vapour_flux_time_row, wind_speed, area, \
-        height_stratification, height_top = input_package
+    (row_index, temperature_time, relative_humidity_time, vapour_flux_time_row, wind_speed, area,
+     height_stratification, height_top) = input_package
 
     # new mean temperature i K
     air_temperature_in_k = celsius_to_kelvin(temperature_time)
@@ -251,7 +254,7 @@ def latent_heat_flux(vapour_mass_flux: np.array) -> np.array:
     :rtype: numpy.array
     """
 
-    latent_heat_of_vaporization = 2.5 * 10**6  # J/kg
+    latent_heat_of_vaporization = 2.5 * 10 ** 6  # J/kg
 
     return np.negative(latent_heat_of_vaporization * vapour_mass_flux)  # J/h
 
@@ -345,7 +348,7 @@ def new_mean_vapour_pressure(volume: np.array, temperature: np.array,
     """
 
     gas_constant_vapour = 461.5  # J/kgK
-    density_vapour = vapour_pressure_external/(gas_constant_vapour * temperature)  # kg/m3
+    density_vapour = vapour_pressure_external / (gas_constant_vapour * temperature)  # kg/m3
     mass_vapour = density_vapour * volume  # kg
     new_mass_vapour = mass_vapour + vapour_production  # kg
     vapour_pressure = (new_mass_vapour * gas_constant_vapour * temperature) / volume  # Pa
@@ -375,7 +378,7 @@ def new_mean_temperature(volume: np.array, temperature: np.array, heat: np.array
     energy_air = volume * specific_heat_capacity * density_air * temperature  # J
 
     # Create a check to make sure that the temperature can not go below 0C
-    new_temperature = np.maximum((energy_air + heat)/(volume * density_air * specific_heat_capacity), 273.15)
+    new_temperature = np.maximum((energy_air + heat) / (volume * density_air * specific_heat_capacity), 273.15)
 
     return new_temperature
 
@@ -465,7 +468,7 @@ def stratification(height: float, value_mean: float, height_top: float, value_to
     :rtype: float
     """
 
-    return value_mean - 2 * height * (value_mean - value_top)/height_top
+    return value_mean - 2 * height * (value_mean - value_top) / height_top
 
 
 def saturated_vapour_pressure(temperature: float) -> float:
@@ -483,7 +486,7 @@ def saturated_vapour_pressure(temperature: float) -> float:
     # Make check. -109.8C is the temperature where the air can hold no water.
     temperature_in_celsius = np.maximum(kelvin_to_celsius(temperature), -109)
 
-    return 288.68 * (1.098 + temperature_in_celsius/100) ** 8.02
+    return 288.68 * (1.098 + temperature_in_celsius / 100) ** 8.02
 
 
 def wind_speed_to_hour_flux(wind_speed: float) -> float:
@@ -514,7 +517,7 @@ def diameter_from_area(area: np.array) -> np.array:
     :rtype: numpy.array
     """
 
-    return np.sqrt(4 * area/np.pi)
+    return np.sqrt(4 * area / np.pi)
 
 
 def wind_speed_to_flux(wind_speed: np.array, height: np.array, cross_section: np.array) -> np.array:

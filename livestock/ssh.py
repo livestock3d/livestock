@@ -1,14 +1,14 @@
 __author__ = "Christian Kongsgaard"
 __license__ = "MIT"
 
-# ---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------- #
 # Imports
 
 # Module imports
 import os
 import paramiko
 
-# ---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------- #
 # Livestock SSH Functions
 
 
@@ -98,7 +98,6 @@ def ssh_connection():
 
     com_send = False
     folder_send = False
-    return_send = False
     outfile = False
 
     while True:
@@ -130,7 +129,7 @@ def ssh_connection():
         # Look for outfile
         try:
             outfile = sftp.file(remote_folder + '/out.txt')
-        except:
+        except Exception:
             pass
 
         if outfile:

@@ -1,7 +1,7 @@
 __author__ = "Christian Kongsgaard"
 __license__ = "MIT"
 
-# ---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------- #
 # Imports
 
 # Module imports
@@ -12,7 +12,7 @@ import subprocess
 # Livestock imports
 
 
-# ---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------- #
 # Livestock Miscellaneous Library
 
 
@@ -27,7 +27,7 @@ def run_cfd(files_path):
     os.remove(files_path + '/cfd_commands.txt')
 
     commands = lines[0][:-1].split(',')
-    cpus = lines[1].split(',')
+    # cpus = lines[1].split(',')
 
     # unpack and delete zip
     shutil.unpack_archive(zip_file, files_path)
