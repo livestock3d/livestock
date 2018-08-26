@@ -10,3 +10,4 @@ progressbar2
 pytest
 pytest-cov
 coveralls
+flake8
