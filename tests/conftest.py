@@ -1,5 +1,5 @@
 __author__ = "Christian Kongsgaard"
-__license__ = "MIT"
+__license__ = "GNU GPLv3"
 
 # ---------------------------------------------------------------------------- #
 # Imports
