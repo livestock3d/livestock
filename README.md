@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/livestock3d/livestock.svg?branch=master)](https://travis-ci.org/livestock3d/livestock)
 [![Coverage Status](https://coveralls.io/repos/github/livestock3d/livestock/badge.svg?branch=master)](https://coveralls.io/github/livestock3d/livestock?branch=master)
-[![GitHub release](https://img.shields.io/github/release/livestock3d/livestock.svg?logo=github)](https://github.com/livestock3d/livestock)
+[![GitHub release](https://img.shields.io/github/release/livestock3d/livestock.svg?logo=github)](https://github.com/livestock3d/livestock/releases)
 
 # Livestock
 Livestock is a package for Grasshopper providing components for modelling water movement and hydrothermal effects 
