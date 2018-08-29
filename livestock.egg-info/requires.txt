@@ -7,8 +7,3 @@ cmf==1.2
 xmltodict
 dbfread
 progressbar2
-pytest
-pytest-cov
-coveralls
-flake8
-mypy
