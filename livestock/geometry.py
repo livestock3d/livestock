@@ -183,12 +183,16 @@ def obj_to_lists(obj_file: str) -> tuple:
     for line in lines:
         if line.startswith('v '):
             data = line.split(' ')
+            data = [d.strip('\n') for d in data]
+            data = [d.replace('\\', '0.0') for d in data]
             vertices.append((float(data[1]),
                              float(data[2]),
                              float(data[3].strip())))
 
         elif line.startswith('vn'):
             data = line.split(' ')
+            data = [d.strip('\n') for d in data]
+            data = [d.replace('\\', '0.0') for d in data]
             normals.append((float(data[1]),
                             float(data[2]),
                             float(data[3].strip())))
