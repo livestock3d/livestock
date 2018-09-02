@@ -1,41 +1,29 @@
 Metadata-Version: 2.1
 Name: livestock
-Version: 2018.8.1a0
+Version: 2018.9.1.post1
 Summary: Livestock is a plugin/library for Grasshopper written in Python
 Home-page: https://github.com/ocni-dtu/livestock
 Author: Christian Kongsgaard
 Author-email: ocni@dtu.dk
-License: MIT License
-
-Copyright (c) 2017 Christian Kongsgaard
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-Description: # Livestock
+License: GNU GPLv3
+Description: [![Build Status](https://travis-ci.org/livestock3d/livestock.svg?branch=master)](https://travis-ci.org/livestock3d/livestock)
+        [![Coverage Status](https://coveralls.io/repos/github/livestock3d/livestock/badge.svg?branch=master)](https://coveralls.io/github/livestock3d/livestock?branch=master)
+        [![GitHub release](https://img.shields.io/github/release/livestock3d/livestock.svg?logo=github)](https://github.com/livestock3d/livestock/releases)
         
-        What can Livestock do? Livestock enables the user to calculate outdoor thermal 
-        comfort where the evapotranspiration of vegetation is taken into account. 
-        Livestock includes a wrapper around the Catchment Modelling Framework (CMF), 
-        which is a CPython library to create and compute hydrological models. 
-        With CMF and Livestock it is possible to make hydrological models directly in 
-        Grasshopper and therefore study surface run-off, soil infiltration etc. 
-        Which can be used in Storm Water Management.
+        # Livestock
+        Livestock is a package for Grasshopper providing components for modelling water movement and hydrothermal effects 
+        around buildings to enable and evaluate sustainable solutions, where those effects are incorporated.
+        
+        We have two focus areas: Surface Water Run-Off and Outdoor Thermal Comfort.
+        Livestock provides couplings to the hygrothermal modeling environment CMF as well as mesh capabilities used in Blender.
+        We are using CMF - [Catchment Modelling Framework](https://github.com/philippkraft/cmf) as our base for hydrological 
+        modelling. The hydrologic models can be used to investigate storm water management solutions at a high accuracy or 
+        be used as an input to an outdoor thermal comfort model.
+        
+        Livestock aims at being a high performance package, by implementing the 
+        [Livestock Template Method (LTM)](https://ocni-dtu.github.io/how-is-it-working.html) for fast and scalable computations.
+        The LTM is a protocol and method to couple various CPython modules to Grasshopper. Livestock provides an easy way to 
+        read and write Python code back and forth between IronPython and CPython.
         
         Livestock consists of a series of Grasshopper Python Script components and a 
         underlying collection of Python scripts and a PyPI package
@@ -43,8 +31,42 @@ Description: # Livestock
         For more information go to: [Livestock Webpage](https://ocni-dtu.github.io/pages/LIVESTOCK.html)
         
         Livestock is the name of the plug-in for Grasshopper, that has been developed 
-        for the thesis of Christian Kongsgaard. Livestock is currently being developed
-        and maintained by Christian Kongsgaard and Kristoffer Negendahl.
+        for the [master thesis](https://ocni-dtu.github.io/pages/portfolio.html) of Christian Kongsgaard. 
+        Livestock is currently being developed and maintained by Christian Kongsgaard and Kristoffer Negendahl. Livestock is 
+        under continuous development to provide validated analysis tools through the vast packages available on PyPI, Conda and 
+        elsewhere in the Open-Source world.
+        
+        # Examples
+        
+        ![alt text](https://github.com/livestock3d/livestock_gh/blob/livestock-16/grasshopper/examples/gifs/Livestock_CMF_Kinematic_wave_PZOO.gif)
+        
+        ![alt text](https://github.com/livestock3d/livestock_gh/blob/livestock-16/grasshopper/examples/gifs/Livestock_CMF_1m3_Water_on_Helix_perspective_12.gif)
+        
+        # Installation
+        Download the latest release from [Github](https://github.com/livestock3d/livestock/releases)
+        
+        Follow the instructions inside the readme.txt file and 
+        
+        > pip install livestock 
+        
+        in your conda *livestock_env* environment.
+        
+        For a more elaborate installation guide; please visit our [web page](https://ocni-dtu.github.io/install-livestock.html)
+        
+        ## Imposter Syndrome Disclaimer: 
+        I want your help. No really, I do.
+        There might be a little voice inside that tells you you're not ready; that you need to do one more tutorial, or learn 
+        another framework, or write a few more blog posts before you can help me with this project.
+        I assure you, that's not the case.
+        This project has some clear Contribution Guidelines and expectations that you can read [here](.github/CONTRIBUTING.md).
+        
+        The contribution guidelines outline the process that you'll need to follow to get a patch merged. By making expectations 
+        and process explicit, I hope it will make it easier for you to contribute.
+        And you don't just have to write code. You can help out by writing documentation, tests, or even by giving feedback 
+        about this work. (And yes, that includes giving feedback about the contribution guidelines.)
+        Thank you for contributing!
+        
+        [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 Keywords: hydrology 3dmodeling grasshopper
 Platform: UNKNOWN
 Requires-Python: >3.x

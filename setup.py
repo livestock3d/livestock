@@ -16,11 +16,8 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-with open(path.join(here, 'LICENSE'), encoding='utf-8') as f:
-    license_ = f.read()
-
 now = datetime.datetime.now()
-release_version = '1a'
+release_version = '1.post1'
 version = f'{now.year}.{now.month}.{release_version}'
 
 setup(
@@ -33,7 +30,7 @@ setup(
     url='https://github.com/ocni-dtu/livestock',
     author='Christian Kongsgaard',
     author_email='ocni@dtu.dk',
-    license=license_,
+    license='GNU GPLv3',
     keywords='hydrology 3dmodeling grasshopper',
     packages=['livestock', ],
     install_requires=['scipy', 'numpy', 'paramiko', 'pyshp', 'shapely',

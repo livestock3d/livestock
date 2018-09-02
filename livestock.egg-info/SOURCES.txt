@@ -1,4 +1,5 @@
 README.md
+setup.cfg
 setup.py
 livestock/__init__.py
 livestock/air.py
