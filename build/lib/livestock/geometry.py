@@ -1,7 +1,7 @@
 __author__ = "Christian Kongsgaard"
-__license__ = "MIT"
+__license__ = "GNU GPLv3"
 
-# ---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------- #
 # Imports
 
 # Module imports
@@ -12,18 +12,17 @@ import shapefile
 import numpy as np
 import typing
 
+
 # Livestock imports
 
 
-# ---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------- #
 # Livestock Geometry Functions
 
 
 def ray_triangle_intersection(ray_near, ray_dir, V):
-
     # Möller–Trumbore intersection algorithm in pure python
     # Based on http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
-
 
     v1 = V[0]
     v2 = V[1]
@@ -56,7 +55,6 @@ def ray_triangle_intersection(ray_near, ray_dir, V):
 
 
 def lowest_face_vertex(v0, v1, v2):
-
     V = [v0, v1, v2]
     x0 = v0[0]
     y0 = v0[1]
@@ -71,11 +69,10 @@ def lowest_face_vertex(v0, v1, v2):
     Y = [y0, y1, y2]
     Z = [z0, z1, z2]
 
-
     Zsort = sorted(Z)
 
     if Zsort[0] == Zsort[2]:
-        return np.array([sum(X)/3, sum(Y)/3, sum(Z)/3])
+        return np.array([sum(X) / 3, sum(Y) / 3, sum(Z) / 3])
 
     elif Zsort[0] < Zsort[1]:
         i = Z.index(Zsort[0])
@@ -84,26 +81,24 @@ def lowest_face_vertex(v0, v1, v2):
     elif Zsort[0] == Zsort[1]:
         i0 = Z.index(Zsort[0])
         i1 = Z.index(Zsort[1])
-        x = 0.5*(X[i0] + X[i1])
-        y = 0.5*(Y[i0] + Y[i1])
+        x = 0.5 * (X[i0] + X[i1])
+        y = 0.5 * (Y[i0] + Y[i1])
         return np.array([x, y, Zsort[0]])
 
     else:
         print('Error finding lowest point!')
-        print('v0:',v0)
+        print('v0:', v0)
         print('v1:', v1)
         print('v2:', v2)
         return None
 
 
 def angle_between_vectors(v1, v2, force_angle=None):
-
     # Computes the angle between two vectors.
     # :param v1: Vector1 as numpy array
     # :param v2: Vector2 as numpy array
     # :param force_angle: Default is None. Use to force angle into acute or obtuse.
     # :return: Angle in radians and its angle type.
-
 
     # Dot product
     dot_v1v2 = np.dot(v1, v2)
@@ -113,7 +108,7 @@ def angle_between_vectors(v1, v2, force_angle=None):
         angle_type = 'acute'
 
     elif dot_v1v2 == 0:
-        return np.pi/2, 'perpendicular'
+        return np.pi / 2, 'perpendicular'
 
     else:
         angle_type = 'obtuse'
@@ -135,7 +130,7 @@ def angle_between_vectors(v1, v2, force_angle=None):
             return angle, 'acute'
 
     elif force_angle == 'obtuse':
-        if angle > np.pi/2:
+        if angle > np.pi / 2:
             return angle, 'obtuse'
         else:
             angle = np.pi - angle
@@ -168,7 +163,7 @@ def line_intersection(p1, p2, p3, p4):
     return p1 + t * v1
 
 
-def obj_to_lists(obj_file: str)-> tuple:
+def obj_to_lists(obj_file: str) -> tuple:
     """
     Converts an .obj file into lists.
 
@@ -188,12 +183,16 @@ def obj_to_lists(obj_file: str)-> tuple:
     for line in lines:
         if line.startswith('v '):
             data = line.split(' ')
+            data = [d.strip('\n') for d in data]
+            data = [d.replace('\\', '0.0') for d in data]
             vertices.append((float(data[1]),
                              float(data[2]),
                              float(data[3].strip())))
 
         elif line.startswith('vn'):
             data = line.split(' ')
+            data = [d.strip('\n') for d in data]
+            data = [d.replace('\\', '0.0') for d in data]
             normals.append((float(data[1]),
                             float(data[2]),
                             float(data[3].strip())))
@@ -229,7 +228,7 @@ def centroid_z(polygon: shapely.geometry.Polygon) -> float:
     for pt in polygon.exterior.coords:
         z_values.append(pt[2])
 
-    mean_z = sum(z_values)/len(z_values)
+    mean_z = sum(z_values) / len(z_values)
 
     return mean_z
 
@@ -250,7 +249,7 @@ def obj_to_polygons(obj_file: str) -> typing.List[shapely.geometry.Polygon]:
     for face in faces:
         face_vertices = []
         for vertex, _, __ in face:
-            face_vertices.append(vertices[vertex-1])
+            face_vertices.append(vertices[vertex - 1])
 
         polygon = shapely.geometry.Polygon(face_vertices)
         polygons.append(polygon)

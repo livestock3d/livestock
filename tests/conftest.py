@@ -26,7 +26,7 @@ def data_folder():
     return os.path.join(parent, 'test_data')
 
 
-@pytest.fixture(params=[0, 1])
+@pytest.fixture(params=[0, 1, 2, 3])
 def obj_file_paths(data_folder, request):
     obj_folder = os.path.join(data_folder, 'obj_to_shp')
     return os.path.join(obj_folder, f'mesh_{request.param}.obj')

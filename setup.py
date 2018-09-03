@@ -17,7 +17,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 now = datetime.datetime.now()
-release_version = '1.post1'
+release_version = '2'
 version = f'{now.year}.{now.month}.{release_version}'
 
 setup(
