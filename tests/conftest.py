@@ -159,3 +159,13 @@ def disable_logger(monkeypatch):
         return MockLog()
 
     monkeypatch.setattr(log, 'livestock_logger', mock_return)
+
+
+@pytest.fixture(params=['constant', 'double', 'sinus'])
+def get_weather_data(data_folder, request):
+
+    weather_folder = os.path.join(data_folder, 'cmf_weather', request.param)
+    (ground, mesh_paths, weather_dict, trees_dict,
+     outputs, solver_settings, boundary_dict) = hydrology.load_cmf_files(weather_folder)
+
+    return {'ground': ground, 'mesh': mesh_paths, 'weather': weather_dict, 'settings': solver_settings}

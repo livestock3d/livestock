@@ -130,6 +130,62 @@ def test_add_tree_to_project():
     assert True
 
 
+def test_create_time_series(get_weather_data):
+
+    temperature = get_weather_data['weather']['temp']['all']
+    time_series = hydrology.create_time_series(temperature, get_weather_data['settings'])
+
+    assert isinstance(time_series, cmf.timeseries)
+    assert len(temperature) == len(time_series)
+
+    for i in range(len(temperature)):
+        assert temperature[i] == time_series[i]
+
+
+def test_weather_to_time_series(get_weather_data):
+    weather = get_weather_data['weather']
+    settings = get_weather_data['settings']
+    test_weather = {}
+
+    for weather_type in weather.keys():
+        if weather_type in ['temp', 'sun']:
+            test_weather[weather_type] = None
+        else:
+            # Try for weather type having the same weather for all cells
+            try:
+                test_weather[weather_type] = weather[weather_type]['all']
+
+            # Accept latitude, longitude and time zone
+            except TypeError:
+                pass
+
+    weather_series = hydrology.weather_to_time_series(test_weather, settings)
+
+    assert weather_series
+    assert isinstance(weather_series, dict)
+    assert not weather_series['temp']
+    assert isinstance(weather_series['wind'], cmf.timeseries)
+    assert isinstance(weather_series['rel_hum'], cmf.timeseries)
+    assert not weather_series['sun']
+    assert isinstance(weather_series['rad'], cmf.timeseries)
+    assert isinstance(weather_series['rain'], cmf.timeseries)
+    assert isinstance(weather_series['ground_temp'], cmf.timeseries)
+
+
+def test_get_weather_for_cell(get_weather_data):
+
+    cell_weather = hydrology.get_weather_for_cell(0, get_weather_data['weather'], get_weather_data['settings'])
+
+    assert cell_weather
+    assert isinstance(cell_weather, tuple)
+    assert isinstance(cell_weather[0], dict)
+    assert isinstance(cell_weather[1], dict)
+
+    location_keys = ['time_zone', 'latitude', 'longitude']
+    for key in cell_weather[1].keys():
+        assert key in location_keys
+
+
 def test_create_weather():
     assert True
 

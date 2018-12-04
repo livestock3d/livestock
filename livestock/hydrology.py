@@ -564,8 +564,110 @@ def save_results(results: dict, folder: str):
         json.dump(results, file)
 
 
-def create_weather(cmf_project):
-    raise NotImplementedError
+def create_time_series(weather_data: list, solver_settings: dict) -> typing.Optional[cmf.timeseries]:
+
+    if weather_data:
+        start = cmf.Time(solver_settings['start_time']['day'],
+                         solver_settings['start_time']['month'],
+                         solver_settings['start_time']['year'])
+        step = get_time_step(solver_settings['time_step'])
+
+        # Create time series
+        return cmf.timeseries.from_array(start, step, np.asarray(weather_data))
+
+    else:
+        return None
+
+
+def weather_to_time_series(weather: dict, solver_settings: dict) -> dict:
+
+    # Create time series
+    t_series = create_time_series(weather['temp'], solver_settings)
+    w_series = create_time_series(weather['wind'], solver_settings)
+    rh_series = create_time_series(weather['rel_hum'], solver_settings)
+    sun_series = create_time_series(weather['sun'], solver_settings)
+    rad_series = create_time_series(weather['rad'], solver_settings)
+    rain_series = create_time_series(weather['rain'], solver_settings)
+    ground_temp_series = create_time_series(weather['ground_temp'], solver_settings)
+
+    return {'temp': t_series, 'wind': w_series, 'rel_hum': rh_series, 'sun': sun_series, 'rad': rad_series,
+            'rain': rain_series, 'ground_temp': ground_temp_series}
+
+
+def get_weather_for_cell(cell_id: int, project_weather: dict, project_settings: dict) -> typing.Tuple[dict, dict]:
+    # Initialize
+    cell_weather_dict_ = {}
+    location_dict = {}
+
+    # Find weather matching cell ID
+    for weather_type in project_weather.keys():
+        # Try for weather type having the same weather for all cells
+        try:
+            cell_weather_dict_[weather_type] = project_weather[weather_type]['all']
+
+        # Accept that some have one for each cell
+        except KeyError:
+            cell_weather_dict_[weather_type] = project_weather[weather_type]['cell_' + str(cell_id)]
+
+        # Accept latitude, longitude and time zone
+        except TypeError:
+            location_dict[weather_type] = project_weather[weather_type]
+
+    # Convert to time series
+    cell_weather_series = weather_to_time_series(cell_weather_dict_, project_settings)
+
+    return cell_weather_series, location_dict
+
+
+def create_weather_station(project: cmf.project, cell_id: int, weather: dict, location: dict)\
+        -> typing.Tuple[cmf.project.rainfall_stations, cmf.project.meteo_stations]:
+
+    # Add cell rainfall station to the project
+    if weather['rain']:
+        rain_station = project.rainfall_stations.add(Name=f'cell_{cell_id} rain',
+                                                          Data=weather['rain'],
+                                                          Position=(0, 0, 0))
+    else:
+        rain_station = None
+
+    # Add cell meteo station to the project
+    meteo_station = project.meteo_stations.add_station(name=f'cell_{cell_id} weather',
+                                                            position=(0, 0, 0),
+                                                            latitude=location['latitude'],
+                                                            longitude=location['longitude'],
+                                                            tz=location['time_zone'])
+
+    if weather['temp']:
+        meteo_station.T = weather['temp']
+        meteo_station.Tmax = meteo_station.T.reduce_max(meteo_station.T.begin, cmf.day)
+        meteo_station.Tmin = meteo_station.T.reduce_min(meteo_station.T.begin, cmf.day)
+    if weather['wind']:
+        meteo_station.Windspeed = weather['wind']
+    if weather['rel_hum']:
+        meteo_station.rHmean = weather['rel_hum']
+    if weather['sun']:
+        meteo_station.Sunshine = weather['sun']
+    if weather['rad']:
+        meteo_station.Rs = weather['rad']
+    if weather['ground_temp']:
+        meteo_station.Tground = weather['ground_temp']
+
+    return rain_station, meteo_station
+
+
+def connect_weather_to_cells(cell: cmf.Cell, rain_station, meteo_station) -> None:
+    rain_station.use_for_cell(cell)
+    meteo_station.use_for_cell(cell)
+
+
+def create_weather(project: cmf.project, solver_settings: dict) -> None:
+
+    for cell_index in range(0, len(project.cells)):
+        cell = project.cells[cell_index]
+
+        cell_weather_dict, project_location = get_weather_for_cell(cell_index, weather_dict)
+        cell_rain, cell_meteo = create_weather_station(project, cell_index, cell_weather_dict, project_location)
+        connect_weather_to_cells(cell, cell_rain, cell_meteo)
 
 
 def create_boundary_conditions(cmf_project):
