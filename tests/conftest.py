@@ -169,3 +169,18 @@ def get_weather_data(data_folder, request):
      outputs, solver_settings, boundary_dict) = hydrology.load_cmf_files(weather_folder)
 
     return {'ground': ground, 'mesh': mesh_paths, 'weather': weather_dict, 'settings': solver_settings}
+
+
+@pytest.fixture(params=['cellwise', 'full_weather', 'missing_weather'])
+def get_project_and_weather_data(data_folder, request):
+
+    weather_folder = os.path.join(data_folder, 'cmf_weather', request.param)
+    (ground, mesh_paths, weather_dict, trees_dict,
+     outputs, solver_settings, boundary_dict) = hydrology.load_cmf_files(weather_folder)
+
+    project = cmf.project()
+
+    # Add cells and properties to them
+    project, mesh_info = hydrology.mesh_to_cells(project, mesh_paths)
+
+    return project, weather_dict, solver_settings

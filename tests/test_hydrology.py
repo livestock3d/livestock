@@ -186,8 +186,12 @@ def test_get_weather_for_cell(get_weather_data):
         assert key in location_keys
 
 
-def test_create_weather():
-    assert True
+def test_create_weather(get_project_and_weather_data):
+
+    project, weather, solver_settings = get_project_and_weather_data
+    hydrology.create_weather(project, weather, solver_settings)
+
+    assert project.meteo_stations
 
 
 def test_create_boundary_conditions():
