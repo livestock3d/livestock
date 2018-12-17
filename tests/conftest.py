@@ -171,7 +171,7 @@ def get_weather_data(data_folder, request):
     return {'ground': ground, 'mesh': mesh_paths, 'weather': weather_dict, 'settings': solver_settings}
 
 
-@pytest.fixture(params=['cellwise', 'full_weather', 'missing_weather'])
+@pytest.fixture(params=['cellwise', 'full_weather', 'partial_weather'])
 def get_project_and_weather_data(data_folder, request):
 
     weather_folder = os.path.join(data_folder, 'cmf_weather', request.param)
