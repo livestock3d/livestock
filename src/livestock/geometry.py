@@ -271,7 +271,7 @@ def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) \
     geo_json = shapely.geometry.mapping(shapely_geometry)
 
     # create empty pyshp shape
-    record = shapefile._Shape()
+    record = shapefile.Shape()
 
     # set shape type
     if geo_json["type"] == "Null":
