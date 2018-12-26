@@ -4,6 +4,7 @@ version = "2018.09.0"
 description = "Livestock is a package for Grasshopper providing components for modelling water movement and hydrothermal effects around buildings to enable and evaluate sustainable solutions, where those effects are incorporated."
 authors = ["Christian Kongsgaard <ocni@dtu.dk>"]
 license = "GPL-3.0"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.5"
@@ -27,13 +28,3 @@ tox = "^3.6.0"
 [build-system]
 requires = ["poetry>=0.12", "setuptools >= 35.0.2", "wheel >= 0.29.0"]
 build-backend = "poetry.masonry.api"
-
-#[tool.tox]
-#legacy_tox_ini = """
-#[tox]
-#envlist = py35,py36,py37
-#
-#[testenv]
-#deps = pytest >= 3.0.0, <4
-#commands = pytest
-#"""
