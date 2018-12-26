@@ -69,50 +69,43 @@ def mesh_to_cells(cmf_project: cmf.project, mesh_paths: typing.List[str],
     return cmf_project, cell_dict
 
 
-def set_vegetation_properties(cell_: cmf.Cell, property_dict: dict):
+def set_vegetation_properties(cell: cmf.Cell, property_dict: dict) -> cmf.Cell:
     """
     Sets the vegetation properties for a cell.
 
-    :param cell_: Cell to set properties for.
-    :type cell_: cmf.Cell
+    :param cell: Cell to set properties for.
     :param property_dict: Dict containing the needed properties.
-    :type property_dict: dict
-    :return: True
-    :rtype: bool
+    :return: modified project
     """
 
-    cell_.vegetation.Height = float(property_dict['height'])
-    cell_.vegetation.LAI = float(property_dict['lai'])
-    cell_.vegetation.albedo = float(property_dict['albedo'])
-    cell_.vegetation.CanopyClosure = float(property_dict['canopy_closure'])
-    cell_.vegetation.CanopyParExtinction = float(property_dict['canopy_par'])
-    cell_.vegetation.CanopyCapacityPerLAI = float(property_dict['canopy_capacity'])
-    cell_.vegetation.StomatalResistance = float(property_dict['stomatal_res'])
-    cell_.vegetation.RootDepth = float(property_dict['root_depth'])
-    cell_.vegetation.fraction_at_rootdepth = float(property_dict['root_fraction'])
-    cell_.vegetation.LeafWidth = float(property_dict['leaf_width'])
+    cell.vegetation.Height = float(property_dict['height'])
+    cell.vegetation.LAI = float(property_dict['lai'])
+    cell.vegetation.albedo = float(property_dict['albedo'])
+    cell.vegetation.CanopyClosure = float(property_dict['canopy_closure'])
+    cell.vegetation.CanopyParExtinction = float(property_dict['canopy_par'])
+    cell.vegetation.CanopyCapacityPerLAI = float(property_dict['canopy_capacity'])
+    cell.vegetation.StomatalResistance = float(property_dict['stomatal_res'])
+    cell.vegetation.RootDepth = float(property_dict['root_depth'])
+    cell.vegetation.fraction_at_rootdepth = float(property_dict['root_fraction'])
+    cell.vegetation.LeafWidth = float(property_dict['leaf_width'])
 
-    logger.debug(f'Sat vegetation properties for cell at: {cell_.get_position()}')
+    logger.debug(f'Sat vegetation properties for cell at: {cell.get_position()}')
 
-    return cell_
+    return cell
 
 
-def add_tree_to_project(cmf_project, cell_index, property_dict):
+def add_tree_to_project(project: cmf.project, cell_index: int, properties: dict) -> cmf.project:
     """
     Adds a tree to the model and sets the need properties for it.
 
-    :param cmf_project: CMF project
-    :type cmf_project: cmf.project
+    :param project: CMF project
     :param cell_index: Index of the cell where the tree should be added.
-    :type cell_index: int
-    :param property_dict: Dict with tree properties.
-    :type property_dict: dict
-    :return: True
-    :rtype: bool
+    :param properties: Dict with tree properties.
+    :return: modified project
     """
 
-    cell = cmf_project.cells[int(cell_index)]
-    set_vegetation_properties(cell, property_dict)
+    cell = project.cells[cell_index]
+    set_vegetation_properties(cell, properties)
     name = 'canopy_' + str(cell_index)
     cell.add_storage(name, 'C')
 
@@ -123,7 +116,7 @@ def add_tree_to_project(cmf_project, cell_index, property_dict):
 
     logger.debug(f'Added a tree to cell at: {cell.get_position()}')
 
-    return cmf_project
+    return project
 
 
 def load_cmf_files(folder: str, delete_after_load=False) -> tuple:
