@@ -1,0 +1,15 @@
+language: python
+
+python:
+  - "3.6"
+
+install:
+  - pip install -r requirements.txt
+
+script:
+  - flake8 livestock
+  - python -m pytest --cov-config .coveragerc --cov=livestock tests/
+
+after_success:
+  - coverage report
+  - coveralls

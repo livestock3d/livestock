@@ -1,9 +1,0 @@
-scipy
-numpy
-paramiko
-pyshp
-shapely
-cmf==1.2
-xmltodict
-dbfread
-progressbar2
