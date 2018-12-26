@@ -12,7 +12,7 @@ scipy = "^1.2"
 numpy = "^1.15"
 paramiko = "^2.4.1"
 pyshp = "^2.0"
-shapely = "^1.6"
+Shapely = "^1.6"
 cmf = "^1.4"
 progressbar2 = "^3.39"
 
