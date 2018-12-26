@@ -11,7 +11,6 @@ import shapefile
 # Livestock imports
 from livestock import geometry
 
-
 # -------------------------------------------------------------------------------------------------------------------- #
 # CMF Functions and Classes
 
@@ -24,7 +23,7 @@ def test_shapely_to_pyshp(shapely_polygons):
 
     assert pyshapes
     for shape in pyshapes:
-        assert isinstance(shape, shapefile._Shape)
+        assert isinstance(shape, shapefile.Shape)
         assert isinstance(shape.parts, list)
         assert shape.parts[0] == 0
         assert isinstance(shape.points, tuple)

@@ -258,7 +258,7 @@ def obj_to_polygons(obj_file: str) -> typing.List[shapely.geometry.Polygon]:
 
 
 def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) \
-        -> shapefile._Shape:
+        -> shapefile.Shape:
     """
     This function converts a shapely geometry into a geojson and then into a
     pyshp object. Copied from Karim Bahgat's answer at:

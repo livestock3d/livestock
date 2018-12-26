@@ -10,9 +10,7 @@ from cmf.geos_shapereader import Shapefile
 import cmf.geometry
 import datetime
 import numpy as np
-import xml.etree.ElementTree as ET
 import os
-import xmltodict
 import ast
 import json
 import typing
