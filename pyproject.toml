@@ -12,7 +12,7 @@ scipy = "^1.2"
 numpy = "^1.15"
 paramiko = "^2.4.1"
 pyshp = "^2.0"
-#shapely = {path = "C:/Users/ocni/Downloads/shapely-1.6.4.post1-cp37-cp37m-win_amd64.whl"}
+shapely = "1.6.4.post1"
 cmf = "^1.4"
 progressbar2 = "^3.39"
 
@@ -24,7 +24,6 @@ coveralls = "^1.5.1"
 flake8 = "^3.6"
 #mypy = "^0.650"
 tox = "^3.6.0"
-#livestock = {path = './src/livestock'}
 
 [build-system]
 requires = ["poetry>=0.12", "setuptools >= 35.0.2", "wheel >= 0.29.0"]
