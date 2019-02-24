@@ -43,6 +43,7 @@ def mesh_to_cells(cmf_project: cmf.project, mesh_paths: typing.List[str],
     for mesh_file in mesh_paths:
         mesh_name = os.path.split(mesh_file)[1][:-4]
         cell_dict[mesh_name] = list()
+
         # Convert obj to shapefile
         shape_path = os.path.split(mesh_file)[0] + '/mesh.shp'
         lg.obj_to_shp(mesh_file, shape_path)
