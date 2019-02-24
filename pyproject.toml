@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "livestock"
-version = "2018.09.0"
+version = "2019.02.0"
 description = "Livestock is a package for Grasshopper providing components for modelling water movement and hydrothermal effects around buildings to enable and evaluate sustainable solutions, where those effects are incorporated."
 authors = ["Christian Kongsgaard <christian@kongsgaard.eu>"]
 license = "GPL-3.0"
