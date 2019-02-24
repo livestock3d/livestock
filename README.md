@@ -15,7 +15,7 @@ Which can be used in Storm Water Management.
 Livestock consists of a series of Grasshopper Python Script components and a 
 underlying collection of Python scripts and a PyPI package
 
-For more information go to: [Livestock Webpage](https://ocni-dtu.github.io/pages/LIVESTOCK.html)
+For more information go to: [Livestock Webpage](https://kongsgaard.eu/pages/LIVESTOCK.html)
 
 Livestock is the name of the plug-in for Grasshopper, that has been developed 
 for the thesis of Christian Kongsgaard. Livestock is currently being developed
@@ -26,7 +26,7 @@ and maintained by Christian Kongsgaard and Kristoffer Negendahl.
 model hygro and hydrothermal effects on the micro climate around buildings to enable/evaluate sustainable solutions, 
 where those effects are incorporated.
 
-aims at being a high performance package, by implementing the [Livestock Template Method](https://ocni-dtu.github.io/how-is-it-working.html) 
+aims at being a high performance package, by implementing the [Livestock Template Method](https://kongsgaard.eu/how-is-it-working.html) 
 for fast and scalable computations.
 
 # Imposter Syndrome

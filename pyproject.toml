@@ -15,7 +15,7 @@ pyshp = "^2.0"
 Shapely = "^1.6"
 cmf = "^1.4"
 progressbar2 = "^3.39"
-
+dbfread = "^2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
