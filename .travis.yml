@@ -12,6 +12,7 @@ before_install:
   - pip install poetry
 
 install:
+  - pip install numpy
   - pip install tox-travis
 
 script:
