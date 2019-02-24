@@ -257,8 +257,7 @@ def obj_to_polygons(obj_file: str) -> typing.List[shapely.geometry.Polygon]:
     return polygons
 
 
-def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) \
-        -> shapefile.Shape:
+def shapely_to_pyshp(shapely_geometry: shapely.geometry.Polygon) -> shapefile.Shape:
     """
     This function converts a shapely geometry into a geojson and then into a
     pyshp object. Copied from Karim Bahgat's answer at:
@@ -329,16 +328,21 @@ def obj_to_shp(obj_file: str, shp_file: str) -> None:
     """
 
     polygons = obj_to_polygons(obj_file)
-
-    shape_writer = shapefile.Writer()
-    shape_writer.field('id', 'N')
-    shape_writer.field('height', 'N', decimal=5)
+    converted_shapes = []
+    indices = []
+    centroids = []
 
     for index, polygon in enumerate(polygons):
-        converted_shape = shapely_to_pyshp(polygon)
-        shape_writer._shapes.append(converted_shape)
-        shape_writer.record(index, centroid_z(polygon))
+        converted_shapes.append(shapely_to_pyshp(polygon))
+        indices.append(index)
+        centroids.append(centroid_z(polygon))
 
-    shape_writer.save(shp_file)
+    with shapefile.Writer(shp_file) as shape_writer:
+        shape_writer.field('id', 'N')
+        shape_writer.field('height', 'N', decimal=5)
+
+        for index, polygon in enumerate(converted_shapes):
+            shape_writer.shape(polygon)
+            shape_writer.record(id=indices[index], height=centroids[index])
 
     return None
